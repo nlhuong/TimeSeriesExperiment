@@ -7,7 +7,7 @@
 plot_sample_pca(object, axis = 1:2, col.var = NULL, ...)
 }
 \arguments{
-\item{object}{A \code{timevis} object}
+\item{object}{A \code{vistimeseq} object}
 
 \item{axis}{An integer vector indicating principal components to use for
 plotting, by default 1:2.}

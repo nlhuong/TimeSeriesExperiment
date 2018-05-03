@@ -1,11 +1,11 @@
 #' @title Add Featuredata
 #'
-#' @description Adds additional data for samples to the \code{timevis} object.
+#' @description Adds additional data for samples to the \code{vistimeseq} object.
 #' Can be any piece of information associated with a sample (e.g. subject
 #' clinical or nonclinical data). The additional data can be used in
 #' plotting functions.
 #'
-#' @param object timevis object
+#' @param object vistimeseq object
 #' @param sampledata Data frame where the row names are sample names
 #' and the columns are additional sample attributes
 #' @param col.name Column names in sampledata to add to the object
@@ -30,7 +30,7 @@
 add_sample_data <- function (object, sampledata,
                             col.name = colnames(sampledata)) {
   if (!validObject(object))
-    stop("Invalid timevis object.")
+    stop("Invalid vistimeseq object.")
   cols.add <- intersect(col.name, colnames(sampledata))
   object@sample.data[, cols.add] <-
     sampledata[rownames(x = object@sample.data), cols.add]
@@ -40,12 +40,12 @@ add_sample_data <- function (object, sampledata,
 
 #' @title Add Featuredata
 #'
-#' @description Adds additional data for features to the timevis object.
+#' @description Adds additional data for features to the vistimeseq object.
 #' Can be any piece of information associated with a feature (e.g. new
 #' featureIDs, prevalence, total counts). The additional data can be used in
 #' plotting functions.
 #'
-#' @param object timevis object
+#' @param object vistimeseq object
 #' @param featuredata Data frame where the row names are feature names
 #' and the columns are additional feature attributes
 #' @param col.name Column names in featuredata to add to the object
@@ -68,7 +68,7 @@ add_sample_data <- function (object, sampledata,
 add_feature_data <- function (object, featuredata,
                             col.name = colnames(featuredata)) {
   if (!validObject(object))
-    stop("Invalid timevis object.")
+    stop("Invalid vistimeseq object.")
   cols.add <- intersect(col.name, colnames(featuredata))
   object@feature.data[, cols.add] <-
     featuredata[rownames(x = object@feature.data), cols.add]

@@ -7,7 +7,7 @@
 add_sample_data(object, sampledata, col.name = colnames(sampledata))
 }
 \arguments{
-\item{object}{timevis object}
+\item{object}{vistimeseq object}
 
 \item{sampledata}{Data frame where the row names are sample names
 and the columns are additional sample attributes}
@@ -19,7 +19,7 @@ Seurat object where the additional sample data has been added as
 columns in object@sample.data
 }
 \description{
-Adds additional data for samples to the \code{timevis} object.
+Adds additional data for samples to the \code{vistimeseq} object.
 Can be any piece of information associated with a sample (e.g. subject
 clinical or nonclinical data). The additional data can be used in
 plotting functions.

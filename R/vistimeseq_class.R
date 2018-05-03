@@ -1,11 +1,11 @@
 ###############################################################################
-#' @title Checks validity of \code{timevis} class.
+#' @title Checks validity of \code{vistimeseq} class.
 #'
 #' @param object a data object
 #'
 #' @return \code{TRUE} if valid and a character vector with errors.
 #'
-check_timevis <- function(object){
+check_vistimeseq <- function(object){
   errors <- character()
   ncol_raw <- ncol(object@raw.data)
   nrow_raw <- nrow(object@raw.data)
@@ -79,13 +79,13 @@ check_timevis <- function(object){
 ###############################################################################
 #' @title The Time Course Data Class
 #'
-#' @description The \code{timevis} object is the main object in the time course
+#' @description The \code{vistimeseq} object is the main object in the time course
 #' experiment analysis. It stores all relevant information associated with
 #' the dataset, including the raw data, group, replicate and time associated
 #' with each sample (column of the data). The object includes also slots for
 #' results from some class-specific methods.
 #'
-#' Each timevis object has a number of key slots listed below.
+#' Each vistimeseq object has a number of key slots listed below.
 #'
 #' @slot project.name A character string indicating the project name.
 #' @slot raw.data Raw data with columns corresponding to samples
@@ -111,21 +111,21 @@ check_timevis <- function(object){
 #' of the list is a \code{data.frame} where the data is organized in with
 #' first three columns indicating feature, group, replicate, and the remaining
 #' ones providing the data at each available time point.
-#' \code{timevis} methods will typically generate elements named:
+#' \code{vistimeseq} methods will typically generate elements named:
 #' 'tc', 'tc_with_lags', 'tc_collapsed' and 'tc_collapsed_with_lags'.
 #' @slot dim.red List of stored dimmensional reductions; named by technique
 #' @slot cluster.map A \code{data.frame} storing results of gene clustering
 #' @slot diff.expr A \code{data.frame} storing results of differential
 #' expression analysis
 #'
-#' @name timevis
-#' @rdname timevis
-#' @aliases timevis-class
-#' @exportClass timevis
-#' @useDynLib timevis
+#' @name vistimeseq
+#' @rdname vistimeseq
+#' @aliases vistimeseq-class
+#' @exportClass vistimeseq
+#' @useDynLib vistimeseq
 #'
-timevis <- setClass(
-  "timevis",
+vistimeseq <- setClass(
+  "vistimeseq",
    slots = representation(
     project.name = "character",
     raw.data = "ANY",
@@ -142,21 +142,21 @@ timevis <- setClass(
     cluster.map = "data.frame",
     diff.expr = "data.frame"
   ),
-  validity = check_timevis
+  validity = check_vistimeseq
 )
 
 ###############################################################################
-#' show method for timevis
+#' show method for vistimeseq
 #'
-#' @param object A timevis object
+#' @param object A vistimeseq object
 #' @name show
-#' @aliases show,timevis-method
+#' @aliases show,vistimeseq-method
 #' @docType methods
 #' @rdname show-methods
 #'
 setMethod(
   f = "show",
-  signature = "timevis",
+  signature = "vistimeseq",
   definition = function(object) {
     cat(
       "An object of class",

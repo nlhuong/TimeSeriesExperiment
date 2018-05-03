@@ -4,8 +4,8 @@
 #' diamonds. The variables are as follows:
 #'
 #' \describe{
-#'   \item price. price in US dollars (\$326--\$18,823)
-#'   \item carat. weight of the diamond (0.2--5.01)
+#'   \item price.
+#'   \item carat.
 #' }
 #'
 #' @format A data frame with 53940 rows and 10 variables

@@ -8,7 +8,7 @@ plot_ts_pca(object, axis = 1:2, m = 20, n = 20, group.selected = NULL,
   linecol = NULL, ...)
 }
 \arguments{
-\item{object}{A \code{timevis} object.}
+\item{object}{A \code{vistimeseq} object.}
 
 \item{axis}{An integer vector indicating principal components to use for
 plotting, by default 1:2.}

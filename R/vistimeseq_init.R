@@ -1,7 +1,7 @@
 ###############################################################################
-#' @title Initialize and setup the timevis object
+#' @title Initialize and setup the vistimeseq object
 #'
-#' @description Initializes the timevis object and populates
+#' @description Initializes the vistimeseq object and populates
 #' the time, replicate, and group slots.
 #'
 #' @param project Project name (string)
@@ -39,7 +39,7 @@
 #' function assumes all samples come from the same group, and assigns a group
 #' name 'G1' to all samples.
 #'
-#' @return Returns a timevis object with the raw data stored in object@@raw.data.
+#' @return Returns a vistimeseq object with the raw data stored in object@@raw.data.
 #' object@@group, object@@replicate, and object@@timealso initialized.
 #'
 #' @export
@@ -47,22 +47,22 @@
 #' @examples
 #' endoderm_raw <- read.table(
 #'   file = system.file('extdata', 'raw_endoderm_small.txt',
-#'     package = 'timevis'),
+#'     package = 'vistimeseq'),
 #'   as.is = TRUE
 #' )
 #' time <- as.numeric(gsub("(.*)\\_D", "", colnames(endoderm_raw)))
 #' replicate <- gsub("\\_(.*)", "", colnames(endoderm_raw))
 #' group <- substring(replicate, 1, 1)
-#' endoderm_small <- timevis(
+#' endoderm_small <- vistimeseq(
 #'   raw.data = endoderm_raw,
 #'   time = time,
 #'   replicate = replicate,
 #'   group = group)
 #' endoderm_small
 #'
-timevis_init <- function(
+vistimeseq_init <- function(
   raw.data,
-  project = "timevis time course project",
+  project = "vistimeseq time course project",
   sample.data = NULL,
   feature.data = NULL,
   time = NULL,
@@ -75,7 +75,7 @@ timevis_init <- function(
   nSamples <- ncol(raw.data)
   nFeatures <- nrow(raw.data)
   object <- new(
-    Class = "timevis",
+    Class = "vistimeseq",
     project.name = project,
     raw.data = raw.data
   )

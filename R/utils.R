@@ -390,23 +390,24 @@ join_sources <- function(X, sample_data, cluster) {
 }
 
 
-#' @title Venn diagram for features significant at each timpoints
-#'
-#' @param df a data.frame of features by timepoints listing significant
-#' features for each timepoint, NA entries stands for non-significant,
-#' features do not have to be in the same order.
-#' @param timepoint a timepoint of interest (must be one of colnames(df))
-#' @param feat_data a data.frame contating gene data.
-#' @return a vector of significant features or a data.frame with accompanying data.
-#'
-#' @export
-get_sig_genes <- function(df, timepoint, feat_data = NULL) {
-  feats <- df[, timepoint]
-  feats <- feats[!is.na(feats)]
-  if(!is.null(feat_data))
-    feats <- feat_data[feats, ]
-  return(feats)
-}
+#' #' @title Venn diagram for features significant at each timpoints
+#' #'
+#' #' @param df a data.frame of features by timepoints listing significant
+#' #' features for each timepoint, NA entries stands for non-significant,
+#' #' features do not have to be in the same order.
+#' #' @param timepoint a timepoint of interest (must be one of colnames(df))
+#' #' @param feat_data a data.frame contating gene data.
+#' #' @return a vector of significant features or a data.frame with
+#' #' accompanying data.
+#' #'
+#' #' @export
+#' get_sig_genes <- function(df, timepoint, feat_data = NULL) {
+#'   feats <- df[, timepoint]
+#'   feats <- feats[!is.na(feats)]
+#'   if(!is.null(feat_data))
+#'     feats <- feat_data[feats, ]
+#'   return(feats)
+#' }
 
 
 

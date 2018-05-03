@@ -1,7 +1,7 @@
-Package: timevis
+Package: vistimeseq
 Type: Package
 Title: Analysis for short time-course sequencing data.
-Version: 0.1.0
+Version: 0.1
 Date: 2018-04-28
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
@@ -15,23 +15,24 @@ VignetteBuilder: knitr
 Imports:
     Biobase,
     dplyr,
+    dynamicTreeCut,
     edgeR,
+    DESeq2,
     ggplot2,
+    Hmisc,
     limma,
     proxy,
     tibble,
     tidyr,
-    venn,
+    vegan,
     viridis
 Suggests:
     BiocStyle,
-    DESeq2,
     edge,
     GO.db, 
     knitr,
     maSigPro,
     MASS,
-    org.Mm.eg.db,
     rmarkdown,
     timecourse,
     ComplexHeatmap,

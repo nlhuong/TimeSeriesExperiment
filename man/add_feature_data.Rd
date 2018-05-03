@@ -7,7 +7,7 @@
 add_feature_data(object, featuredata, col.name = colnames(featuredata))
 }
 \arguments{
-\item{object}{timevis object}
+\item{object}{vistimeseq object}
 
 \item{featuredata}{Data frame where the row names are feature names
 and the columns are additional feature attributes}
@@ -19,7 +19,7 @@ Seurat object where the additional feature data has been added
 as columns in object@feature.data
 }
 \description{
-Adds additional data for features to the timevis object.
+Adds additional data for features to the vistimeseq object.
 Can be any piece of information associated with a feature (e.g. new
 featureIDs, prevalence, total counts). The additional data can be used in
 plotting functions.

@@ -8,7 +8,7 @@ run_pca(object, type, group.selected = NULL, var.stabilize.method = "log",
   pseudocount = 1, log.base = exp(1))
 }
 \arguments{
-\item{object}{A \code{timevis} object}
+\item{object}{A \code{vistimeseq} object}
 
 \item{type}{Either "sample" or "feature" indicating whether to compute PCA
 for observations or for time series features.}
@@ -29,7 +29,7 @@ transformation}
 transformation}
 }
 \value{
-Returns \code{timevis} object with PCA results in the \code{dim.red}
+Returns \code{vistimeseq} object with PCA results in the \code{dim.red}
 slot. The PCA results are lists of 'pca.scores' and 'pca.eigs', and will
 enter elements of \code{dim.red} slot named "pca_samples" or "pca_features".
 }

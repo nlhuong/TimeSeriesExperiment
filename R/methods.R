@@ -6,7 +6,7 @@
 #' groups. In either, case the data is first collapsed over replicates, so
 #' that each gene is represented as a vector of a single time course.
 #'
-#' @param object A \code{timevis} object
+#' @param object A \code{vistimeseq} object
 #' @param type Either "sample" or "feature" indicating whether to compute PCA
 #' for observations or for time series features.
 #' @param group.selected An optional character string indicating which group
@@ -21,7 +21,7 @@
 #' @param log.base A numerical indicating the base for log
 #' transformation
 #'
-#' @return Returns \code{timevis} object with PCA results in the \code{dim.red}
+#' @return Returns \code{vistimeseq} object with PCA results in the \code{dim.red}
 #' slot. The PCA results are lists of 'pca.scores' and 'pca.eigs', and will
 #' enter elements of \code{dim.red} slot named "pca_samples" or "pca_features".
 #'
@@ -40,7 +40,7 @@ run_pca <- function(object, type, group.selected = NULL,
                     var.stabilize.method = "log",
                     pseudocount = 1, log.base = exp(1)) {
   if (!validObject(object))
-    stop("Invalid timevis object.")
+    stop("Invalid vistimeseq object.")
   if(is.null(object@data)) {
     stop("Data has not been normalized. Normalize data first.")
   }

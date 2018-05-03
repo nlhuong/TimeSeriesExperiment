@@ -2,7 +2,7 @@
 #'
 #' @description Generates a standard PCA plot of observations in the dataset.
 #'
-#' @param object A \code{timevis} object
+#' @param object A \code{vistimeseq} object
 #' @param axis An integer vector indicating principal components to use for
 #' plotting, by default 1:2.
 #' @param col.var A character string indicating a column
@@ -24,7 +24,7 @@
 #'
 plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
   if (!validObject(object))
-    stop("Invalid timevis object.")
+    stop("Invalid vistimeseq object.")
   if(! "pca_sample" %in% names(object@dim.red)) {
     stop("No 'pca_sample' in object@dim.red. Run PCA for samples first.")
   }
@@ -62,7 +62,7 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
 
 #' @title Overlay (time) series over PCA grid
 #'
-#' @param object A \code{timevis} object.
+#' @param object A \code{vistimeseq} object.
 #' @param axis An integer vector indicating principal components to use for
 #' plotting, by default 1:2.
 #' @param m a number of tiles in a grid in the horizontal direction.
@@ -82,7 +82,7 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
                         group.selected = NULL, linecol = NULL,
                         ...) {
   if (!validObject(object))
-    stop("Invalid timevis object.")
+    stop("Invalid vistimeseq object.")
   if(! "pca_feature" %in% names(object@dim.red)) {
     stop("No 'pca_feature' in object@dim.red. Run PCA for features first.")
   }
@@ -351,33 +351,33 @@ plot_goana <- function(DF, nGSmax = 15) {
 }
 
 
-#' @title Venn diagram for features significant at each timpoints
-#'
-#' @param df a data.frame of features by timepoints listing significant
-#' features for each timepoint, NA entries stands for non-significant,
-#' features do not have to be in the same order.
-#' @param size plot size, in centimeters.
-#' @param transparency transparency for the color(s) specified with zcolor
-#' @param cexil a character expansion for the intersection labels
-#' @param cexsn a character expansion for the set names
-#' @param zcolor a vector of colors for the custom zones,
-#' or predefined colors if "style"
-#' @param ... other parameters for the line plots.
-#'
-#' @importFrom venn venn
-#' @importFrom viridis viridis
-#' @export
-#' @examples
-#'
-timepoint_venn <- function(df, size = 50, transparency = 0.5,
-                           cexil = .9, cexsn = 1,
-                           zcolor = viridis(length(venn.lst)), ...) {
-  venn.lst <- lapply(colnames(df), function(i) {
-    df[!is.na(df[, i]), i]
-  })
-  names(venn.lst) <- colnames(df)
-  venn(venn.lst, size = size, transparency = transparency,
-       cexil = cexil, cexsn = cexsn, zcolor = viridis(length(venn.lst)), ...)
-}
+#' #' @title Venn diagram for features significant at each timpoints
+#' #'
+#' #' @param df a data.frame of features by timepoints listing significant
+#' #' features for each timepoint, NA entries stands for non-significant,
+#' #' features do not have to be in the same order.
+#' #' @param size plot size, in centimeters.
+#' #' @param transparency transparency for the color(s) specified with zcolor
+#' #' @param cexil a character expansion for the intersection labels
+#' #' @param cexsn a character expansion for the set names
+#' #' @param zcolor a vector of colors for the custom zones,
+#' #' or predefined colors if "style"
+#' #' @param ... other parameters for the line plots.
+#' #'
+#' #' @importFrom venn venn
+#' #' @importFrom viridis viridis
+#' #' @export
+#' #' @examples
+#' #'
+#' timepoint_venn <- function(df, size = 50, transparency = 0.5,
+#'                            cexil = .9, cexsn = 1,
+#'                            zcolor = viridis(length(venn.lst)), ...) {
+#'   venn.lst <- lapply(colnames(df), function(i) {
+#'     df[!is.na(df[, i]), i]
+#'   })
+#'   names(venn.lst) <- colnames(df)
+#'   venn(venn.lst, size = size, transparency = transparency,
+#'        cexil = cexil, cexsn = cexsn, zcolor = viridis(length(venn.lst)), ...)
+#' }
 
 
