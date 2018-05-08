@@ -1,8 +1,79 @@
+#' @title Variance stabilization.
+#'
+#' @description This function performs variance stabilization
+#' on assay data.
+#'
+#' @param X an assay data matrix or data.frame where columns correspond
+#' @param method Method for variance stabilization (VST).
+#' Currently, supports "none" (no VST), "log1p" (log plus one), "asinh"
+#' (inverse hyperbolic sine) or "deseq"
+#' (\code{\link[DESeq2]{varianceStabilizingTransformation}} function from
+#' \code{DESeq2} package). Default is "log1p".
+#'
+#' @return Returns a varianced stabilized data matrix.
+#'
+#' @importFrom DESeq2 varianceStabilizingTransformation
+#' @export
+#' @examples
+#' X <- sapply(exp(rlnorm(10)), function(m) rnbinom(20, size = 1, mu = m))
+#' head(X)
+#' Y <- variance_stabilization(X, log.base = 2)
+#' head(Y)
+#'
+variance_stabilization <- function(X, method = "log1p") {
+  X <- as.matrix(X)
+  if(method == "none") {
+    Y <- X
+  } else if (method == "log1p"){
+    Y <- log1p(X)
+  } else if (method == "asinh"){
+    Y <- asinh(X)
+  } else if (method == "deseq"){
+    Y <- varianceStabilizingTransformation(X)
+  } else {
+    stop("Unsupported variance stabilization method.")
+  }
+  return(Y)
+}
+
+
+#' @title Melt data matrix.
+#'
+#' @description Convert data matrix to a long format
+#'
+#' @param X a data matrix.
+#'
+#' @return a data matrix in a long format.
+#'
+#' @importFrom tibble rownames_to_column as_data_frame
+#' @importFrom tidyr gather
+#'
+#' @export
+#' @examples
+#' Z <- matrix(rnorm(100), 20)
+#' Z.m <- melt_matrix(Z)
+#' head(Z.m)
+#'
+melt_matrix <- function(X) {
+  y <- X %>%
+    as.data.frame(
+      row.names = rownames(X),
+      col.names = colnames(X),
+      stringsAsFactors = FALSE
+    ) %>%
+    rownames_to_column("sample") %>%
+    as_data_frame() %>%
+    gather(key = "feature", value = "value", -sample) %>%
+    as.data.frame(stringsAsFactors = FALSE)
+  return(y)
+}
+
+
 #' @title Normalize Data
 #'
 #' @description Normalize data the assay data.
 #'
-#' @param object A \code{timvis} object or a data matrix/data frame.
+#' @param object A \code{vistimeseq} object or a data matrix/data frame.
 #' @param sample.norm.method Method for sample normalization.
 #' Currently supports only scaling to a common factor,
 #' "scale_common_factor" which with  \code{column.scale.factor} = 1e+06
@@ -10,7 +81,7 @@
 #' @param column.scale.factor Sets the scale factor for sample-level
 #' normalization
 #'
-#' @return Returns \code{timvis} object after normalization.
+#' @return Returns \code{vistimeseq} object after normalization.
 #' Normalized data is stored \code{data} slot.
 #'
 #' @export
@@ -22,15 +93,15 @@
 normalize_data <- function(object,
                            sample.norm.method = "scale_common_factor",
                            column.scale.factor = 1e+06) {
-  if (!class(object) %in% c("timvis", "data.frame", "matrix")){
+  if (!class(object) %in% c("vistimeseq", "data.frame", "matrix")){
     stop("The argument 'object' must be either in either 'data.frame',",
-         " 'matrix', or 'timvis' class.")
+         " 'matrix', or 'vistimeseq' class.")
   }
-  if (class(object) == "timvis") {
+  if (class(object) == "vistimeseq") {
     if (!validObject(object))
-      stop("Invalid timvis object.")
+      stop("Invalid vistimeseq object.")
     if (is.null(object@raw.data)) {
-      stop("Raw data for timvis object has not been set")
+      stop("Raw data for \"vistimeseq\" object has not been set")
     }
     raw.data <- normalized.data <- slot(object, name = "raw.data")
   } else {
@@ -52,10 +123,10 @@ normalize_data <- function(object,
 #' @description This function aggregates the data over replicates,
 #' i.e. returns collapse data for each group and at each time point.
 #'
-#' @param object A \code{timvis} object
+#' @param object A \code{vistimeseq} object
 #' @param FUN the aggreagate function. Default is mean
 
-#' @return Returns \code{timvis} object after collapsing
+#' @return Returns \code{vistimeseq} object after collapsing
 #' over replicates. Collapsed data is stored \code{sample.data.collapsed}
 #' and \code{data.collapsed} slots.
 #'
@@ -63,15 +134,15 @@ normalize_data <- function(object,
 #' @export
 #' @examples
 #' endoderm_small
-#' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- collapse_replicates(endoderm_small)
 #' head(endoderm_small@data.collapsed)
 #'
 collapse_replicates <- function(object, FUN = mean) {
   if (!validObject(object))
-    stop("Invalid timvis object.")
+    stop("Invalid vistimeseq object.")
   if(is.null(object@data)) {
-    stop("Data has not been normalized. Normalize data first.")
+    message("First converting raw-data to CPMs.")
+    object <- normalize_data(object)
   }
   dat <- object@data
   sample.data.collapsed <-
@@ -101,38 +172,9 @@ collapse_replicates <- function(object, FUN = mean) {
     }
   )
   colnames(data.collapsed) <- rownames(sample.data.collapsed)
-  slot(object, name = "data.collapsed", check = TRUE) <- as.data.frame(data.collapsed)
+  slot(object, name = "data.collapsed", check = TRUE) <-
+    as.data.frame(data.collapsed)
   return(object)
-}
-
-
-#' @title Melt data matrix.
-#'
-#' @description Convert data matrix to a long format
-#'
-#' @param X a data matrix.
-#'
-#' @return a data matrix in a long format.
-#'
-#' @importFrom tibble rownames_to_column as_data_frame
-#' @importFrom tidyr gather
-#'
-#' @export
-#' @examples
-#' Z <- matrix(rnorm(100), 20)
-#' Z.m <- melt_matrix(Z)
-#' head(Z.m)
-#'
-melt_matrix <- function(X) {
-  y <- X %>%
-    as.data.frame(row.names = rownames(X),
-                  col.names = colnames(X),
-                  stringsAsFactors = FALSE) %>%
-    rownames_to_column("sample") %>%
-    as_data_frame() %>%
-    gather(key = "feature", value = "value", -sample) %>%
-    as.data.frame(stringsAsFactors = FALSE)
-  return(y)
 }
 
 
@@ -164,18 +206,19 @@ data_to_tc <- function(X, time, replicate = NULL, group = NULL){
   if (is.null(group)) group <- rep("G1", ncol(X))
   if (is.null(replicate)) replicate <- rep("R1", ncol(X))
   if (is.null(colnames(X))) colnames(X) <- seq_len(ncol(X))
-  time.names <- sort(unique(time))
-  DF <- data.frame(sample = colnames(X),
-                   group, replicate, time,
-                   stringsAsFactors = FALSE)
+  time.names <- as.character(sort(unique(time)))
+  DF <- data.frame(
+    sample = colnames(X),
+    group, replicate, time,
+    stringsAsFactors = FALSE)
   tc <- suppressMessages(
     melt_matrix(t(X)) %>%
       left_join(DF) %>%
       select(group, replicate, time, value, feature) %>%
       spread(key = time, value = value) %>%
-      arrange(feature, group, replicate)
+      arrange(feature, group, replicate) %>%
+      select("feature", "group", "replicate", time.names)
   )
-  tc <- tc[, c("feature", "group", "replicate", time.names)]
   return(tc)
 }
 
@@ -187,37 +230,52 @@ data_to_tc <- function(X, time, replicate = NULL, group = NULL){
 #' row gives data values over time (at each time point) for each
 #' feature, group, and replicate.
 #'
-#' @param object A \code{timvis} object
-#' @param feature.norm.method Method for feature normalization.
-#' Currently supports only (default) scaling by total feature
-#' sum, "scale_feat_sum".
+#' @param object A \code{vistimeseq} object
+#' @param feature.trans.method Method for feature normalization. Default "none".
+#' Currently supports only "none" (no transformation),
+#' "scale_feat_sum" (scaling by feature sum),
+#' or "var_stab" (variance stabilization). Default is "var_stab".
+#' @param var.stabilize.method Method for variance stabilization (VST).
+#' Currently, supports "none" (no VST), "log1p" (log plus one), "asinh"
+#' (inverse hyperbolic sine) or "deseq"
+#' (\code{\link[DESeq2]{varianceStabilizingTransformation}} function from
+#' \code{DESeq2} package). Default is "log1p".
 #'
-#' @return Returns \code{timvis} object after conversion to
+#' @return Returns \code{vistimeseq} object after conversion to
 #' time-course format. Converted data is stored in
 #' \code{timecourse.data} slot.
 #'
 #' @export
 #' @examples
 #' endoderm_small
-#' endoderm_small <- normalize_data(endoderm_small)
-#' endoderm_small <- collapse_replicates(endoderm_small)
+#' endoderm_small <- collapse_replicates(endoderm_small)     # Optional
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' head(endoderm_small@timecourse.data$tc)
 #'
 convert_to_timecourse <- function(
-  object, feature.norm.method = "scale_feat_sum"){
+  object, feature.trans.method = "var_stab", var.stabilize.method = "log1p") {
   if (!validObject(object))
-    stop("Invalid timvis object.")
+    stop("Invalid vistimeseq object.")
   if(is.null(object@data)) {
-    stop("Data has not been normalized. Normalize data first.")
+    message("First converting raw-data to CPMs.")
+    object <- normalize_data(object)
   }
   dat <- object@data
   dat_collapsed <- object@data.collapsed
 
-  if (all(!is.null(feature.norm.method),
-          feature.norm.method == "scale_feat_sum")) {
+  if (feature.trans.method == "scale_feat_sum") {
     dat <- sweep(dat, 1, rowSums(dat), "/")
-    datCollapsed <- sweep(datCollapsed, 1, rowSums(datCollapsed), "/")
+    if (!is.null(dat_collapsed)) {
+      dat_collapsed <- sweep(dat_collapsed, 1, rowSums(dat_collapsed), "/")
+    }
+  } else if (feature.trans.method == "var_stab") {
+    dat <- variance_stabilization(dat, var.stabilize.method)
+    if (!is.null(dat_collapsed)) {
+      dat_collapsed <- variance_stabilization(
+        dat_collapsed, var.stabilize.method)
+    }
+  } else if (feature.trans.method != "none"){
+    stop("Unsupported \"feature.trans.method\" chosen.")
   }
   timecourse.data <- list()
   timecourse.data[["tc"]] <- data_to_tc(
@@ -226,11 +284,11 @@ convert_to_timecourse <- function(
     replicate = object@replicate,
     group = object@group
   )
-  if (!is.null(object@data.collapsed)) {
+  if (!is.null(dat_collapsed)) {
     tc_cllps <- data_to_tc(
       dat_collapsed,
       time = object@sample.data.collapsed$time,
-      replicate = rep("Collapsed", ncol(datCollapsed)),
+      replicate = rep("Collapsed", ncol(dat_collapsed)),
       group = object@sample.data.collapsed$group
     )
     timecourse.data[["tc_collapsed"]] <- tc_cllps
@@ -247,32 +305,32 @@ convert_to_timecourse <- function(
 #'
 #' @param timecourse a data matrix or data.frame where each
 #' column corresponds to consecutive time point.
-#' @param lambda the weights for each lag difference,
-#' the length of alphs_coeff specifies the degrees of lags
-#' to include.
+#' @param lambda Weights for each lag difference, for time-course data.
+#' Length of \code{lambda} specifies number of lags to include. By default
+#' lag of order one and two are included with coefficients 0.5 and 0.25
+#' respectively.
 #'
 #' @return a data matrix with added difference lags.
 #'
-#' @export
 #' @examples
 #' X <- matrix(rnorm(1000), ncol = 50)
 #' group <- rep(c("A", "B"), each = 25)
 #' replicate <- rep(paste0("rep", 1:5), each = 5)
 #' time <- rep(1:5, 10)
 #' tc <- data_to_tc(X, time, replicate, group)
-#' tc_with_lags <- add_lags(tc[, 4:ncol(tc)], alpha_coeff = c(0.5, 0.25))
+#' tc_with_lags <- gs_to_tc(tc[, 4:ncol(tc)], lambda = c(0.5, 0.25))
 #' tc_with_lags <- cbind(tc[, 1:3], tc_with_lags)
 #' head(tc_with_lags)
 #'
-add_lags_to_tc <- function(timecourse, lambda_coeff) {
-  if(is.null(lambda_coeff)) {
+add_lags_to_tc <- function(timecourse, lambda) {
+  if(is.null(lambda)) {
     stop("Need to specify weights for lags.")
   }
   nT <- ncol(timecourse)
   timeNames <- colnames(timecourse)
   timecourse <- as.matrix(timecourse)
-  lags <- lapply(seq_along(lambda_coeff), function(i) {
-    ilag <- lambda_coeff[i] * t(diff(t(timecourse), lag = i))
+  lags <- lapply(seq_along(lambda), function(i) {
+    ilag <- lambda[i] * t(diff(t(timecourse), lag = i))
     colnames(ilag) <- paste0("Lag_",
                              timeNames[(i+1):nT], "_",
                              timeNames[1:(nT-i)])
@@ -289,40 +347,37 @@ add_lags_to_tc <- function(timecourse, lambda_coeff) {
 #' @description This function concatenates lags to time-course
 #' data stored in elements of the \code{timecourse.data} slot.
 #'
-#' @param object A \code{timvis} object
-#' @param lambda_coeff the weights for each lag difference,
-#' the length of alphs_coeff specifies the degrees of lags
-#' to include. By default lag one and lag two included
-#' with coefficients equal to 0.5 and 0.25.
+#' @param object A \code{vistimeseq} object
+#' @param lambda Weights for each lag difference, for time-course data.
+#' Length of \code{lambda} specifies number of lags to include. By default
+#' lag of order one and two are included with coefficients 0.5 and 0.25
+#' respectively.
 #'
-#' @return Returns \code{timvis} object with
-#' lags added to elements in \code{timecourse.data}
-#' slot.
+#' @return Returns \code{vistimeseq} object with lags added to elements
+#' in \code{timecourse.data} slot.
 #'
 #' @importFrom dplyr select
 #' @export
 #' @examples
 #' endoderm_small
-#' endoderm_small <- normalize_data(endoderm_small)
-#' endoderm_small <- collapse_replicates(endoderm_small)
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' endoderm_small <- add_lags(endoderm_small)
 #' head(endoderm_small@timecourse.data$tc)
 #'
-add_lags <- function(object, lambda_coeff = c(0.5, 0.25)) {
-  if (!validObject(object))
-    stop("Invalid timvis object.")
+add_lags <- function(object, lambda = c(0.5, 0.25)) {
+  if (!validObject(object)){
+    stop("Invalid vistimeseq object.")
+  }
   if(length(object@timecourse.data) == 0) {
-    stop("No data in 'timecourse.data' slot. Use ",
-         "'convert_to_timecourse()', function to convert ",
-         "the data first.")
+    stop("No data in 'timecourse.data' slot. Use 'convert_to_timecourse()', ",
+         "function to convert the data first.")
   }
   timecourse.data <- object@timecourse.data
   for(i in seq_along(timecourse.data)) {
     tc <- timecourse.data[[i]]
     tcWithLags <-
       add_lags_to_tc(tc %>% select(-feature, -group, -replicate),
-                     lambda = lambda_coeff)
+                     lambda = lambda)
     tcWithLags <- cbind(tc %>% select(feature, group, replicate), tcWithLags)
     timecourse.data[[i]] <- tcWithLags
   }
@@ -331,63 +386,6 @@ add_lags <- function(object, lambda_coeff = c(0.5, 0.25)) {
 }
 
 
-#' @title Variance satbilization.
-#'
-#' @description This function performs variance stabilization
-#' on assay data.
-#'
-#' @param X an assay data matrix or data.frame where columns correspond
-#' @param method Method for variance stabilization
-#' (VST). Currently, supports log plus one normalization, "log",
-#' or DESeq2::varianceStabilizingTransformation, "deseq".
-#' By default "lognorm" VST is performed.
-#' @param pseudocount A numerical indicating the pseudocount in log
-#' transformation
-#' @param log.base A numerical indicating the base for log
-#' transformation
-#'
-#' @return Returns a varianced stabilized data matrix.
-#'
-#' @importFrom DESeq2 varianceStabilizingTransformation
-#' @export
-#' @examples
-#' X <- sapply(exp(rlnorm(10)), function(m) rnbinom(20, size = 1, mu = m))
-#' head(X)
-#' Y <- variance_stabilization(X, log.base = 2)
-#' head(Y)
-#'
-variance_stabilization <- function(X, method = "log",
-                                   pseudocount = 1, log.base = exp(1)) {
-  X <- Y <- as.matrix(X)
-  if(is.null(method)) {
-    stop("Must specify a variance stabilization method.")
-  } else if (method == "log"){
-    Y <- log(X + pseudocount, base = log.base)
-  } else if (method == "deseq"){
-    Y <- varianceStabilizingTransformation(X)
-  }
-  return(Y)
-}
-
-
-#' @title Join data soures.
-#'
-#' @description This function add lag difference features to the time series data.
-#'
-#' @param X a data matrix or data.frame where columns correspond to samples and rows to features.
-#' @param sample_data a sample data matrix.
-#' @param cluster a data.frame with features and their cluster assignments.
-#'
-#' @return a data matrix with added difference lags.
-#'
-#' @importFrom dplyr left_join
-#' @export
-join_sources <- function(X, sample_data, cluster) {
-  mx <- melt_matrix(t(X)) %>%
-    left_join(sample_data) %>%
-    left_join(cluster)
-  return(mx)
-}
 
 
 #' #' @title Venn diagram for features significant at each timpoints

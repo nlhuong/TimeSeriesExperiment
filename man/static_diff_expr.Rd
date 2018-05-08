@@ -20,7 +20,7 @@ static_diff_expr(X, sample_data, gene_data = NULL, alpha = 0.05,
 \item{test_coeff}{a character scalar for test coefficient.}
 }
 \value{
-a list with the hclust object and the clust.assignment data.frame.
+a list with the \code{hclust} object and the clust.assignment data.frame.
 }
 \description{
 This is a wrapper around 'limma' + 'voom' functions for testing

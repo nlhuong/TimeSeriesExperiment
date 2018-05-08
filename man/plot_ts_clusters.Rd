@@ -4,23 +4,24 @@
 \alias{plot_ts_clusters}
 \title{Plot (time) series over clusters.}
 \usage{
-plot_ts_clusters(X, cluster, time, group = NULL, freq_df = NULL,
-  plot = TRUE, facet = TRUE, textsize = 5)
+plot_ts_clusters(object, alpha = 0.5, ncol = 4)
 }
 \arguments{
-\item{X}{a data matrix or data.frame}
+\item{object}{A \code{vistimeseq} object.}
 
-\item{cluster}{a data.frame containing 'feature' and 'cluster' columns.}
+\item{alpha}{transparency of trajectory lines.}
 
-\item{time}{a vector of length equal to ncol(X) indicating the time
-variable corresponding to the sample (data column).}
-
-\item{group}{a vector of length equal to ncol(X) indicating
-the group membership of the sample.}
-
-\item{freq.df}{a data.frame contating the 'cluster' and 'freq' columns
-which indicates the count of genes in each cluster.}
+\item{ncol}{number of columns in the facte plot.}
 }
 \value{
-list of ggplot objects
+ggplot object
+}
+\description{
+Plots timecourse (aggregated over replicates) feature data
+faceted by computed clusters and experimental group.
+}
+\examples{
+endoderm_small <- cluster_timecourse_features(endoderm_small)
+plot_ts_clusters(endoderm_small)
+
 }

@@ -4,20 +4,19 @@
 \alias{add_lags}
 \title{Add differences to the time-course data.}
 \usage{
-add_lags(object, lambda_coeff = c(0.5, 0.25))
+add_lags(object, lambda = c(0.5, 0.25))
 }
 \arguments{
-\item{object}{A \code{timvis} object}
+\item{object}{A \code{vistimeseq} object}
 
-\item{lambda_coeff}{the weights for each lag difference,
-the length of alphs_coeff specifies the degrees of lags
-to include. By default lag one and lag two included
-with coefficients equal to 0.5 and 0.25.}
+\item{lambda}{Weights for each lag difference, for time-course data.
+Length of \code{lambda} specifies number of lags to include. By default
+lag of order one and two are included with coefficients 0.5 and 0.25
+respectively.}
 }
 \value{
-Returns \code{timvis} object with
-lags added to elements in \code{timecourse.data}
-slot.
+Returns \code{vistimeseq} object with lags added to elements
+in \code{timecourse.data} slot.
 }
 \description{
 This function concatenates lags to time-course
@@ -25,8 +24,6 @@ data stored in elements of the \code{timecourse.data} slot.
 }
 \examples{
 endoderm_small
-endoderm_small <- normalize_data(endoderm_small)
-endoderm_small <- collapse_replicates(endoderm_small)
 endoderm_small <- convert_to_timecourse(endoderm_small)
 endoderm_small <- add_lags(endoderm_small)
 head(endoderm_small@timecourse.data$tc)

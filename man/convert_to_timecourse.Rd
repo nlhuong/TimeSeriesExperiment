@@ -4,17 +4,25 @@
 \alias{convert_to_timecourse}
 \title{Convert data to time-course.}
 \usage{
-convert_to_timecourse(object, feature.norm.method = "scale_feat_sum")
+convert_to_timecourse(object, feature.trans.method = "var_stab",
+  var.stabilize.method = "log1p")
 }
 \arguments{
-\item{object}{A \code{timvis} object}
+\item{object}{A \code{vistimeseq} object}
 
-\item{feature.norm.method}{Method for feature normalization.
-Currently supports only (default) scaling by total feature
-sum, "scale_feat_sum".}
+\item{feature.trans.method}{Method for feature normalization. Default "none".
+Currently supports only "none" (no transformation),
+"scale_feat_sum" (scaling by feature sum),
+or "var_stab" (variance stabilization). Default is "var_stab".}
+
+\item{var.stabilize.method}{Method for variance stabilization (VST).
+Currently, supports "none" (no VST), "log1p" (log plus one), "asinh"
+(inverse hyperbolic sine) or "deseq"
+(\code{\link[DESeq2]{varianceStabilizingTransformation}} function from
+\code{DESeq2} package). Default is "log1p".}
 }
 \value{
-Returns \code{timvis} object after conversion to
+Returns \code{vistimeseq} object after conversion to
 time-course format. Converted data is stored in
 \code{timecourse.data} slot.
 }
@@ -26,8 +34,7 @@ feature, group, and replicate.
 }
 \examples{
 endoderm_small
-endoderm_small <- normalize_data(endoderm_small)
-endoderm_small <- collapse_replicates(endoderm_small)
+endoderm_small <- collapse_replicates(endoderm_small)     # Optional
 endoderm_small <- convert_to_timecourse(endoderm_small)
 head(endoderm_small@timecourse.data$tc)
 

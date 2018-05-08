@@ -114,7 +114,7 @@ check_vistimeseq <- function(object){
 #' \code{vistimeseq} methods will typically generate elements named:
 #' 'tc', 'tc_with_lags', 'tc_collapsed' and 'tc_collapsed_with_lags'.
 #' @slot dim.red List of stored dimmensional reductions; named by technique
-#' @slot cluster.map A \code{data.frame} storing results of gene clustering
+#' @slot cluster.features A list storing results of timecourse feature clustering.
 #' @slot diff.expr A \code{data.frame} storing results of differential
 #' expression analysis
 #'
@@ -126,21 +126,41 @@ check_vistimeseq <- function(object){
 #'
 vistimeseq <- setClass(
   "vistimeseq",
-   slots = representation(
+   slots = c(
     project.name = "character",
     raw.data = "ANY",
     data = "ANY",
+    sample.names = "character",
+    feature.names = "character",
     sample.data = "data.frame",
     feature.data = "data.frame",
     data.collapsed = "ANY",
     sample.data.collapsed = "data.frame",
-    group = "vector",
-    replicate = "vector",
+    group = "ANY",
+    replicate = "ANY",
     time = "numeric",
     timecourse.data = "list",
     dim.red = "list",
-    cluster.map = "data.frame",
+    cluster.features = "list",
     diff.expr = "data.frame"
+  ),
+  prototype = list(
+    project.name = character(),
+    raw.data = NULL,
+    data = NULL,
+    sample.names = character(),
+    feature.names = character(),
+    sample.data = data.frame(),
+    feature.data = data.frame(),
+    data.collapsed = NULL,
+    sample.data.collapsed = data.frame(),
+    group = character(),
+    replicate = character(),
+    time = numeric(),
+    timecourse.data = list(),
+    dim.red = list(),
+    cluster.features = list(),
+    diff.expr = data.frame()
   ),
   validity = check_vistimeseq
 )
@@ -159,16 +179,18 @@ setMethod(
   signature = "vistimeseq",
   definition = function(object) {
     cat(
-      "An object of class",
+      "An object of class \"",
       class(object),
-      "in project '",
+      "\". \nProject name: ",
       object@project.name,
-      "' \n",
-      nrow(object@data),
-      "genes across",
-      ncol(object@data),
-      "samples.\n"
+      " \nRaw data: ",
+      dim(object@raw.data)[1],
+      " genes across ",
+      dim(object@raw.data)[2],
+      " samples.\n",
+      sep = ""
     )
     invisible(x = NULL)
   }
 )
+

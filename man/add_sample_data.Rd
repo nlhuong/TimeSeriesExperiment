@@ -19,7 +19,7 @@ Seurat object where the additional sample data has been added as
 columns in object@sample.data
 }
 \description{
-Adds additional data for samples to the \code{vistimeseq} object.
+Adds additional data for samples to \code{vistimeseq} object.
 Can be any piece of information associated with a sample (e.g. subject
 clinical or nonclinical data). The additional data can be used in
 plotting functions.

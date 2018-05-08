@@ -4,7 +4,7 @@
 \alias{plot_ts_pca}
 \title{Overlay (time) series over PCA grid}
 \usage{
-plot_ts_pca(object, axis = 1:2, m = 20, n = 20, group.selected = NULL,
+plot_ts_pca(object, axis = 1:2, m = 20, n = 20, group.highlight = NULL,
   linecol = NULL, ...)
 }
 \arguments{
@@ -17,7 +17,7 @@ plotting, by default 1:2.}
 
 \item{n}{a number of tiles in a grid in the vertical direction.}
 
-\item{group.selected}{An optional character string indicating the group
+\item{group.highlight}{An optional character string indicating the group
 subset for which the time-course trends should be plotted. By default all
 time-course trends are plotted for all groups.}
 
@@ -25,4 +25,10 @@ time-course trends are plotted for all groups.}
 different for each group.}
 
 \item{...}{other parameters for the line plots.}
+}
+\examples{
+endoderm_small
+endoderm_small <- run_pca(endoderm_small)
+plot_ts_pca(endoderm_small)
+
 }

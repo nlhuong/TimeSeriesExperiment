@@ -2,24 +2,18 @@
 % Please edit documentation in R/utils.R
 \name{variance_stabilization}
 \alias{variance_stabilization}
-\title{Variance satbilization.}
+\title{Variance stabilization.}
 \usage{
-variance_stabilization(X, method = "log", pseudocount = 1,
-  log.base = exp(1))
+variance_stabilization(X, method = "log1p")
 }
 \arguments{
 \item{X}{an assay data matrix or data.frame where columns correspond}
 
-\item{method}{Method for variance stabilization
-(VST). Currently, supports log plus one normalization, "log",
-or DESeq2::varianceStabilizingTransformation, "deseq".
-By default "lognorm" VST is performed.}
-
-\item{pseudocount}{A numerical indicating the pseudocount in log
-transformation}
-
-\item{log.base}{A numerical indicating the base for log
-transformation}
+\item{method}{Method for variance stabilization (VST).
+Currently, supports "none" (no VST), "log1p" (log plus one), "asinh"
+(inverse hyperbolic sine) or "deseq"
+(\code{\link[DESeq2]{varianceStabilizingTransformation}} function from
+\code{DESeq2} package). Default is "log1p".}
 }
 \value{
 Returns a varianced stabilized data matrix.

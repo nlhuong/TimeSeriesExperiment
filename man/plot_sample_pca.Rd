@@ -26,8 +26,7 @@ Generates a standard PCA plot of observations in the dataset.
 }
 \examples{
 endoderm_small
-endoderm_small <- normalize_data(endoderm_small)
-endoderm_small <- run_pca(endoderm_small, type = "sample")
-plot_sample_pca(endoderm_small)
+endoderm_small <- run_pca(endoderm_small)
+plot_sample_pca(endoderm_small, col.var = "group")
 
 }

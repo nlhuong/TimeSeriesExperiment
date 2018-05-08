@@ -4,15 +4,16 @@
 \alias{add_lags_to_tc}
 \title{Add differences to the time-course data.}
 \usage{
-add_lags_to_tc(timecourse, lambda_coeff)
+add_lags_to_tc(timecourse, lambda)
 }
 \arguments{
 \item{timecourse}{a data matrix or data.frame where each
 column corresponds to consecutive time point.}
 
-\item{lambda}{the weights for each lag difference,
-the length of alphs_coeff specifies the degrees of lags
-to include.}
+\item{lambda}{Weights for each lag difference, for time-course data.
+Length of \code{lambda} specifies number of lags to include. By default
+lag of order one and two are included with coefficients 0.5 and 0.25
+respectively.}
 }
 \value{
 a data matrix with added difference lags.
@@ -27,7 +28,7 @@ group <- rep(c("A", "B"), each = 25)
 replicate <- rep(paste0("rep", 1:5), each = 5)
 time <- rep(1:5, 10)
 tc <- data_to_tc(X, time, replicate, group)
-tc_with_lags <- add_lags(tc[, 4:ncol(tc)], alpha_coeff = c(0.5, 0.25))
+tc_with_lags <- gs_to_tc(tc[, 4:ncol(tc)], lambda = c(0.5, 0.25))
 tc_with_lags <- cbind(tc[, 1:3], tc_with_lags)
 head(tc_with_lags)
 

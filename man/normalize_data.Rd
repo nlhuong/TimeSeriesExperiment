@@ -8,7 +8,7 @@ normalize_data(object, sample.norm.method = "scale_common_factor",
   column.scale.factor = 1e+06)
 }
 \arguments{
-\item{object}{A \code{timvis} object or a data matrix/data frame.}
+\item{object}{A \code{vistimeseq} object or a data matrix/data frame.}
 
 \item{sample.norm.method}{Method for sample normalization.
 Currently supports only scaling to a common factor,
@@ -19,7 +19,7 @@ is equivalent to CPM normalization.}
 normalization}
 }
 \value{
-Returns \code{timvis} object after normalization.
+Returns \code{vistimeseq} object after normalization.
 Normalized data is stored \code{data} slot.
 }
 \description{

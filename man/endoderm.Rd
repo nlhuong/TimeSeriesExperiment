@@ -5,12 +5,12 @@
 \alias{endoderm}
 \alias{endoderm_small}
 \title{Prices of 50,000 round cut diamonds.}
-\format{A data frame with 53940 rows and 10 variables}
+\format{A \code{vistimeseq} object}
 \source{
-\url{http://www.diamondse.info/}
+\url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE98411}
 }
 \usage{
-endoderm
+data(endoderm)
 
 endoderm_small
 }
@@ -19,9 +19,13 @@ A dataset containing the prices and other attributes of almost 54,000
 diamonds. The variables are as follows:
 }
 \details{
-\describe{
+\itemize{
   \item price.
   \item carat.
 }
+}
+\references{
+Blake et al. (2017)
+(\href{https://www.biorxiv.org/content/early/2017/05/09/135442}{bioRxiv})
 }
 \keyword{datasets}

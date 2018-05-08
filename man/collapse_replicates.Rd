@@ -7,12 +7,12 @@
 collapse_replicates(object, FUN = mean)
 }
 \arguments{
-\item{object}{A \code{timvis} object}
+\item{object}{A \code{vistimeseq} object}
 
 \item{FUN}{the aggreagate function. Default is mean}
 }
 \value{
-Returns \code{timvis} object after collapsing
+Returns \code{vistimeseq} object after collapsing
 over replicates. Collapsed data is stored \code{sample.data.collapsed}
 and \code{data.collapsed} slots.
 }
@@ -22,7 +22,6 @@ i.e. returns collapse data for each group and at each time point.
 }
 \examples{
 endoderm_small
-endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- collapse_replicates(endoderm_small)
 head(endoderm_small@data.collapsed)
 
