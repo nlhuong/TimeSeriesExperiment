@@ -53,51 +53,52 @@ setMethod(
   }
 )
 
-################################################################################
+##############################################################################
 
-#' @rdname sample_data
-#' @export
-setGeneric("n_samples", function(object) standardGeneric("n_samples"))
-
-#' @rdname sample_data
-#' @export
-setGeneric("sample_names", function(object) standardGeneric("sample_names"))
-
-#' @rdname sample_data
-#' @export
-setGeneric("sample_names<-", function(object, value) standardGeneric("sample_names<-"))
-
-#' @rdname sample_data
-#' @export
-setGeneric("sample_data", function(object) standardGeneric("sample_data"))
-
-#' @rdname sample_data
-#' @export
-setGeneric("sample_data<-", function(object, value) standardGeneric("sample_data<-"))
-
-
-#' Number of samples
+#' Number of samples and features
 #'
-#' Returns number of samples in the data.
+#' Returns number of samples or in the data.
 #'
 #' @docType methods
 #' @name n_samples
-#' @rdname sample_data
-#' @aliases n_samples
+#' @rdname counters
 #'
 #' @param object a \code{vistimeseq} object.
 #'
+#' @export
 #' @examples
 #'
 #' endoderm_small
 #' n_samples(endoderm_small)
 #'
-#' @export
+setGeneric("n_samples", function(object) standardGeneric("n_samples"))
+
+#' @rdname counters
+#' @aliases n_samples
 setMethod(f = "n_samples", signature = "vistimeseq",
           function(object) { return(length(object@sample.names)) }
 
 )
 
+#' @docType methods
+#' @name n_features
+#' @rdname counters
+#'
+#' @export
+#' @examples
+#' endoderm_small
+#' n_features(endoderm_small)
+#'
+setGeneric("n_features", function(object) standardGeneric("n_features"))
+
+#' @rdname counters
+#' @aliases n_features
+setMethod(f = "n_features", signature = "vistimeseq",
+          function(object) { return(length(object@feature.names)) }
+
+)
+
+##############################################################################
 
 #' Accessors for the 'sample.names' slot of a \code{vistimeseq} object.
 #'
@@ -105,25 +106,28 @@ setMethod(f = "n_samples", signature = "vistimeseq",
 #'
 #' @docType methods
 #' @name sample_names
-#' @rdname sample_data
-#' @aliases sample_names
+#' @rdname sample_names
 #'
 #' @param object a \code{vistimeseq} object.
+#' @param value a character vector with new sample names
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' head(sample_names(endoderm_small))
 #'
-#' @export
+setGeneric("sample_names", function(object) standardGeneric("sample_names"))
+
+#' @rdname sample_names
+#' @aliases sample_names
 setMethod(f = "sample_names",signature = "vistimeseq",
           function(object) {return(object@sample.names)}
 )
 
-
 set_sample_names <- function(object, value) {
   if(length(value) != length(object@sample.names)) {
-    stop("substitute sample names length does not agree with object dimensions")
+    stop("substitute sample names length does not agree with object ",
+         "dimensions")
   }
   object@sample.names <- value
   colnames(object@data) <- colnames(object@raw.data) <- value
@@ -139,9 +143,11 @@ set_sample_names <- function(object, value) {
   return(object)
 }
 
+#' @rdname sample_names
+setGeneric("sample_names<-", function(object, value)
+  standardGeneric("sample_names<-"))
 
-#' @name sample_names
-#' @rdname sample_data
+#' @rdname sample_names
 #' @exportMethod "sample_names<-"
 setReplaceMethod(f = "sample_names", signature = "vistimeseq",
                  definition = set_sample_names
@@ -157,11 +163,9 @@ setReplaceMethod(f = "sample_names", signature = "vistimeseq",
 #' @docType methods
 #' @name sample_data
 #' @rdname sample_data
-#' @aliases sample_data
 #'
 #' @param object a \code{vistimeseq} object
-#' @param collapsed whether return sample information for data with replicates
-#' aggregated.
+#' @param value a \code{data.frame} with new sample data
 #'
 #' @examples
 #'
@@ -169,9 +173,18 @@ setReplaceMethod(f = "sample_names", signature = "vistimeseq",
 #' head(sample_data(endoderm_small))
 #'
 #' @export
+#'
+setGeneric("sample_data", function(object) standardGeneric("sample_data"))
+
+#' @rdname sample_data
+#' @aliases sample_data
 setMethod(f = "sample_data", signature = "vistimeseq",
           function(object) {return(object@sample.data)}
 )
+
+#' @rdname sample_data
+setGeneric("sample_data<-", function(object, value)
+  standardGeneric("sample_data<-"))
 
 set_sample_data <- function(object, value) {
   if(!all(c("sample", "group", "time", "replicate") %in% colnames(value))) {
@@ -207,8 +220,6 @@ set_sample_data <- function(object, value) {
   return(object)
 }
 
-
-#' @name sample_data
 #' @rdname sample_data
 #' @exportMethod "sample_data<-"
 setReplaceMethod(f = "sample_data", signature = "vistimeseq",
@@ -217,70 +228,35 @@ setReplaceMethod(f = "sample_data", signature = "vistimeseq",
 
 ################################################################################
 
-#' @rdname feat_data
-#' @export
-setGeneric("n_features", function(object) standardGeneric("n_features"))
-
-#' @rdname feature_data
-#' @export
-setGeneric("feature_names", function(object) standardGeneric("feature_names"))
-
-#' @rdname feature_data
-#' @export
-setGeneric("feature_names<-", function(object, value) standardGeneric("feature_names<-"))
-
-#' @rdname feature_data
-#' @export
-setGeneric("feature_data", function(object) standardGeneric("feature_data"))
-
-#' @rdname feature_data
-#' @export
-setGeneric("feature_data<-", function(object, value) standardGeneric("feature_data<-"))
-
-#' Number of features
-#'
-#' Returns number of features in the data.
-#'
-#' @docType methods
-#' @name n_features
-#' @rdname feat_data
-#' @aliases n_features, n_feat
-#'
-#' @param object a \code{vistimeseq} object.
-#'
-#' @examples
-#'
-#' endoderm_small
-#' n_features(endoderm_small)
-#'
-#' @export
-setMethod(f = "n_features", signature = "vistimeseq",
-          function(object) { return(length(object@feature.names)) }
-
-)
-
-
 #' Accessors for the 'feature.names' slot of a \code{vistimeseq} object.
 #'
 #' 'feature.names' slots holds feature names
 #'
 #' @docType methods
 #' @name feature_names
-#' @rdname feature_data
-#' @aliases feature_names
+#' @rdname feature_names
 #'
 #' @param object a \code{vistimeseq} object.
+#' @param value a character vectore with new feature names
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' head(feature_names(endoderm_small))
 #'
-#' @export
+setGeneric("feature_names", function(object)
+  standardGeneric("feature_names"))
+
+#' @rdname feature_names
+#' @aliases feature_names
 setMethod(f = "feature_names", signature = "vistimeseq",
           function(object) {return(object@feature.names)}
 )
 
+#' @rdname feature_names
+#' @export
+setGeneric("feature_names<-", function(object, value)
+  standardGeneric("feature_names<-"))
 
 set_feature_names <- function(object, value) {
   if(length(value) != length(object@feature.names)) {
@@ -339,9 +315,7 @@ set_feature_names <- function(object, value) {
   return(object)
 }
 
-
-#' @name feature_names
-#' @rdname feature_data
+#' @rdname feature_names
 #' @exportMethod "feature_names<-"
 setReplaceMethod(f = "feature_names", signature = "vistimeseq",
                  definition = set_feature_names
@@ -356,20 +330,27 @@ setReplaceMethod(f = "feature_names", signature = "vistimeseq",
 #' @docType methods
 #' @name feature_data
 #' @rdname feature_data
-#' @aliases feature_data
 #'
 #' @param object a \code{vistimeseq} object.
+#' @param value a \code{data.frame} with new feature data
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' head(feature_data(endoderm_small))
 #'
-#' @export
+setGeneric("feature_data", function(object) standardGeneric("feature_data"))
+
+#' @rdname feature_data
+#' @aliases feature_data
 setMethod(f = "feature_data", signature = "vistimeseq",
           function(object) {return(object@feature.data)}
 )
 
+#' @rdname feature_data
+#' @export
+setGeneric("feature_data<-", function(object, value)
+  standardGeneric("feature_data<-"))
 
 set_feature_data <- function(object, value) {
   if(!"feature" %in% colnames(value)) {
@@ -382,8 +363,6 @@ set_feature_data <- function(object, value) {
   return(object)
 }
 
-
-#' @name feature_data
 #' @rdname feature_data
 #' @exportMethod "feature_data<-"
 setReplaceMethod(f = "feature_data", signature = "vistimeseq",
@@ -391,14 +370,6 @@ setReplaceMethod(f = "feature_data", signature = "vistimeseq",
 )
 
 ################################################################################
-#' @rdname group_data
-#' @export
-setGeneric("get_group", function(object) standardGeneric("get_group"))
-
-#' @rdname group_data
-#' @export
-setGeneric("set_group<-", function(object, value) standardGeneric("set_group<-"))
-
 
 #' Accessors for the 'group' slot of a \code{vistimeseq} object.
 #'
@@ -407,16 +378,19 @@ setGeneric("set_group<-", function(object, value) standardGeneric("set_group<-")
 #' @docType methods
 #' @name get_group
 #' @rdname group_data
-#' @aliases get_group
 #'
 #' @param object a \code{vistimeseq} object.
+#' @param value a character vectore with new group membership
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' head(get_group(endoderm_small))
 #'
-#' @export
+setGeneric("get_group", function(object) standardGeneric("get_group"))
+
+#' @rdname group_data
+#' @aliases get_group
 setMethod(f = "get_group", signature = "vistimeseq",
           function(object) {return(object@group)}
 )
@@ -433,8 +407,10 @@ set_group <- function(object, value) {
   return(object)
 }
 
+#' @rdname group_data
+#' @export
+setGeneric("set_group<-", function(object, value) standardGeneric("set_group<-"))
 
-#' @name set_group
 #' @rdname group_data
 #' @exportMethod "set_group<-"
 setReplaceMethod(f = "set_group", signature = "vistimeseq",
@@ -442,13 +418,11 @@ setReplaceMethod(f = "set_group", signature = "vistimeseq",
 )
 
 ################################################################################
-#' @rdname replicate_data
-#' @export
-setGeneric("get_replicate", function(object) standardGeneric("get_replicate"))
 
 #' @rdname replicate_data
 #' @export
-setGeneric("set_replicate<-", function(object, value) standardGeneric("set_replicate<-"))
+setGeneric("set_replicate<-", function(object, value)
+  standardGeneric("set_replicate<-"))
 
 #' Accessors for the 'replicate' slot of a \code{vistimeseq} object.
 #'
@@ -457,16 +431,19 @@ setGeneric("set_replicate<-", function(object, value) standardGeneric("set_repli
 #' @docType methods
 #' @name get_replicate
 #' @rdname replicate_data
-#' @aliases get_replicate
 #'
 #' @param object a \code{vistimeseq} object.
+#' @param value a character vector with new replicate ids.
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' head(get_replicate(endoderm_small))
 #'
-#' @export
+setGeneric("get_replicate", function(object) standardGeneric("get_replicate"))
+
+#' @rdname replicate_data
+#' @aliases get_replicate
 setMethod(f = "get_replicate", signature = "vistimeseq",
           function(object) {return(object@replicate)}
 )
@@ -482,7 +459,7 @@ set_replicate <- function(object, value) {
   object <- reset_results(object)
   return(object)
 }
-#' @name set_replicate
+
 #' @rdname replicate_data
 #' @exportMethod "set_replicate<-"
 setReplaceMethod(f = "set_replicate", signature = "vistimeseq",
@@ -491,15 +468,6 @@ setReplaceMethod(f = "set_replicate", signature = "vistimeseq",
 
 ################################################################################
 
-#' @rdname time_data
-#' @export
-setGeneric("get_time", function(object) standardGeneric("get_time"))
-
-#' @rdname time_data
-#' @export
-setGeneric("set_time<-", function(object, value) standardGeneric("set_time<-"))
-
-
 #' Accessors for the 'time' slot of a \code{vistimeseq} object.
 #'
 #' 'grop' slots holds feature names
@@ -507,16 +475,19 @@ setGeneric("set_time<-", function(object, value) standardGeneric("set_time<-"))
 #' @docType methods
 #' @name get_time
 #' @rdname time_data
-#' @aliases get_time
 #'
 #' @param object a \code{vistimeseq} object.
+#' @param value a numeric vector with new time information.
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' head(get_time(endoderm_small))
 #'
-#' @export
+setGeneric("get_time", function(object) standardGeneric("get_time"))
+
+#' @rdname time_data
+#' @aliases get_time
 setMethod(f = "get_time", signature = "vistimeseq",
           function(object) {return(object@time)}
 )
@@ -535,7 +506,12 @@ set_time <- function(object, value) {
   object <- reset_results(object)
   return(object)
 }
-#' @name set_time
+
+#' @rdname time_data
+#' @export
+setGeneric("set_time<-", function(object, value) standardGeneric("set_time<-"))
+
+
 #' @rdname time_data
 #' @exportMethod "set_time<-"
 setReplaceMethod(f = "set_time", signature = "vistimeseq",
@@ -543,25 +519,6 @@ setReplaceMethod(f = "set_time", signature = "vistimeseq",
 )
 
 ################################################################################
-#' @rdname vistimeseq_data
-#' @export
-setGeneric("get_data", function(object, ...) standardGeneric("get_data"))
-
-#' @rdname vistimeseq_data
-#' @export
-setGeneric("set_raw_data<-", function(object, value) standardGeneric("set_raw_data<-"))
-
-#' @rdname vistimeseq_data
-#' @export
-setGeneric("set_data<-", function(object, value) standardGeneric("set_data<-"))
-
-#' @rdname vistimeseq_data
-#' @export
-setGeneric("collapsed_data", function(object) standardGeneric("collapsed_data"))
-
-#' @rdname vistimeseq_data
-#' @export
-setGeneric("collapsed_sample_data", function(object) standardGeneric("collapsed_sample_data"))
 
 #' @title Accessors for the 'raw.data' and 'data' slots of a \code{vistimeseq}
 #' object.
@@ -573,17 +530,20 @@ setGeneric("collapsed_sample_data", function(object) standardGeneric("collapsed_
 #' @docType methods
 #' @name get_data
 #' @rdname vistimeseq_data
-#' @aliases get_data
 #'
 #' @param object a \code{vistimeseq} object.
 #' @param raw whether raw data should be returned
+#' @param value a data matrix or \code{data.frame}
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' head(get_data(endoderm_small))
 #'
-#' @export
+setGeneric("get_data", function(object, raw = FALSE) standardGeneric("get_data"))
+
+#' @rdname vistimeseq_data
+#' @aliases get_data
 setMethod(f = "get_data", signature = "vistimeseq",
           definition = function(object, raw = FALSE) {
             if(raw) {return(object@raw.data)}
@@ -604,7 +564,11 @@ set_vistimeseq_data <- function(object, value, raw) {
   return(object)
 }
 
-#' @name set_raw_data
+#' @rdname vistimeseq_data
+#' @export
+setGeneric("set_raw_data<-", function(object, value)
+  standardGeneric("set_raw_data<-"))
+
 #' @rdname vistimeseq_data
 #' @exportMethod "set_raw_data<-"
 setReplaceMethod(f = "set_raw_data", signature = "vistimeseq",
@@ -613,8 +577,10 @@ setReplaceMethod(f = "set_raw_data", signature = "vistimeseq",
                   }
 )
 
+#' @rdname vistimeseq_data
+#' @export
+setGeneric("set_data<-", function(object, value) standardGeneric("set_data<-"))
 
-#' @name set_data
 #' @rdname vistimeseq_data
 #' @exportMethod "set_data<-"
 setReplaceMethod(f = "set_data", signature = "vistimeseq",
@@ -623,24 +589,29 @@ setReplaceMethod(f = "set_data", signature = "vistimeseq",
                  }
 )
 
+################################################################################
+
 #' @title Accessors for the 'data.collapsed' slot of a \code{vistimeseq} object.
 #'
 #' @description 'data.collapsed' slots holds dataset collapsed by replicates
 #'
 #' @docType methods
 #' @name collapsed_data
-#' @rdname vistimeseq_data
-#' @aliases collapsed_data
+#' @rdname collapsed_data
 #'
 #' @param object a \code{vistimeseq} object.
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' endoderm_small <- collapse_replicates(endoderm_small)
 #' head(collapsed_data(endoderm_small))
 #'
-#' @export
+setGeneric("collapsed_data", function(object) standardGeneric("collapsed_data"))
+
+
+#' @rdname collapsed_data
+#' @aliases collapsed_data
 setMethod(f = "collapsed_data", signature = "vistimeseq",
           function(object) {return(object@data.collapsed)}
 )
@@ -652,27 +623,26 @@ setMethod(f = "collapsed_data", signature = "vistimeseq",
 #'
 #' @docType methods
 #' @name collapsed_sample_data
-#' @rdname vistimeseq_data
-#' @aliases collapsed_sample_data
+#' @rdname sample_collapsed_data
 #'
 #' @param object a \code{vistimeseq} object.
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' endoderm_small <- collapse_replicates(endoderm_small)
 #' head(collapsed_sample_data(endoderm_small))
 #'
-#' @export
+setGeneric("collapsed_sample_data", function(object)
+  standardGeneric("collapsed_sample_data"))
+
+#' @rdname sample_collapsed_data
+#' @aliases collapsed_sample_data
 setMethod(f = "collapsed_sample_data", signature = "vistimeseq",
           function(object) {return(object@sample.data.collapsed)}
 )
 
 ################################################################################
-#' @rdname time_course
-#' @export
-setGeneric("time_course", function(object, ...) standardGeneric("time_course"))
-
 #' Accessors for the 'timecourse.data' slot of a \code{vistimeseq} object.
 #'
 #' 'timecourse.data' slots is a list with 'tc' and (optionally) 'tc_collapsed'
@@ -681,19 +651,22 @@ setGeneric("time_course", function(object, ...) standardGeneric("time_course"))
 #' @docType methods
 #' @name time_course
 #' @rdname time_course
-#' @aliases time_course
 #'
 #' @param object a \code{vistimeseq} object.
 #' @param collapsed whether collapsed time-course should be returned
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' head(time_course(endoderm_small))
 #' head(time_course(endoderm_small, collapsed = TRUE))
 #'
-#' @export
+setGeneric("time_course", function(object, collapsed = FALSE)
+  standardGeneric("time_course"))
+
+#' @rdname time_course
+#' @aliases time_course
 setMethod(f = "time_course", signature = "vistimeseq",
           function(object, collapsed = FALSE) {
             if(collapsed) {
@@ -701,10 +674,8 @@ setMethod(f = "time_course", signature = "vistimeseq",
             }
             return(object@timecourse.data$tc)}
 )
+
 ################################################################################
-#' @rdname dim_reduce
-#' @export
-setGeneric("get_dim_reduced", function(object, ...) standardGeneric("get_dim_reduced"))
 
 #' Accessors for the 'dim.red' slot of a \code{vistimeseq} object.
 #'
@@ -714,19 +685,23 @@ setGeneric("get_dim_reduced", function(object, ...) standardGeneric("get_dim_red
 #' @docType methods
 #' @name get_dim_reduced
 #' @rdname dim_reduce
-#' @aliases get_dim_reduced
 #'
 #' @param object a \code{vistimeseq} object.
 #' @param type one of elements of 'dim.red' slot: 'pca_sample', 'pca_feature'
 #' and 'pca_eigs' or 'all' for returning the entire list.
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' endoderm_small <- run_pca(endoderm_small)
 #' head(get_dim_reduced(endoderm_small, "pca_sample")[, 1:3])
 #'
-#' @export
+setGeneric("get_dim_reduced", function(object, type = "all")
+  standardGeneric("get_dim_reduced"))
+
+
+#' @rdname dim_reduce
+#' @aliases get_dim_reduced
 setMethod(f = "get_dim_reduced", signature = "vistimeseq",
           function(object, type = "all") {
             if(!type %in% c('all', 'pca_sample', 'pca_feature', 'pca_eigs')){
@@ -750,64 +725,61 @@ setMethod(f = "get_dim_reduced", signature = "vistimeseq",
 
 ################################################################################
 
-#' @rdname feat_clust
-#' @export
-setGeneric("get_cluster_map", function(object) standardGeneric("get_cluster_map"))
-
-#' @rdname feat_clust
-#' @export
-setGeneric("get_cluster_hclust", function(object) standardGeneric("get_cluster_hclust"))
-
 #' Accessors for the "cluster_map" element of 'cluster.features' slot of
 #' a \code{vistimeseq} object.
 #'
 #' 'cluster.features' slots is a list with '"hclust", "cluster_map"
-#' where first is an hclust object and second is a data.frame with cluster
+#' where first is an hclust object and second is a \code{data.frame} with cluster
 #' assignement, both computed with \code{cluster_timecourse_features()}
 #' function.
 #'
 #' @docType methods
 #' @name get_cluster_map
 #' @rdname feat_clust
-#' @aliases feat_clust
 #'
 #' @param object a \code{vistimeseq} object.
 #'
+#' @export
 #' @examples
 #'
 #' endoderm_small
 #' endoderm_small <- cluster_timecourse_features(endoderm_small)
 #' head(get_cluster_map(endoderm_small))
 #'
-#' @export
+setGeneric("get_cluster_map", function(object)
+  standardGeneric("get_cluster_map"))
+
+#' @rdname feat_clust
+#' @aliases feat_clust
 setMethod(f = "get_cluster_map", signature = "vistimeseq",
           function(object) { return(object@cluster.features$cluster_map) }
 
 )
 
-
 #' Accessors for the "hclust" element of 'cluster.features' slot of
 #' a \code{vistimeseq} object.
 #'
 #' 'cluster.features' slots is a list with '"hclust", "cluster_map"
-#' where first is an hclust object and second is a data.frame with cluster
-#' assignement, both computed with \code{cluster_timecourse_features()}
+#' where first is an hclust object and second is a \code{data.frame} with
+#' cluster assignement, both computed with \code{cluster_timecourse_features()}
 #' function.
 #'
 #' @docType methods
 #' @name get_cluster_hclust
 #' @rdname feat_clust
-#' @aliases get_cluster_hclust
-#'
-#' @param object a \code{vistimeseq} object.
-#'
-#' @examples
-#'
-#'endoderm_small
-#'endoderm_small <- cluster_timecourse_features(endoderm_small)
-#'plot(get_cluster_hclust(endoderm_small), labels = FALSE, xlab = "genes", sub = "")
 #'
 #' @export
+#' @examples
+#'endoderm_small
+#'endoderm_small <- cluster_timecourse_features(endoderm_small)
+#'plot(get_cluster_hclust(endoderm_small), labels = FALSE, xlab = "genes",
+#'     sub = "")
+#'
+setGeneric("get_cluster_hclust", function(object)
+  standardGeneric("get_cluster_hclust"))
+
+#' @rdname feat_clust
+#' @aliases get_cluster_hclust
 setMethod(f = "get_cluster_hclust", signature = "vistimeseq",
           function(object) { return(object@cluster.features$hclust) }
 
@@ -815,10 +787,6 @@ setMethod(f = "get_cluster_hclust", signature = "vistimeseq",
 
 
 ################################################################################
-#' @rdname diff_expr
-#' @export
-setGeneric("get_diff_expr", function(object, ...) standardGeneric("get_diff_expr"))
-
 
 #' Accessors for the 'diff.expr' slot of a \code{vistimeseq} object.
 #'
@@ -828,19 +796,24 @@ setGeneric("get_diff_expr", function(object, ...) standardGeneric("get_diff_expr
 #' @docType methods
 #' @name get_diff_expr
 #' @rdname diff_expr
-#' @aliases get_diff_expr
 #'
 #' @param object a \code{vistimeseq} object.
 #' @param type one of elements of 'dim.red' slot: 'timepoint_de',
 #' 'trajectory_de' or 'all' for returning the entire list.
 #'
+#' @export
 #' @examples
-#'
+#' \dontrun{
 #' endoderm_small
 #' endoderm_small <- trajectory_de(endoderm_small)
 #' head(get_diff_expr(endoderm_small, "trajectory_de"))
+#' }
 #'
-#' @export
+setGeneric("get_diff_expr", function(object, type = "all")
+  standardGeneric("get_diff_expr"))
+
+#' @rdname diff_expr
+#' @aliases get_diff_expr
 setMethod(f = "get_diff_expr", signature = "vistimeseq",
           function(object, type = "all") {
             if(!type %in% c('all', 'timepoint_de', 'trajectory_de')){
@@ -861,10 +834,6 @@ setMethod(f = "get_diff_expr", signature = "vistimeseq",
 
 ################################################################################
 
-#' @rdname proj_name
-#' @export
-setGeneric("project_name", function(object) standardGeneric("project_name"))
-
 #' @title Project name
 #'
 #' @description Returns project name.
@@ -872,20 +841,33 @@ setGeneric("project_name", function(object) standardGeneric("project_name"))
 #' @docType methods
 #' @name project_name
 #' @rdname proj_name
-#' @aliases project_name
 #'
 #' @param object a \code{vistimeseq} object.
+#' @param value a character string
 #'
+#' @export
 #' @examples
-#'
 #' endoderm_small
 #' project_name(endoderm_small)
 #'
-#' @export
+setGeneric("project_name", function(object) standardGeneric("project_name"))
+
+#' @rdname proj_name
+#' @aliases project_name
 setMethod(f = "project_name", signature = "vistimeseq",
           function(object) { return(object@project.name) }
 
 )
 
+#' @rdname proj_name
+#' @export
+setGeneric("project_name<-", function(object, value)
+  standardGeneric("project_name<-"))
 
+#' @rdname proj_name
+#' @exportMethod "set_group<-"
+setReplaceMethod(f = "project_name", signature = "vistimeseq",
+                 definition = function(object, value) {
+                   return(object@project.name <- value) }
+)
 

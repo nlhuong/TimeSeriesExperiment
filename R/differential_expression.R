@@ -109,11 +109,12 @@ timepoint_de <- function(object, timepoints = "all",
 #' @importFrom methods validObject
 #' @export
 #' @examples
+#' \dontrun{
 #' endoderm_small
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- trajectory_de(endoderm_small)
 #' head(get_diff_expr(endoderm_small, "trajectory_de"))
-#'
+#'}
 trajectory_de <- function(object, dist_method = "euclidean",
                           p_adj_method = "BH", lambda = c(0.5, 0.25),
                           verbose = TRUE, ...) {

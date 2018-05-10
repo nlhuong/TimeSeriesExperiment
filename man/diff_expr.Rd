@@ -3,10 +3,11 @@
 \docType{methods}
 \name{get_diff_expr}
 \alias{get_diff_expr}
+\alias{get_diff_expr,vistimeseq-method}
 \alias{get_diff_expr}
 \title{Accessors for the 'diff.expr' slot of a \code{vistimeseq} object.}
 \usage{
-get_diff_expr(object, ...)
+get_diff_expr(object, type = "all")
 
 \S4method{get_diff_expr}{vistimeseq}(object, type = "all")
 }
@@ -21,9 +22,10 @@ get_diff_expr(object, ...)
 possibly containing elements named 'timepoint_de', and 'trajectory_de'.
 }
 \examples{
-
+\dontrun{
 endoderm_small
 endoderm_small <- trajectory_de(endoderm_small)
 head(get_diff_expr(endoderm_small, "trajectory_de"))
+}
 
 }

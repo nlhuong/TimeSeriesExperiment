@@ -3,70 +3,41 @@
 \docType{methods}
 \name{get_data}
 \alias{get_data}
-\alias{set_raw_data<-}
-\alias{set_data<-}
-\alias{collapsed_data}
-\alias{collapsed_sample_data}
+\alias{get_data,vistimeseq-method}
 \alias{get_data}
-\alias{set_raw_data}
-\alias{set_data}
-\alias{collapsed_data}
-\alias{collapsed_sample_data}
+\alias{set_raw_data<-}
+\alias{set_raw_data<-,vistimeseq-method}
+\alias{set_data<-}
+\alias{set_data<-,vistimeseq-method}
 \title{Accessors for the 'raw.data' and 'data' slots of a \code{vistimeseq}
 object.}
 \usage{
-get_data(object, ...)
-
-set_raw_data(object) <- value
-
-set_data(object) <- value
-
-collapsed_data(object)
-
-collapsed_sample_data(object)
+get_data(object, raw = FALSE)
 
 \S4method{get_data}{vistimeseq}(object, raw = FALSE)
 
+set_raw_data(object) <- value
+
 \S4method{set_raw_data}{vistimeseq}(object) <- value
 
+set_data(object) <- value
+
 \S4method{set_data}{vistimeseq}(object) <- value
-
-\S4method{collapsed_data}{vistimeseq}(object)
-
-\S4method{collapsed_sample_data}{vistimeseq}(object)
 }
 \arguments{
 \item{object}{a \code{vistimeseq} object.}
 
 \item{raw}{whether raw data should be returned}
 
-\item{object}{a \code{vistimeseq} object.}
-
-\item{object}{a \code{vistimeseq} object.}
+\item{value}{a data matrix or \code{data.frame}}
 }
 \description{
 The 'raw.data' of 'data' slots hold data where columns are
 samples taken at specific timepoints and rows are features. If normalization
 was performed 'data' holds normalized data
-
-'data.collapsed' slots holds dataset collapsed by replicates
-
-'sample.data.collapsed' slots holds sample data for data
-collapsed by replicates
 }
 \examples{
-
 endoderm_small
 head(get_data(endoderm_small))
-
-
-endoderm_small
-endoderm_small <- collapse_replicates(endoderm_small)
-head(collapsed_data(endoderm_small))
-
-
-endoderm_small
-endoderm_small <- collapse_replicates(endoderm_small)
-head(collapsed_sample_data(endoderm_small))
 
 }

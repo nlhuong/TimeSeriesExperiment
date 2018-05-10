@@ -1,7 +1,7 @@
 Package: vistimeseq
 Type: Package
-Title: Analysis for short time-course sequencing data.
-Version: 0.1
+Title: Analysis for short time-course sequencing data
+Version: 0.99.0
 Date: 2018-04-28
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
@@ -9,8 +9,8 @@ Description: Visualization and analysis toolbox for short time course data
   which includes dimensionality reduction, clustering, two-sample differential 
   expression testing and gene ranking techniques. The package also provides 
   methods for retrieving enriched pathways.
-License: MIT
-Depends: 
+License: MIT + file LICENSE
+Depends:
   R (>= 3.5.0)
 VignetteBuilder: knitr
 Imports:
@@ -38,7 +38,9 @@ Suggests:
     org.Mm.eg.db,
     MASS,
     rmarkdown,
-    ComplexHeatmap
+    ComplexHeatmap,
+    UpSetR,
+    testthat
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1

@@ -3,10 +3,11 @@
 \docType{methods}
 \name{time_course}
 \alias{time_course}
+\alias{time_course,vistimeseq-method}
 \alias{time_course}
 \title{Accessors for the 'timecourse.data' slot of a \code{vistimeseq} object.}
 \usage{
-time_course(object, ...)
+time_course(object, collapsed = FALSE)
 
 \S4method{time_course}{vistimeseq}(object, collapsed = FALSE)
 }
@@ -20,7 +21,6 @@ time_course(object, ...)
 storing timce-course format of the data.
 }
 \examples{
-
 endoderm_small
 endoderm_small <- convert_to_timecourse(endoderm_small)
 head(time_course(endoderm_small))

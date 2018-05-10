@@ -1,8 +1,8 @@
-# This script specified how "vistimeseq" data objects: "endoderm" and
-# "endoderm_small" were built using the data from a study by Blake et al. (2017)
+# This script specified how "vistimeseq" data object: "endoderm_small" was built
+# using the data from a study by Blake et al. (2017)
 # (https://www.biorxiv.org/content/early/2017/05/09/135442) with accession
 # number: GSE98411, which we downloaded from Gene Ontology Onmibus (GEO)
-# repository
+# repository. "endoderm_samll" is used as dataset for running examples.
 
 library(dplyr)
 library(tidyr)
@@ -66,7 +66,7 @@ endoderm <- vistimeseq(
   replicate_column = "replicate",
   group_column = "group"
 )
-save(endoderm, file = "data/endoderm.rda")
+#save(endoderm, file = "data/endoderm.rda")
 
 # Pick the top 250 most variable genes and save as smaller size data
 cpm <- apply(cnts, 2, function(x) 1e6*x/sum(x))

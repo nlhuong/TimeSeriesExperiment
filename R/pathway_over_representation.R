@@ -34,14 +34,14 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' endoderm
-#' endoderm <- normalize_data(endoderm)
-#' endoderm <- trajectory_de(endoderm)
-#' genes_with_de_trajectory <- get_diff_expr(endoderm, "trajectory_de") %>%
+#' endoderm_small
+#' endoderm_small <- normalize_data(endoderm_small)
+#' endoderm_small <- trajectory_de(endoderm_small)
+#' genes_with_de_trajectory <- get_diff_expr(endoderm_small, "trajectory_de") %>%
 #'   filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
 #'   arrange(-R2)
 #' res <- pathway_enrichment(
-#'   object = endoderm, clustered = FALSE,
+#'   object = endoderm_small, clustered = FALSE,
 #'   features = genes_with_de_trajectory$feature,
 #'   species = "Hs", fltr_DE = 0, fltr_N = Inf, fltr_P.DE = 0.05)
 #' head(res)
@@ -70,7 +70,7 @@ pathway_enrichment <- function(object, features, species,
   }
   feature_df <- suppressMessages(
     data.frame(feature = features, stringsAsFactors = FALSE) %>%
-      left_join(cluster_map) %>%
+      left_join(cluster_map %>% mutate(feature = as.character(feature))) %>%
       arrange(cluster)
   )
   freq_clust <- feature_df %>%

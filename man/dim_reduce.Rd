@@ -3,10 +3,11 @@
 \docType{methods}
 \name{get_dim_reduced}
 \alias{get_dim_reduced}
+\alias{get_dim_reduced,vistimeseq-method}
 \alias{get_dim_reduced}
 \title{Accessors for the 'dim.red' slot of a \code{vistimeseq} object.}
 \usage{
-get_dim_reduced(object, ...)
+get_dim_reduced(object, type = "all")
 
 \S4method{get_dim_reduced}{vistimeseq}(object, type = "all")
 }
@@ -21,7 +22,6 @@ and 'pca_eigs' or 'all' for returning the entire list.}
 'pca_eigs' results from PCA projection.
 }
 \examples{
-
 endoderm_small
 endoderm_small <- run_pca(endoderm_small)
 head(get_dim_reduced(endoderm_small, "pca_sample")[, 1:3])

@@ -169,7 +169,7 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
 #' @param ... other parameters for the line plots.
 #'
 #' @importFrom Hmisc subplot
-#' @importFrom graphics plot legend
+#' @importFrom graphics plot legend par
 #' @importFrom proxy dist
 #' @importFrom viridis viridis
 #' @importFrom methods validObject

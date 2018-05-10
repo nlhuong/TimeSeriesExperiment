@@ -3,27 +3,29 @@
 \docType{methods}
 \name{get_time}
 \alias{get_time}
-\alias{set_time<-}
+\alias{get_time,vistimeseq-method}
 \alias{get_time}
-\alias{set_time}
+\alias{set_time<-}
+\alias{set_time<-,vistimeseq-method}
 \title{Accessors for the 'time' slot of a \code{vistimeseq} object.}
 \usage{
 get_time(object)
 
-set_time(object) <- value
-
 \S4method{get_time}{vistimeseq}(object)
+
+set_time(object) <- value
 
 \S4method{set_time}{vistimeseq}(object) <- value
 }
 \arguments{
 \item{object}{a \code{vistimeseq} object.}
+
+\item{value}{a numeric vector with new time information.}
 }
 \description{
 'grop' slots holds feature names
 }
 \examples{
-
 endoderm_small
 head(get_time(endoderm_small))
 
