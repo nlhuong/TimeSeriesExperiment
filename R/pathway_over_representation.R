@@ -29,7 +29,6 @@
 #'
 #' @importFrom dplyr left_join filter arrange group_by summarise n
 #' @importFrom limma goana kegga
-#' @importFrom BiocInstaller biocLite
 #' @importFrom utils installed.packages
 #' @export
 #' @examples
@@ -64,8 +63,10 @@ pathway_enrichment <- function(object, features, species,
     if(nchar(species) != 2) { stop("wrong \"species\" name.") }
     species_db_pkg <- paste0("org.", species, ".eg.db")
     if(!(species_db_pkg %in% installed.packages())){
-      source("https://bioconductor.org/biocLite.R")
-      biocLite(species_db_pkg)
+      stop(species_db_pkg, "must be installed use the following commands",
+           "source(\"https://bioconductor.org/biocLite.R\")
+            biocLite(", species_db_pkg, ")")
+
     }
   }
   feature_df <- suppressMessages(

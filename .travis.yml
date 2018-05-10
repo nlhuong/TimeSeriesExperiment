@@ -8,7 +8,7 @@ warnings_are_errors: true
 
 install:
   # Installs packages DESeq2 and phyloseq.
-  - ./travis-tool.sh install_bioc GenomicRanges ggbio
+  - ./travis-tool.sh install_bioc DESeq2 phyloseq
   # Installs all packages in the DESCRIPTION file.
   - ./travis-tool.sh install_bioc_deps
 

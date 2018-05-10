@@ -15,7 +15,6 @@ Depends:
 VignetteBuilder: knitr
 Imports:
     Biobase,
-    BiocInstaller,
     circlize,
     dynamicTreeCut,
     dplyr,

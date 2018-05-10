@@ -23,7 +23,7 @@ library("rmarkdown")
 options(width = 200) 
 opts_chunk$set(
   message = FALSE, error = FALSE,
-  warning = FALSE, fig.width = 10, fig.height = 7) 
+  warning = FALSE, fig.width = 8, fig.height = 7) 
 ```
 
 
@@ -322,13 +322,13 @@ how heatmaps and PCA plots can be generated.
 Heatmaps {#heatmap .unnumbered}
 ------------------------------
 
-Here we will generate a heatmap of top 200 most variable genes.
+Here we will generate a heatmap of top 100 most variable genes.
 The plot of the expression matrix for these most variable features will
 give us some insight whether there is  a clear difference between the
 two exprerimental groups and whether a strong temporal trend can be detected.
 
-```{r heatmap, fig.height=9, fig.width=7}
-plot_heatmap(cop1_timeseq)
+```{r heatmap, fig.height=8, fig.width=6}
+plot_heatmap(cop1_timeseq, num.feat = 100)
 ```
 
 In the above heatmap the colums are ordered by experimental group, replicate 
@@ -442,7 +442,7 @@ between groups.
 
 
 
-```{r pca-genes, fig.width = 9, fig.height = 7}
+```{r pca-genes, fig.width = 10, fig.height = 8}
 plot_ts_pca(
   cop1_timeseq, 
   linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
@@ -466,7 +466,7 @@ algorithms can be used to assign clusters. Since hierarchical clustering
 is computationally intensive (with $O(n^3)$ complexity for standard 
 implementations), we apply it only to a subset of genes. 
 Specifically, we pick `n_top_genes` with average (over replicates) most 
-variable expression over time in each of selected \code{groups} (here
+variable expression over time in each of selected `groups` (here
 we use both wild type and knock-out) to perform clustering. Remaining genes are, 
 then, assigned to a cluster with the closest centroid. An additional advantage
 of using only a subset of most variable genes for clustering is that, the core 
@@ -507,7 +507,7 @@ clusters found using the above described approach. The expression profiles
 for wild type and knock-out are plotted separately, side by side.
 
 
-```{r gene-clusters, fig.width = 10, fig.height = 8, fig.wide = TRUE}
+```{r gene-clusters, fig.width = 8, fig.height = 6, fig.wide = TRUE}
 plot_ts_clusters(cop1_timeseq, transparency = 0.2) +
   scale_color_manual(values = c("WT" = "#1f78b4", "Loxp" = "#e31a1c"))
 ```
@@ -582,7 +582,7 @@ between consecutive time-points. You can use functions from `UpSetR`
 package to show the overlap between the DE genes across timepoints:
 
 
-```{r tmp-de-intersect, fig.width=9, fig.height=5}
+```{r tmp-de-intersect, fig.width=8, fig.height=4}
 library(UpSetR)
 upset(fromList(de_genes), 
       sets = rev(c("2.5", "4", "6", "9", "13")), keep.order = TRUE,
@@ -673,7 +673,7 @@ genes_with_de_trajectory <- de_trajectory_res %>%
 (genes_to_plot <- genes_with_de_trajectory$feature[1:n_genes])
 ```
 
-```{r genes-de-trajectory, fig.width = 14, fig.height = 14, fig.wide = TRUE}
+```{r genes-de-trajectory, fig.width = 10, fig.height = 10, fig.wide = TRUE}
 plot_time_series(cop1_timeseq, features = genes_to_plot) +
   scale_color_manual(values = c("WT" =  "#1f78b4", "Loxp" = "#e31a1c")) 
 ```
@@ -758,14 +758,12 @@ the exact number of DE genes in a set (DE) and the size of the reference
 enrichment term (N). The points are colored by this fraction. The size of the 
 points correspond the enrichment term size (N).
 
+Below we print we print for example a plot for cluster C6.
+
 ```{r go-enrich-clst,  fig.width = 8, fig.height = 4, fig.wide = TRUE}
-for(clst in names(enrich_res)) {
-  print(
-    plot_enrichment(
-      enrich = enrich_res[[clst]], n_max = 15) +
-    ggtitle(paste0("Cluster ", clst, " enrichment"))
-  )
-}
+plot_enrichment(
+    enrich = enrich_res[["C6"]], n_max = 15) +
+  ggtitle(paste0("Cluster C6 enrichment"))
 ```
 
 
