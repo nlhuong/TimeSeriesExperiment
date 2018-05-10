@@ -6,6 +6,12 @@ r: bioc-devel
 sudo: false
 warnings_are_errors: true
 
+install:
+  # Installs packages DESeq2 and phyloseq.
+  - ./travis-tool.sh install_bioc GenomicRanges ggbio
+  # Installs all packages in the DESCRIPTION file.
+  - ./travis-tool.sh install_bioc_deps
+
 # BiocCheck
 bioc_packages:
   - BiocCheck
