@@ -34,6 +34,9 @@ of the data, and the rest of the rows are assigned based on the distances
 to the centroids of computed clusters.
 }
 \examples{
-TO DO
+X <- get_data(endoderm_small)
+clust_res <- cluster_data(X)
+head(clust_res$clust_centroids)
+head(clust_res$clust_map)
 
 }

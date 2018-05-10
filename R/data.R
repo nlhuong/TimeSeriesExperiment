@@ -1,12 +1,8 @@
 #' Prices of 50,000 round cut diamonds.
 #'
-#' A dataset containing the prices and other attributes of almost 54,000
-#' diamonds. The variables are as follows:
-#'
-#' \itemize{
-#'   \item price.
-#'   \item carat.
-#' }
+#' A `vistimeseq` object contating gene expression data, feature and sample
+#' data from a study by Blake et al. "A Comparative Study Of Endoderm
+#' Differentiation In Humans And Chimpanzees"
 #'
 #' @name endoderm
 #' @docType data

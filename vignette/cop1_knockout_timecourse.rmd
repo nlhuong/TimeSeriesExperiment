@@ -6,7 +6,7 @@ author:
 keywords: time-course, time series, PCA, clustering, differential expression.
 date: "`r BiocStyle::doc_date()`"
 output: 
-  BiocStyle::html_document2:
+  BiocStyle::html_document:
     toc_float: true
     df_print: paged
 vignette: >
@@ -47,7 +47,7 @@ and goodness of fit methods might be ineffective.
 Our approach are non-parametric and distance-based
 which gives the user a flexibility to incorporate
 different normalization techniques, and distance metrics. 
-`funtimeseq` is a comprehensive time course 
+`vistimeseq` is a comprehensive time course 
 analysis toolbox with methods for data visualization,
 clustering and differential expression analysis.
 Additionally, the package can perform enrichment 
@@ -177,6 +177,7 @@ sample counts by constant factors (size factors). If the argumennt
 column sums and multiplies by 1 million to obtain CPMs. The normalized
 data is stored separately from the raw data in a slot "data".
 
+
 ```{r}
 # Compute CPMs and store in cop1_timeseq@data 
 cop1_timeseq <- normalize_data(cop1_timeseq) 
@@ -194,13 +195,13 @@ Here, we find and remove all genes which have the mean expression (CPM) below
 ```{r}
 # Fine genes with minimum mean count of 5 at least in one of the two groups
 min_mean_cpm <- 5
-group_cpm_means <- data.frame(row.names = cop1_timeseq@feature.names)
-for(g in unique(cop1_timeseq@group )) {
-  g_cnts <- cop1_timeseq@data[ , which(cop1_timeseq@group == g)]
+group_cpm_means <- data.frame(row.names = feature_names(cop1_timeseq))
+for(g in unique(get_group(cop1_timeseq))) {
+  g_cnts <- get_data(cop1_timeseq)[ , which(get_group(cop1_timeseq) == g)]
   group_cpm_means[, g] <- apply(g_cnts, 1, mean)
 }
 group_cpm_max <- apply(as.vector(group_cpm_means), 1, max)
-genes_expressed <- cop1_timeseq@feature.names[group_cpm_max > min_mean_cpm]
+genes_expressed <- feature_names(cop1_timeseq)[group_cpm_max > min_mean_cpm]
 ```
 
 ```{r}
@@ -240,19 +241,12 @@ This slot contains a list containing data.frames `tc` and `tc_collapsed`
 (if `data.collapsed` is defined).
 
 Before converting data to "time-course" format, gene transformation 
-should be performed. This step is recommended because RNA-seq data is highly 
-heteroscedastic, which means the features (genes) included have vastly 
-different variances. It is know that bulk expression count data can be well 
-odelled with a negative binomial distribution. In this distribution, variance 
-is a quadratic function of the mean, $\sigma^2 = \mu + \alpha\mu^2$. That is 
-the higher the mean expression level, the higher the variance is. 
-
-Data transformation is thus necessary for a fair gene-to-gene comparison.
-For example, when clustering genes, one uses pairwise distances to estimate 
-dissimilarities between genes. Since, we are generally more interested in 
-grouping genes based on similarities in their trajectories rather than their 
-absolute expression levels, the read counts must be transformed before computing
-the distances. 
+should be performed. Transformation is thus allows
+for a fair gene-to-gene comparison. For example, when clustering genes, 
+one uses pairwise distances to estimate dissimilarities between genes. 
+Since, we are generally more interested in grouping genes based on similarities 
+in their trajectories rather than their absolute expression levels, the 
+read counts must be transformed before computing the distances. 
 
 Currently, gene transformation methods available in `vistimeseq` are 
 "scale_feat_sum" (scaling by gene sum) or "var_stab" (variance stabilization). 
@@ -260,6 +254,10 @@ The user can specifiy a variance stabilization method if "var_stab"
 is used. VST methods supported are: "log1p" (log plus one), "asinh" 
 (inverse hyperbolic sine) or "deseq" 
 (`DESeq2::varianceStabilizingTransformation`).
+
+Usually simply scaling by the gene sum, that is normalizing so that the
+total abundance the same (and equal to 1) for all genes gives good clustering
+of gene trajectories.
 
 ```{r}
 # Before conversion, scales gene expression to an even sum, for a fair 
@@ -296,7 +294,7 @@ We can add these extra lag features to the "time-course" data using
 `add_lags()` function, whcih appends lag features to "tc" and "tc_collapsed"
 data frames in the slot `timecourse.data`. Additionally,the user can define
 the weight for each lag feature by specifying the `lambda` argument.
-The length of `lambda` indicates how many orders of lags one would like
+The length of `lambda` indicates how many orders of lags you would like
 to include, e.g. `lambda = c(0.5, 0.25)` means lag order 1 will be
 added with multiplicative weight of $0.5$ and lag order 2 will be added with
 weight $0.025$.
@@ -305,7 +303,8 @@ weight $0.025$.
 ```{r}
 # Add lags to time-course data
 cop1_timeseq <- add_lags(cop1_timeseq, lambda = c(0.5, 0.25))
-head(cop1_timeseq@timecourse.data$tc)
+head(time_course(cop1_timeseq))
+head(time_course(cop1_timeseq, collapsed = TRUE))
 ```
 
 At this point, we completed all data pre-processing steps available in 
@@ -329,7 +328,7 @@ The plot of the expression matrix for these most variable features will
 give us some insight whether there is  a clear difference between the
 two exprerimental groups and whether a strong temporal trend can be detected.
 
-```{r, fig.height=9, fig.width=7}
+```{r heatmap, fig.height=9, fig.width=7}
 plot_heatmap(cop1_timeseq)
 ```
 
@@ -348,7 +347,7 @@ PCA {#pca .unnumbered}
 
 Another way to explore the dataset is through dimensionality reduction.
 Here we will project the data into a space of principal componets.
-With PCA, one can visualize both samples and features in the same coordinates 
+With PCA, you can visualize both samples and features in the same coordinates 
 space with a biplot. Here we will keep these two maps separately,
 as the visualization can become overcrowded with points which obscure
 the inherent structure. Eventhough, we are plotting the feature and sample
@@ -370,16 +369,30 @@ whether they are more similar to each other than to the ones in a different
 condition. We use `prcomp()` function from `stats` (default) package to compute 
 PCA projection.
 
-PCA projection maximizes the amount variance preserved in consecutive principal 
-components. This implies that computing PCA on raw expression counts 
-or even the CPMs would put too much weight on highly abundant genes. 
+RNA-seq data is highly heteroscedastic, which means the features (genes) 
+included have vastly different variances. It is know that bulk expression count 
+data can be well modelled with a negative binomial distribution. In this 
+distribution, variance is a quadratic function of the mean, $\sigma^2 = \mu + 
+\alpha\mu^2$. That is the higher the mean expression level, the higher the 
+variance is. PCA projection maximizes the amount variance preserved in 
+consecutive principal components, which implies that computing PCA on raw 
+expression counts or even the RPKMs or CPMs would put too much weight on most 
+highly abundant genes. 
+
+This step is recommended because RNA-seq data is highly heteroscedastic, which 
+means the features (genes) included have vastly different variances. It is know 
+that bulk expression count data can be well modelled with a negative binomial 
+distribution. In this distribution, variance is a quadratic function of the 
+mean, $\sigma^2 = \mu + \alpha\mu^2$. That is the higher the mean expression
+level, the higher the variance is. 
+
 Thus, we recommend user to variance stabilize the data before computing 
 a PCA projection  (as described in *Time course format* section). 
 The variance stabilization method can be specified in `var.stabilize.method`
 argument.
 
 Additionally, the user might limit calculations to only specific group of 
-samples, e.g. in this case one might be interested in visualizing samples
+samples, e.g. in this case you might be interested in visualizing samples
 only in the wild type group. A user can also indicate whether
 PCA should be applied to sample resolved data or one with replicates aggregated  
 (stored in "data.collapsed" slot of a `vistimseq` object).
@@ -407,7 +420,7 @@ PCA also provides a projection of features to the same principal component
 space. The coordinates of features (here genes) are commonly referred to
 as PCA loadings. Since gene expression datasets usually includes thousands
 of genes, it is not possible to include labels for all of them in
-the same 2D PCA plot. Apart from that, in a time-course study one is
+the same 2D PCA plot. Apart from that, in a time-course study one is usually
 interested in trajectories of genes over time, and it is good to see groups
 of genes with similar expression pattern clustered together on a visualization.
 
@@ -421,14 +434,16 @@ point.
 In the feature PCA plot below we see that genes exhibit different responses to 
 LPS treatment. The figure shows genes organized according to their trajectory.
 Inhibited genes tend to gather on the left side of the plot, the primary
-response (early spike) genes are in the bottom, and the late response 
-(late increase) clustered on the top-right corner. The plot doesn't show a 
+response (early spike) genes are at the bottom, and the late response 
+(late increase) clustered at the top. The plot doesn't show a 
 global difference between the wild type and knock-out group. Most genes 
 have trajectories that are exactly overlapping in both conditions.
+There are, however, a few genes for which we do observe some difference 
+between groups.
 
 
 
-```{r pca-genes-human, fig.width = 9, fig.height = 7}
+```{r pca-genes, fig.width = 9, fig.height = 7}
 plot_ts_pca(
   cop1_timeseq, 
   linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
@@ -475,7 +490,7 @@ We can see the size of each of clusters computed
 
 ```{r}
 # See the count of genes in each cluster
-cluster_map <- cop1_timeseq@cluster.features$cluster_map
+cluster_map <- get_cluster_map(cop1_timeseq)
 table(cluster_map$cluster)
 ```
 
@@ -484,38 +499,283 @@ performed.
 
 ```{r hclust-dendrogram}
 # Plot the hierarchical clustering of genes2cluster
-hclust_obj <- cop1_timeseq@cluster.features$hclust
-plot(x = hclust_obj, labels = FALSE, 
-     xlab = "genes", sub = "")
+hclust_obj <- get_cluster_hclust(cop1_timeseq) 
+plot(x = hclust_obj, labels = FALSE, xlab = "genes", sub = "")
 ```
 
 Here we plot average (over replicates) gene trajectories grouped into six
 clusters found using the above described approach. The expression profiles
 for wild type and knock-out are plotted separately, side by side.
-for  and show the corresponding KO
-gene profiles for comparison:
+
 
 ```{r gene-clusters, fig.width = 10, fig.height = 8, fig.wide = TRUE}
-plot_ts_clusters(cop1_timeseq, alpha = 0.2) +
+plot_ts_clusters(cop1_timeseq, transparency = 0.2) +
   scale_color_manual(values = c("WT" = "#1f78b4", "Loxp" = "#e31a1c"))
 ```
 
 
-
+Timecourse plots above show genes clustered clearly into groups related
+to their pattern of response to LPS treatment. We see cluster C1, C2 and C4 
+generally inhibited. Genes in C6 spike right after LPS was applied. C3
+shows moderate secondary response, and C5 exhibit late increase in expression.
 
 
 Differential Expression Ranking {#diff-expr .unnumbered}
 ========================================================
 
+In the previous section we grouped the genes based on the trajectories
+recorded for both experimental groups. In this section we will describe
+how to find specific genes that exhibit different expression patterns
+between two experimental groups over the time-course of the study.
+
+
+Differential Pointwise Expression {#point-de .unnumbered}
+-------------------------------------------------
+
+In some cases, a user might be interested in differential expression (DE) 
+at specific timepoints between different experimental groups, here wild type
+and knock-out. We can easily test differental expression at any timepoint
+over the course of the study using standard DE approaches.
+
+`vistimeseq` provides a wrapper `timepoint_de()` for differental expression 
+testing functions (`voom()` + `limma()`) from `limma` package, which allows 
+users to easily apply testing to `vistimeseq` objects. 
+
+
+```{r, include = FALSE, echo = TRUE}
+cop1_timeseq <- timepoint_de(cop1_timeseq, timepoints = "all", alpha = 0.05) 
+```
+
+Information on DE genes e.g. at timepoint 2.5 can be access as follows:
+
+```{r}
+tmp_de <- get_diff_expr(cop1_timeseq, "timepoint_de")
+# First 6 DE genes at timepoint = 2.5:
+head(tmp_de$`2.5`) 
+```
+
+To find genes with the highest log-fold change in each timepoint we can call
+the following commands:
+
+```{r}
+top10_genes <- sapply(tmp_de, function(tab) {
+  top10 <- tab %>% arrange(-logFC) %>% .[["symbol"]] %>% .[1:10]
+  if(length(top10) < 10) 
+    top10 <- c(top10, rep(NA, 10 - length(top10)))
+  return(top10)
+}) %>% as.data.frame()
+top10_genes
+```
+
+We can also find a list of genes which were found differentially expressed
+at any of the timepoints
+
+```{r}
+de_genes <- lapply(tmp_de, function(x) x$symbol)
+de_any_tmp <- unique(unlist(de_genes))
+cat("Out of all", n_features(object), ", there were", 
+    length(de_any_tmp), "were found differentially expressed at any timepoint.")
+```
+
+A useful diagram would show intersections of differentially
+expressed genes at different time-points. You should expert more intersection
+between consecutive time-points. You can use functions from `UpSetR`
+package to show the overlap between the DE genes across timepoints:
+
+
+```{r tmp-de-intersect, fig.width=9, fig.height=5}
+library(UpSetR)
+upset(fromList(de_genes), 
+      sets = rev(c("2.5", "4", "6", "9", "13")), keep.order = TRUE,
+      number.angles = 30, #point.size = 3.5, line.size = 1,
+      mainbar.y.label = "DE Gene Intersections", 
+      sets.x.label = "DE Genes Per Timepoint")
+```
 
 
 
+Differential Trajectories {#adonis .unnumbered}
+-------------------------------------------------
 
-Functional pathways discovery {#fun-path .unnumbered}
-=====================================================
+Instead of looking at each time-point separately, it is often useful to 
+indentifying genes which exhibit different expression trajectories,
+i.e. ones with differential kinetics over time. We take a most natural approach 
+which can be applied to short time-course datasets, which is an analysis of 
+variance. In particular we use a method based on non-parametric permuntation
+multivariate analysis of variance (MANOVA). 
+
+To test each gene for differential trajectory under two conditions, we 
+use the time-course format, where each row is a transformed 
+time-series with lags corresponding to a single replicate within a particular 
+group. `adonis()` function from `vegan` package is applied to find genes with 
+differential trajectories. `adonis` apporach is based on partitioning the sums 
+of squares of the multivariate (here time-series with lags) data to
+within and between-class. The significance is determined with an F-test on
+permitations of the data.
+
+Using this procedure, here we will identify genes which have different 
+trajectories within the wild type and knock-out group. This difference 
+is determined when time series replicates (expression profiles) are more 
+different between the groups than within the same group. 
+
+With a small number of available replicates (3 wild type and 3 knockout),
+a permutation based method does not yield high power. Combined with 
+multiple hypothesis testing correction (for testing thousands of genes),
+we expect the method's p-values to be mostly below significance level
+of $\alpha = 0.5$. However, this approach is still useful, as we can user 
+raw (unadjusted) p-values to filter out the genes that are with high probability 
+not significant, and use the $R^2$ value (the percenteage variance explained 
+by groups) for ranking the genes in terms of the difference 
+in expression profiles between two groups.
+
+Function `trajectory_de()` can be used to find differential genes using the
+above described method. Results of testing procedure are saved in
+`cop1_timeseq@diff.expr$trajectory_de`.
+
+```{r, echo = TRUE, eval = FALSE}
+cop1_timeseq <- trajectory_de(cop1_timeseq, dist_method = "euclidean") 
+```
+
+
+```{r, eval = FALSE, echo = FALSE}
+saveRDS(cop1_timeseq@diff.expr$trajectory_de, 
+        "../inst/extdata/cop1_cmp_sum_scale_trajectory_de.rds")
+```
+
+```{r, echo=FALSE}
+cop1_timeseq@diff.expr$trajectory_de <- readRDS(
+  system.file("extdata", "cop1_cmp_sum_scale_trajectory_de.rds",
+              package = "vistimeseq", mustWork = TRUE))
+```
+
+```{r}
+de_trajectory_res <- get_diff_expr(cop1_timeseq, "trajectory_de")
+head(de_trajectory_res)
+```
+
+You can filter out the genes based on the $R^2$ value (the percenteage
+variance explained by groups). There are `r sum(genes_de_trajectory$R2 > 0.7)`
+genes with $R^2 \ge 0.7$ which constitutes a fraction of 
+`r sum(genes_de_trajectory$R2 > 0.7)/nrow(object@data)` 
+of all the genes in the dataset.
+
+Here we print out 30 of the genes with highest $R^2$ value and 
+the pvalue equal 0.1. P-value of 0.1 is the minimum possible when
+performing permutation test on distances between 6 observations split evenly
+into 2 groups (0.1 = 2/(6 choose 3)).
+
+
+```{r}
+# Select top most different genes across two groups
+n_genes <- 30
+genes_with_de_trajectory <- de_trajectory_res %>% 
+  filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
+  arrange(-R2)
+(genes_to_plot <- genes_with_de_trajectory$feature[1:n_genes])
+```
+
+```{r genes-de-trajectory, fig.width = 14, fig.height = 14, fig.wide = TRUE}
+plot_time_series(cop1_timeseq, features = genes_to_plot) +
+  scale_color_manual(values = c("WT" =  "#1f78b4", "Loxp" = "#e31a1c")) 
+```
+
+
+Note, that in this analysis of variance approach we can specify a distance 
+metric. Additionally, if you are interested in finding out genes DE in specific time intervals e.g. beginning or end of an experiment, you can choose to keep 
+only the timepoints of interest are remove the rest from the time-courses 
+stored in `cop1_timeseq@timecourse.data$tc`. 
+`trajectory_de()` would then compute the distance for the specified
+time period and return DE genes at these specific time intervals.
 
 
 
+Functional pathways {#fun-path .unnumbered}
+===========================================
+
+In this section we will describe procedures to find functional pathways/gene 
+sets corresponding to genes exhibiting differential expression profiles.
+We use publicly available reference databases to find relevant pathways. 
+
+You can select any list of genes for this step. However, the method is intended
+for sets of genes found differentially expressed using methods provided by
+`vistimeseq`, discussed in the previous section.
+
+Below, we use genes with DE trajectory, selected in the previous section.
+There are `r length(genes_with_de_trajectory$feature)` in the set:
+
+```{r}
+length(genes_with_de_trajectory$feature)
+```
+
+Multiple functional pathways might be affected by knocking-out Cop1 gene.
+Therefore, we expect that genes found differential expressed can be parts 
+of distinct pathways. Selected DE genes can be grouped by their cluster 
+membership found earlier.
+
+Below we plot expression profiles of selected DE genes, separated according 
+to their cluster assignment.
+
+```{r de-gene-clusters, fig.width = 8, fig.height = 6, fig.wide = TRUE}
+plot_ts_clusters(cop1_timeseq, transparency = 0.5, 
+                 features = genes_with_de_trajectory$feature) +
+  scale_color_manual(values = c("WT" = "#1f78b4", "Loxp" = "#e31a1c"))
+```
+
+
+<!---> 
+DE gene profile clusters {#fun-clusters .unnumbered}
+-------------------------------------------------
+Over Representation Analysis {#ora .unnumbered}
+-------------------------------------------------
+edge,
+maSigPro,
+timecourse,
+<!--->
+
+We can test sets  (clusters) of DE genes individually for pathway enrichment 
+using `pathway_enrichment()` which is built on top of `goanna()` and `kegga()` functions from `limma` package. The `features` argument provided 
+to `pathway_enrichment()` must be Entrez Gene IDs. The user must also
+specify the relevant species. Optionally, the user can modify the filtering
+parameters applied to enrichment results: `fltr_DE`, `fltr_N`, and
+`fltr_P.DE`. For details see the documentation `?pathway_enrichment`.
+
+
+```{r, echo = TRUE, eval = FALSE}
+enrich_res <- pathway_enrichment(
+  object = cop1_timeseq, 
+  features = genes_with_de_trajectory$feature, 
+  species = "Mm", 
+  fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05)
+```
+
+```{r, echo = FALSE, eval = FALSE}
+saveRDS(enrich_res, "../inst/extdata/go_enrich_res.rds")
+```
+
+```{r, echo=FALSE, eval = TRUE}
+enrich_res <- readRDS(
+  system.file("extdata", "go_enrich_res.rds", package = "vistimeseq", 
+              mustWork = TRUE))
+```
+
+
+We can plot enrichment results for genes with differential trajectory
+in each cluster separately using `plot_enrichment()`.
+Here we plot the top `n_max = 15` terms for each cluster.
+Next to enrichment terms, in the brackets, we have included information on
+the exact number of DE genes in a set (DE) and the size of the reference
+enrichment term (N). The points are colored by this fraction. The size of the 
+points correspond the enrichment term size (N).
+
+```{r go-enrich-clst,  fig.width = 8, fig.height = 4, fig.wide = TRUE}
+for(clst in names(enrich_res)) {
+  print(
+    plot_enrichment(
+      enrich = enrich_res[[clst]], n_max = 15) +
+    ggtitle(paste0("Cluster ", clst, " enrichment"))
+  )
+}
+```
 
 
 Session Information {#session-info .unnumbered}

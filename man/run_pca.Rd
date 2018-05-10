@@ -37,8 +37,9 @@ that each gene is represented as a vector of a single time course.
 }
 \examples{
 endoderm_small
+endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- run_pca(endoderm_small)
-head(endoderm_small@dim.red$pca_sample[, 1:5])
-head(endoderm_small@dim.red$pca_eigs)
+head(get_dim_reduced(endoderm_small, "pca_sample")[, 1:5])
+head(get_dim_reduced(endoderm_small, "pca_eigs"))
 
 }

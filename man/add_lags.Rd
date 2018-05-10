@@ -24,8 +24,15 @@ data stored in elements of the \code{timecourse.data} slot.
 }
 \examples{
 endoderm_small
+endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- convert_to_timecourse(endoderm_small)
 endoderm_small <- add_lags(endoderm_small)
-head(endoderm_small@timecourse.data$tc)
+head(time_course(endoderm_small, collapsed = FALSE))
+head(time_course(endoderm_small, collapsed = TRUE))
+
+endoderm_small <- collapse_replicates(endoderm_small)
+endoderm_small <- convert_to_timecourse(endoderm_small)
+endoderm_small <- add_lags(endoderm_small)
+head(time_course(endoderm_small, collapsed = TRUE))
 
 }

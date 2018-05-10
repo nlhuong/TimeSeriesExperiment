@@ -11,7 +11,8 @@
 #'
 #' @return a data.frame containing cluster assignments.
 #' @importFrom tibble rownames_to_column
-#' @importFrom dplyr left_join arrange
+#' @importFrom dplyr left_join arrange data_frame
+#' @importFrom stats cutree
 #'
 assign_cluster_static <- function(hclst, h = NULL,  k = NULL) {
   if(!is.null(h)) {
@@ -45,7 +46,7 @@ assign_cluster_static <- function(hclst, h = NULL,  k = NULL) {
 #' @return a data.frame containing cluster assignments.
 #' @importFrom dynamicTreeCut cutreeDynamicTree
 #' @importFrom tibble rownames_to_column
-#' @importFrom dplyr left_join arrange
+#' @importFrom dplyr left_join arrange data_frame
 #'
 assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
   max_height <- max_height*max(hclst$height)
@@ -83,9 +84,13 @@ assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
 #'
 #' @importFrom dplyr select left_join group_by summarise_all
 #' @importFrom tibble rownames_to_column
+#' @importFrom stats hclust
 #' @export
 #' @examples
-#' TO DO
+#' X <- get_data(endoderm_small)
+#' clust_res <- cluster_data(X)
+#' head(clust_res$clust_centroids)
+#' head(clust_res$clust_map)
 #'
 cluster_data <- function(
   X, dist = "euclidean",
@@ -145,17 +150,20 @@ cluster_data <- function(
 #' @param clust_params A list contating arguments for hierarchical clustering.
 #' For details see \code{\link{cluster_data}}.
 #'
-#' @return Returns \code{vistimeseq} object with cluster assignment stored
+#' @return a \code{vistimeseq} object with cluster assignment stored
 #' in \code{cluster.map} slot.
 #'
-#' @importFrom dplyr select left_join group_by summarise_all
+#' @importFrom stats sd
+#' @importFrom dplyr select left_join group_by summarise_all contains top_n
 #' @importFrom tibble column_to_rownames
 #' @importFrom proxy dist
+#' @importFrom  methods slot<-
+#' @importFrom methods validObject
 #' @export
 #' @examples
 #' endoderm_small
 #' endoderm_small <- cluster_timecourse_features(endoderm_small)
-#' head(endoderm_small@cluster.map)
+#' head(get_cluster_map(endoderm_small))
 #'
 cluster_timecourse_features <- function(
   object, n_top_feat = 1000, groups = "all", lambda = c(0.5, 0.25),
@@ -178,15 +186,21 @@ cluster_timecourse_features <- function(
   if (!validObject(object)){
     stop("Invalid 'vistimeseq' object.")
   }
-  if (is.null(object@timecourse.data$tc_collapsed)) {
+  if (is.null(time_course(object, collapsed = TRUE))) {
     message("Aggregating across replicates.")
     object <- collapse_replicates(object)
     message("Converting to timecorse format.")
     object <- convert_to_timecourse(object)
   }
-  tc_data <- object@timecourse.data$tc_collapsed
+  if(length(grep("Lags_", colnames(time_course(object)))) ){
+    message("Adding lags with coefficients: ",
+            paste0(lambda, collapse = " "))
+    object <- add_lags(object, lambda = lambda)
+  }
+
+  tc_data <- time_course(object, collapsed = TRUE)
   # Find top "n_top_feat" most variable features
-  n_top_feat <- min(n_top_feat, length(object@feature.names))
+  n_top_feat <- min(n_top_feat, length(feature_names(object)))
   timepoints <- tc_data %>%
     select(-(feature:replicate), -contains("Lag")) %>%
     colnames()
@@ -198,7 +212,7 @@ cluster_timecourse_features <- function(
   top_features <- unique(features_sd[["feature"]])
 
   if (any(groups == "all")){
-    groups <- unique(object@group)
+    groups <- unique(get_group(object))
   }
   tc_data <- tc_data %>%
     select(-replicate) %>%
@@ -206,6 +220,9 @@ cluster_timecourse_features <- function(
 
   # Aggregate timecourses across all "groups" and recompute lags
   if(length(groups) > 1) {
+    message("Averaging timecourses over all \"groups\" selected ",
+            "and recomputing lags with coefficients: ",
+            paste0(lambda, collapse = " "))
     tc_data <- tc_data %>%
       select(-contains("Lag_"), -group) %>%
       group_by(feature) %>%
@@ -241,10 +258,9 @@ cluster_timecourse_features <- function(
     cluster = clst.remain,
     stringsAsFactors = FALSE)
 
-  final_clust_map <- rbind(clust_map, clust_map_remain)
-  slot(object, name = "cluster.features", check = TRUE) <-
-    list(cluster_map = final_clust_map,
-         hclust = cluster_hclust)
+  clust_res <- list(hclust = cluster_hclust,
+    cluster_map = rbind(clust_map, clust_map_remain))
+  slot(object, name = "cluster.features", check = TRUE) <- clust_res
   return(object)
 }
 

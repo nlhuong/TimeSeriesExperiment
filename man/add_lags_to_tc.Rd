@@ -22,14 +22,3 @@ a data matrix with added difference lags.
 This function add lag difference features
 to the time-course data.
 }
-\examples{
-X <- matrix(rnorm(1000), ncol = 50)
-group <- rep(c("A", "B"), each = 25)
-replicate <- rep(paste0("rep", 1:5), each = 5)
-time <- rep(1:5, 10)
-tc <- data_to_tc(X, time, replicate, group)
-tc_with_lags <- gs_to_tc(tc[, 4:ncol(tc)], lambda = c(0.5, 0.25))
-tc_with_lags <- cbind(tc[, 1:3], tc_with_lags)
-head(tc_with_lags)
-
-}

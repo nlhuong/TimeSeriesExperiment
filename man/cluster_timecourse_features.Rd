@@ -25,7 +25,7 @@ respectively.}
 For details see \code{\link{cluster_data}}.}
 }
 \value{
-Returns \code{vistimeseq} object with cluster assignment stored
+a \code{vistimeseq} object with cluster assignment stored
 in \code{cluster.map} slot.
 }
 \description{
@@ -39,6 +39,6 @@ branch cutting algorithm are available for assigning cluster membership.
 \examples{
 endoderm_small
 endoderm_small <- cluster_timecourse_features(endoderm_small)
-head(endoderm_small@cluster.map)
+head(get_cluster_map(endoderm_small))
 
 }

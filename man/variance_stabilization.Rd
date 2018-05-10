@@ -25,7 +25,7 @@ on assay data.
 \examples{
 X <- sapply(exp(rlnorm(10)), function(m) rnbinom(20, size = 1, mu = m))
 head(X)
-Y <- variance_stabilization(X, log.base = 2)
+Y <- variance_stabilization(X, method = "asinh")
 head(Y)
 
 }

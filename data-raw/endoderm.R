@@ -5,6 +5,9 @@
 # repository
 
 library(dplyr)
+library(tidyr)
+library(tibble)
+library(biomaRt)
 
 url <- "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE98411&format=file&file=GSE98411%5FRNA%5Fcounts%2Etxt%2Egz"
 tmp <- tempfile()
@@ -41,6 +44,20 @@ isexpr <- (groupCntsMax > minCntsMeans)
 cnts <- cnts[isexpr, ]
 dim(cnts) #[1] 14694    64
 
+mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+genes <- rownames(cnts)
+gene_df <- getBM(
+  filters= "ensembl_gene_id",
+  attributes= c("ensembl_gene_id", "entrezgene", "description"),
+  values=genes, mart= mart
+)
+gene_df <- gene_df[!duplicated(gene_df$entrezgene), ]
+gene_df <- gene_df[!is.na(gene_df$entrezgene), ]
+dim(gene_df)
+
+cnts <- cnts[gene_df$ensembl_gene_id, ]
+rownames(cnts) <- gene_df$entrezgene
+
 endoderm <- vistimeseq(
   project = "[Subset] Endoderm differntiation in human and chimpanzee",
   raw.data = cnts,
@@ -55,4 +72,5 @@ save(endoderm, file = "data/endoderm.rda")
 cpm <- apply(cnts, 2, function(x) 1e6*x/sum(x))
 top250 <- names(sort(apply(log(cpm + 1), 1, sd), decreasing = TRUE))[1:250]
 endoderm_small <- filter_features(endoderm, top250)
+endoderm_small
 save(list = "endoderm_small", file = "data/endoderm_small.rda")

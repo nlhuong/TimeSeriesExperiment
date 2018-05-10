@@ -34,8 +34,9 @@ feature, group, and replicate.
 }
 \examples{
 endoderm_small
+endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- collapse_replicates(endoderm_small)     # Optional
 endoderm_small <- convert_to_timecourse(endoderm_small)
-head(endoderm_small@timecourse.data$tc)
+head(time_course(endoderm_small))
 
 }

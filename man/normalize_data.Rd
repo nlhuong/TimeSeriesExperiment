@@ -28,6 +28,6 @@ Normalize data the assay data.
 \examples{
 endoderm_small
 endoderm_small <- normalize_data(endoderm_small)
-head(endoderm_small@data)
+head(get_data(endoderm_small))
 
 }

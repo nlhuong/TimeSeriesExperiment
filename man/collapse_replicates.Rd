@@ -22,7 +22,8 @@ i.e. returns collapse data for each group and at each time point.
 }
 \examples{
 endoderm_small
+endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- collapse_replicates(endoderm_small)
-head(endoderm_small@data.collapsed)
+head(collapsed_data(endoderm_small))
 
 }

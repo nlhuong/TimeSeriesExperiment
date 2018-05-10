@@ -26,6 +26,10 @@ different for each group.}
 
 \item{...}{other parameters for the line plots.}
 }
+\description{
+PCA plot for data features, with time-series levels overlayed
+on top.
+}
 \examples{
 endoderm_small
 endoderm_small <- run_pca(endoderm_small)

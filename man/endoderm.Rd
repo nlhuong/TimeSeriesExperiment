@@ -15,14 +15,9 @@ data(endoderm)
 endoderm_small
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds. The variables are as follows:
-}
-\details{
-\itemize{
-  \item price.
-  \item carat.
-}
+A `vistimeseq` object contating gene expression data, feature and sample
+data from a study by Blake et al. "A Comparative Study Of Endoderm
+Differentiation In Humans And Chimpanzees"
 }
 \references{
 Blake et al. (2017)

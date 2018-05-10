@@ -15,8 +15,8 @@ and the columns are additional sample attributes}
 \item{col.name}{Column names in sampledata to add to the object}
 }
 \value{
-Seurat object where the additional sample data has been added as
-columns in object@sample.data
+\code{vistimeseq} object where the additional sample data has been
+added as columns in object@sample.data
 }
 \description{
 Adds additional data for samples to \code{vistimeseq} object.
@@ -25,15 +25,16 @@ clinical or nonclinical data). The additional data can be used in
 plotting functions.
 }
 \examples{
-idx <- sample(1:26, nrow(endoderm_small@raw.data), replace = TRUE)
+endoderm_small
+idx <- sample(1:26, length(sample_names(endoderm_small)), replace = TRUE)
 random_letters <- data.frame(
   letters = LETTERS[idx],
-  row.names = colnames(endoderm_small@raw.data)
-)
+  row.names = sample_names(endoderm_small)
+  )
 endoderm_small <- add_sample_data(
-   object = endoderm_small,
-   sampledata = random_letters
-)
-head(endoderm_small@sample.data)
+  object = endoderm_small,
+  sampledata = random_letters
+  )
+head(sample_data(endoderm_small))
 
 }

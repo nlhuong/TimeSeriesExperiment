@@ -10,34 +10,35 @@ Description: Visualization and analysis toolbox for short time course data
   expression testing and gene ranking techniques. The package also provides 
   methods for retrieving enriched pathways.
 License: MIT
-Depends: R (>= 3.5.0)
+Depends: 
+  R (>= 3.5.0)
 VignetteBuilder: knitr
 Imports:
     Biobase,
-    dplyr,
+    BiocInstaller,
+    circlize,
     dynamicTreeCut,
+    dplyr,
     edgeR,
     DESeq2,
     ggplot2,
     Hmisc,
     limma,
+    methods,
+    magrittr,
     proxy,
+    RColorBrewer,
     tibble,
     tidyr,
     vegan,
     viridis
 Suggests:
     BiocStyle,
-    edge,
-    GO.db, 
     knitr,
-    maSigPro,
+    org.Mm.eg.db,
     MASS,
     rmarkdown,
-    timecourse,
-    ComplexHeatmap,
-    circlize,
-    RColorBrewer
+    ComplexHeatmap
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1

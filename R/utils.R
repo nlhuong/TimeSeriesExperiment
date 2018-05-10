@@ -1,3 +1,13 @@
+#' Pipe operator
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @export
+#' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+NULL
+
 #' @title Variance stabilization.
 #'
 #' @description This function performs variance stabilization
@@ -17,7 +27,7 @@
 #' @examples
 #' X <- sapply(exp(rlnorm(10)), function(m) rnbinom(20, size = 1, mu = m))
 #' head(X)
-#' Y <- variance_stabilization(X, log.base = 2)
+#' Y <- variance_stabilization(X, method = "asinh")
 #' head(Y)
 #'
 variance_stabilization <- function(X, method = "log1p") {
@@ -84,11 +94,12 @@ melt_matrix <- function(X) {
 #' @return Returns \code{vistimeseq} object after normalization.
 #' Normalized data is stored \code{data} slot.
 #'
+#' @importFrom methods slot<- validObject
 #' @export
 #' @examples
 #' endoderm_small
 #' endoderm_small <- normalize_data(endoderm_small)
-#' head(endoderm_small@data)
+#' head(get_data(endoderm_small))
 #'
 normalize_data <- function(object,
                            sample.norm.method = "scale_common_factor",
@@ -100,16 +111,15 @@ normalize_data <- function(object,
   if (class(object) == "vistimeseq") {
     if (!validObject(object))
       stop("Invalid vistimeseq object.")
-    if (is.null(object@raw.data)) {
+    if (is.null(get_data(object, raw = TRUE))) {
       stop("Raw data for \"vistimeseq\" object has not been set")
     }
-    raw.data <- normalized.data <- slot(object, name = "raw.data")
+    raw.data <- normalized.data <- get_data(object, raw = TRUE)
   } else {
     raw.data <- normalized.data <- object
   }
   raw.data <- as.matrix(raw.data)
-  if (all(!is.null(sample.norm.method),
-          sample.norm.method == "scale_common_factor")) {
+  if (sample.norm.method == "scale_common_factor") {
     normalized.data <- column.scale.factor *
       sweep(raw.data, 2, colSums(raw.data), "/")
   }
@@ -131,34 +141,35 @@ normalize_data <- function(object,
 #' and \code{data.collapsed} slots.
 #'
 #' @importFrom dplyr mutate select
+#' @importFrom  methods slot<-
+#' @importFrom methods validObject
 #' @export
 #' @examples
 #' endoderm_small
+#' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- collapse_replicates(endoderm_small)
-#' head(endoderm_small@data.collapsed)
+#' head(collapsed_data(endoderm_small))
 #'
 collapse_replicates <- function(object, FUN = mean) {
-  if (!validObject(object))
+  if (!validObject(object)){
     stop("Invalid vistimeseq object.")
-  if(is.null(object@data)) {
-    message("First converting raw-data to CPMs.")
-    object <- normalize_data(object)
   }
-  dat <- object@data
+  dat <- get_data(object)
   sample.data.collapsed <-
-    expand.grid(group = unique(object@group),
-                time = unique(object@time),
+    expand.grid(group = unique(get_group(object)),
+                time = unique(get_time(object)),
                 stringsAsFactors = FALSE) %>%
     mutate(sample = paste0(group, "_", time)) %>%
     select(sample, group, time)
   rownames(sample.data.collapsed) <- sample.data.collapsed$sample
   slot(object, name = "sample.data.collapsed", check = TRUE) <-
     sample.data.collapsed
-  if (nrow(sample.data.collapsed) == nrow(object@sample.data)) {
+
+  if (nrow(sample.data.collapsed) == n_samples(object)) {
     warning("Only single replicate per group found. ",
             "Collapsed data same as data.")
-    colnames(dat) <- paste0(object@group, "_", object@time)
-    dat <- dat[, rownames(object@sample.data.collapsed)]
+    colnames(dat) <- paste0(get_group(object), "_", get_time(object))
+    dat <- dat[, sample.data.collapsed$sample]
     slot(object, name = "data.collapsed", check = TRUE) <- dat
     return(oject)
   }
@@ -166,7 +177,7 @@ collapse_replicates <- function(object, FUN = mean) {
     seq_len(nrow(sample.data.collapsed)), function(i) {
       ig <- sample.data.collapsed[i, "group"]
       it <- sample.data.collapsed[i, "time"]
-      idx <- (object@group == ig & object@time == it)
+      idx <- (get_group(object) == ig & get_time(object) == it)
       idat <- dat[, idx]
       apply(idat, 1, FUN)
     }
@@ -178,7 +189,8 @@ collapse_replicates <- function(object, FUN = mean) {
 }
 
 
-#' @title Function that splits data to time series for each
+#' @title Data to time-course
+#' @description Function that splits data to time series for each
 #' replicate included.
 #'
 #' @param X a data matrix or data.frame where columns correspond to
@@ -187,13 +199,13 @@ collapse_replicates <- function(object, FUN = mean) {
 #' variable corresponding to the sample (data column).
 #' @param replicate a vector of length equal to ncol(X) indicating
 #' the replicate variable corresponding to the sample (data column).
-#' @param time a vector of length equal to ncol(X) indicating the group
+#' @param group a vector of length equal to ncol(X) indicating the group
 #' membership corresponding to the sample (data column).
 #' @return a data.frame with ordered time series for each replicate.
 #'
 #' @importFrom dplyr left_join select
 #' @importFrom tidyr spread
-#'
+#' @export
 #' @examples
 #' X <- matrix(rnorm(1000), ncol = 50)
 #' group <- rep(c("A", "B"), each = 25)
@@ -245,23 +257,22 @@ data_to_tc <- function(X, time, replicate = NULL, group = NULL){
 #' time-course format. Converted data is stored in
 #' \code{timecourse.data} slot.
 #'
+#' @importFrom  methods slot<-
+#' @importFrom methods validObject
 #' @export
 #' @examples
 #' endoderm_small
+#' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- collapse_replicates(endoderm_small)     # Optional
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
-#' head(endoderm_small@timecourse.data$tc)
+#' head(time_course(endoderm_small))
 #'
 convert_to_timecourse <- function(
   object, feature.trans.method = "var_stab", var.stabilize.method = "log1p") {
   if (!validObject(object))
     stop("Invalid vistimeseq object.")
-  if(is.null(object@data)) {
-    message("First converting raw-data to CPMs.")
-    object <- normalize_data(object)
-  }
-  dat <- object@data
-  dat_collapsed <- object@data.collapsed
+  dat <- get_data(object)
+  dat_collapsed <- collapsed_data(object)
 
   if (feature.trans.method == "scale_feat_sum") {
     dat <- sweep(dat, 1, rowSums(dat), "/")
@@ -280,16 +291,16 @@ convert_to_timecourse <- function(
   timecourse.data <- list()
   timecourse.data[["tc"]] <- data_to_tc(
     dat,
-    time = object@time,
-    replicate = object@replicate,
-    group = object@group
+    time = get_time(object),
+    replicate = get_replicate(object),
+    group = get_group(object)
   )
   if (!is.null(dat_collapsed)) {
     tc_cllps <- data_to_tc(
       dat_collapsed,
-      time = object@sample.data.collapsed$time,
+      time = collapsed_sample_data(object)$time,
       replicate = rep("Collapsed", ncol(dat_collapsed)),
-      group = object@sample.data.collapsed$group
+      group = collapsed_sample_data(object)$group
     )
     timecourse.data[["tc_collapsed"]] <- tc_cllps
   }
@@ -311,16 +322,6 @@ convert_to_timecourse <- function(
 #' respectively.
 #'
 #' @return a data matrix with added difference lags.
-#'
-#' @examples
-#' X <- matrix(rnorm(1000), ncol = 50)
-#' group <- rep(c("A", "B"), each = 25)
-#' replicate <- rep(paste0("rep", 1:5), each = 5)
-#' time <- rep(1:5, 10)
-#' tc <- data_to_tc(X, time, replicate, group)
-#' tc_with_lags <- gs_to_tc(tc[, 4:ncol(tc)], lambda = c(0.5, 0.25))
-#' tc_with_lags <- cbind(tc[, 1:3], tc_with_lags)
-#' head(tc_with_lags)
 #'
 add_lags_to_tc <- function(timecourse, lambda) {
   if(is.null(lambda)) {
@@ -356,57 +357,47 @@ add_lags_to_tc <- function(timecourse, lambda) {
 #' @return Returns \code{vistimeseq} object with lags added to elements
 #' in \code{timecourse.data} slot.
 #'
-#' @importFrom dplyr select
+#' @importFrom dplyr select contains
+#' @importFrom  methods slot<-
+#' @importFrom methods validObject
 #' @export
 #' @examples
 #' endoderm_small
+#' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' endoderm_small <- add_lags(endoderm_small)
-#' head(endoderm_small@timecourse.data$tc)
+#' head(time_course(endoderm_small, collapsed = FALSE))
+#' head(time_course(endoderm_small, collapsed = TRUE))
+#'
+#' endoderm_small <- collapse_replicates(endoderm_small)
+#' endoderm_small <- convert_to_timecourse(endoderm_small)
+#' endoderm_small <- add_lags(endoderm_small)
+#' head(time_course(endoderm_small, collapsed = TRUE))
 #'
 add_lags <- function(object, lambda = c(0.5, 0.25)) {
   if (!validObject(object)){
     stop("Invalid vistimeseq object.")
   }
-  if(length(object@timecourse.data) == 0) {
+  if(is.null(time_course(object))) {
     stop("No data in 'timecourse.data' slot. Use 'convert_to_timecourse()', ",
          "function to convert the data first.")
   }
-  timecourse.data <- object@timecourse.data
-  for(i in seq_along(timecourse.data)) {
-    tc <- timecourse.data[[i]]
-    tcWithLags <-
-      add_lags_to_tc(tc %>% select(-feature, -group, -replicate),
-                     lambda = lambda)
-    tcWithLags <- cbind(tc %>% select(feature, group, replicate), tcWithLags)
-    timecourse.data[[i]] <- tcWithLags
+  timecourse.data <- list()
+  timecourse.data[["tc"]] <- time_course(object)
+  timecourse.data[["tc_collapsed"]] <- time_course(object, collapsed = TRUE)
+
+  for(tc_name in names(timecourse.data)) {
+    tc <- timecourse.data[[tc_name]] %>%
+      select(-contains("Lag_"))
+    tc_with_lags <- add_lags_to_tc(
+      tc %>% select(-feature, -group, -replicate), lambda = lambda)
+    tc_with_lags <- cbind(tc %>% select(feature, group, replicate),
+                          tc_with_lags)
+    timecourse.data[[tc_name]] <- tc_with_lags
   }
   slot(object, name = "timecourse.data", check = TRUE) <- timecourse.data
   return(object)
 }
-
-
-
-
-#' #' @title Venn diagram for features significant at each timpoints
-#' #'
-#' #' @param df a data.frame of features by timepoints listing significant
-#' #' features for each timepoint, NA entries stands for non-significant,
-#' #' features do not have to be in the same order.
-#' #' @param timepoint a timepoint of interest (must be one of colnames(df))
-#' #' @param feat_data a data.frame contating gene data.
-#' #' @return a vector of significant features or a data.frame with
-#' #' accompanying data.
-#' #'
-#' #' @export
-#' get_sig_genes <- function(df, timepoint, feat_data = NULL) {
-#'   feats <- df[, timepoint]
-#'   feats <- feats[!is.na(feats)]
-#'   if(!is.null(feat_data))
-#'     feats <- feat_data[feats, ]
-#'   return(feats)
-#' }
-
 
 
 

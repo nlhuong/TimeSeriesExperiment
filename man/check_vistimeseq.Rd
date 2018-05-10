@@ -12,3 +12,6 @@ check_vistimeseq(object)
 \value{
 \code{TRUE} if valid and a character vector with errors.
 }
+\description{
+function for checking \code{vistimeseq} vaidity
+}

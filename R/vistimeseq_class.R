@@ -1,6 +1,8 @@
 ###############################################################################
 #' @title Checks validity of \code{vistimeseq} class.
 #'
+#' @description function for checking \code{vistimeseq} vaidity
+#'
 #' @param object a data object
 #'
 #' @return \code{TRUE} if valid and a character vector with errors.
@@ -114,15 +116,14 @@ check_vistimeseq <- function(object){
 #' \code{vistimeseq} methods will typically generate elements named:
 #' 'tc', 'tc_with_lags', 'tc_collapsed' and 'tc_collapsed_with_lags'.
 #' @slot dim.red List of stored dimmensional reductions; named by technique
-#' @slot cluster.features A list storing results of timecourse feature clustering.
-#' @slot diff.expr A \code{data.frame} storing results of differential
-#' expression analysis
+#' @slot cluster.features A list storing results from timecourse (feature)
+#' clustering.
+#' @slot diff.expr A list storing results of differential expression analysis.
 #'
 #' @name vistimeseq
 #' @rdname vistimeseq
 #' @aliases vistimeseq-class
 #' @exportClass vistimeseq
-#' @useDynLib vistimeseq
 #'
 vistimeseq <- setClass(
   "vistimeseq",
@@ -142,7 +143,7 @@ vistimeseq <- setClass(
     timecourse.data = "list",
     dim.red = "list",
     cluster.features = "list",
-    diff.expr = "data.frame"
+    diff.expr = "list"
   ),
   prototype = list(
     project.name = character(),
@@ -160,37 +161,169 @@ vistimeseq <- setClass(
     timecourse.data = list(),
     dim.red = list(),
     cluster.features = list(),
-    diff.expr = data.frame()
+    diff.expr = list()
   ),
   validity = check_vistimeseq
 )
 
+
 ###############################################################################
-#' show method for vistimeseq
+#' @title vistimeseq object and constructors
 #'
-#' @param object A vistimeseq object
-#' @name show
-#' @aliases show,vistimeseq-method
-#' @docType methods
-#' @rdname show-methods
+#' @description Initializes the vistimeseq object and populates
+#' the time, replicate, and group slots.
 #'
-setMethod(
-  f = "show",
-  signature = "vistimeseq",
-  definition = function(object) {
-    cat(
-      "An object of class \"",
-      class(object),
-      "\". \nProject name: ",
-      object@project.name,
-      " \nRaw data: ",
-      dim(object@raw.data)[1],
-      " genes across ",
-      dim(object@raw.data)[2],
-      " samples.\n",
-      sep = ""
-    )
-    invisible(x = NULL)
+#' @param project Project name (string)
+#' @param raw.data Raw input data with columns corresponding to samples
+#' (observations) and rows to features
+#' @param sample.data Optional. A \code{data.frame} object were rows are
+#' samples (observations) and columns are sample attributes
+#' (e.g. group/condition, replicate, time)
+#' @param feature.data Optional. A \code{data.frame} object were rows are
+#' features and columns are feature names under different conventions (e.g.
+#' Enterez IDs,  gene symbols) or feature attributes (e.g. chromosome,
+#' location in the genome, biotype, gc content etc.)
+#' @param time Vector of length \code{ncol(raw.data)} indicating the time
+#' at which the sample was collected. If not given, \code{time_column} MUST
+#' be specified.
+#' @param time_column A character string equal to one of the column names
+#' of \code{sample.data}. This is an alternative, way of specifying the time
+#' corresponding to samples, if \code{time} argument is not provided.
+#' @param replicate Vector of length \code{ncol(raw.data)} indicating
+#' the replicate from which the sample came from. If not given,
+#' \code{replicate_column} will be used.
+#' @param replicate_column A character string equal to one of the column names
+#' of \code{sample.data}. This is an alternative, way of specifying the
+#' replicate corresponding to samples, if \code{replicate} argument is not
+#' provided. If both \code{replicate} and \code{replicate_column} are not set,
+#' the function assumes all samples come from the same replicate, and assigns
+#' a replicate name 'R1' to all samples.
+#' @param group A character vector of length \code{ncol(raw.data)} indicating
+#' the group membership of the sample. If not given, \code{group_column}
+#' will be used.
+#' @param group_column A character string equal to one of the column names
+#' of \code{sample.data}. This is an alternative, way of specifying the
+#' replicate corresponding to samples, if \code{replicate} argument is not
+#' provided. If both \code{group} and \code{group_column} are not set, the
+#' function assumes all samples come from the same group, and assigns a group
+#' name 'G1' to all samples.
+#'
+#' @return Returns a vistimeseq object with the raw data stored in
+#' object@@raw.data, object@@sample.data object@@group, object@@replicate,
+#' and object@@time are also initialized.
+#'
+#' @export
+#'
+#' @examples
+#' raw <- matrix(runif(3000), ncol = 30)
+#' time <- rep(rep(1:5, each = 3), 2)
+#' replicate <- rep(1:3, 10)
+#' group <- rep(1:2, each = 15)
+#' test_vistimeseq <- vistimeseq(
+#' raw.data = raw,
+#' time = time,
+#' replicate = replicate,
+#' group = group)
+#' test_vistimeseq
+#'
+vistimeseq <- function(
+  raw.data,
+  project = "'vistimeseq' time course project",
+  sample.data = NULL,
+  feature.data = NULL,
+  time = NULL,
+  time_column = NULL,
+  replicate = NULL,
+  replicate_column = NULL,
+  group = NULL,
+  group_column = NULL
+) {
+  nSamples <- ncol(raw.data)
+  nFeatures <- nrow(raw.data)
+
+  if (all(is.null(time), is.null(time_column))){
+    stop("Either time or time_column must be specified")
   }
-)
+  if(all(!is.null(time), !is.numeric(time))){
+    stop("if specified, \"time\" must be a numeric vector.")
+  }
+  if(all(!is.null(time), (length(time) != nSamples))){
+    stop("Length of time is ", length(time),". Should be equal to the number",
+         " of columns in raw.data, ", nSamples)
+  }
+  if(!is.null(time_column)){
+    if (!time_column %in% colnames(sample.data)){
+      stop("No time_column, ", time_column, " in data frame sample.data")
+    }
+    time <- suppressMessages(as.numeric(sample.data[, time_column]))
+    if (all(is.na(time)))
+      stop("Invalid time input, must be numeric.")
+  }
+  if (all(!is.null(replicate), (length(replicate) != nSamples))) {
+    stop("Length of replicate is ", length(replicate),
+         ". Should be equal to the number of columns in raw.data, ", nSamples)
+  }
+  if (!is.null(replicate_column)) {
+    if (! replicate_column %in% colnames(sample.data)) {
+      stop("No replicate_column, ", replicate_column,
+           " in data frame sample.data")
+    }
+    replicate <- sample.data[, replicate_column]
+  }
+  if (all(!is.null(group), (length(group) != nSamples))) {
+    stop("Length of group is ", length(group),
+         ". Should be equal to the number of columns in raw.data, ", nSamples)
+  }
+  if (!is.null(group_column)) {
+    if (!group_column %in% colnames(sample.data)){
+      stop("No group_column, ", group_column, " in data frame sample.data")
+    }
+    group <- sample.data[, group_column]
+  }
+  if(is.null(replicate)){
+    replicate <- rep("R1", nSamples)
+  }
+  if(is.null(group)){
+    group <- rep("G1", nSamples)
+  }
+  if(is.null(colnames(raw.data))) {
+    colnames(raw.data) <- paste0("S", 1:nSamples)
+  }
+  if(is.null(rownames(raw.data))) {
+    rownames(raw.data) <- paste0("F", 1:nFeatures)
+  }
+  sample_data <- data.frame(
+    sample = colnames(raw.data),
+    row.names = colnames(raw.data),
+    stringsAsFactors = FALSE)
+
+  feature_data <- data.frame(
+    feature = rownames(raw.data),
+    row.names = rownames(raw.data),
+    stringsAsFactors = FALSE)
+
+  if(is.null(time)) {
+    time <- numeric()
+  }
+  object <- new(
+    Class = "vistimeseq",
+    project.name = project,
+    raw.data = raw.data,
+    data = raw.data,
+    sample.names = colnames(raw.data),
+    feature.names = rownames(raw.data),
+    sample.data  = sample_data,
+    feature.data = feature_data,
+    time = time,
+    replicate = replicate,
+    group = group
+  )
+  if (!is.null(sample.data)) {
+    object <- add_sample_data(object = object, sampledata = sample.data)
+  }
+  if (!is.null(feature.data)) {
+    object <- add_feature_data(object = object, featuredata = feature.data)
+  }
+  return(object)
+}
 

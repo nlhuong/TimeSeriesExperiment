@@ -2,8 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{data_to_tc}
 \alias{data_to_tc}
-\title{Function that splits data to time series for each
-replicate included.}
+\title{Data to time-course}
 \usage{
 data_to_tc(X, time, replicate = NULL, group = NULL)
 }
@@ -17,11 +16,15 @@ variable corresponding to the sample (data column).}
 \item{replicate}{a vector of length equal to ncol(X) indicating
 the replicate variable corresponding to the sample (data column).}
 
-\item{time}{a vector of length equal to ncol(X) indicating the group
+\item{group}{a vector of length equal to ncol(X) indicating the group
 membership corresponding to the sample (data column).}
 }
 \value{
 a data.frame with ordered time series for each replicate.
+}
+\description{
+Function that splits data to time series for each
+replicate included.
 }
 \examples{
 X <- matrix(rnorm(1000), ncol = 50)

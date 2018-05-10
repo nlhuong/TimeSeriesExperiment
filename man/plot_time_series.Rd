@@ -4,27 +4,25 @@
 \alias{plot_time_series}
 \title{Plot selected time series.}
 \usage{
-plot_time_series(X, time, keep_rows = rownames(X), group = NULL,
-  replicate = NULL, feature_data = NULL, ncol = 5, smooth = TRUE)
+plot_time_series(object, features = feature_names(object), smooth = TRUE,
+  ncol = 5)
 }
 \arguments{
-\item{X}{a data matrix or data.frame}
+\item{object}{A \code{vistimeseq} object.}
 
-\item{time}{a vector of length equal to ncol(X) indicating the time
-variable corresponding to the sample (data column).}
+\item{features}{A vector of names of selected features to plot.}
 
-\item{keep_rows}{slected features to plot.}
+\item{smooth}{If TRUE a smoothed line is plotted for each gene
+and each group, else a piecewise linear average (over replicates) curve
+is plotted.}
 
-\item{group}{a vector of length equal to ncol(X) indicating
-the group membership of the sample.}
-
-\item{replicate}{a vector of length equal to ncol(X) indicating
-the replicate (e.g. individual).}
-
-\item{feature_data}{a data.frame contating the information on features.}
-
-\item{ncol}{an integer indicating the number of columns for facetting}
+\item{ncol}{An integer indicating the number of columns for facetting.
+Default is 5.}
 }
 \value{
 list of ggplot objects
+}
+\description{
+Plotting expression over time for selected genes curve
+and colors correspond to distinct groups.
 }

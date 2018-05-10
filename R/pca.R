@@ -25,12 +25,16 @@
 #' @importFrom DESeq2 varianceStabilizingTransformation
 #' @importFrom dplyr select summarize_all group_by
 #' @importFrom tibble column_to_rownames
+#' @importFrom stats prcomp
+#' @importFrom  methods slot<-
+#' @importFrom methods validObject
 #' @export
 #' @examples
 #' endoderm_small
+#' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- run_pca(endoderm_small)
-#' head(endoderm_small@dim.red$pca_sample[, 1:5])
-#' head(endoderm_small@dim.red$pca_eigs)
+#' head(get_dim_reduced(endoderm_small, "pca_sample")[, 1:5])
+#' head(get_dim_reduced(endoderm_small, "pca_eigs"))
 #'
 run_pca <- function(object,
                     collapse.replicates = FALSE,
@@ -39,27 +43,23 @@ run_pca <- function(object,
   if (!validObject(object)){
     stop("Invalid vistimeseq object.")
   }
-  if (all(!is.null(group.selected), !group.selected %in% object@group)){
+  if (all(!is.null(group.selected), !group.selected %in% get_group(object))){
     stop("\"group.selected\", ", group.selected, ", is not in the data.")
   }
-  if(is.null(object@data)) {
-    message("First converting raw-data to CPMs.")
-    object <- normalize_data(object)
-  }
-  if(all(collapse.replicates, is.null(object@data.collapsed))){
-    message("First, collapsing over replicates.")
+  if(all(collapse.replicates, is.null(collapsed_data(object)))){
+    message("Aggregate over replicates.")
     object <- collapse_replicates(object)
   }
 
   if(!collapse.replicates){
-    X <- as.matrix(object@data)
+    X <- as.matrix(get_data(object))
     if (!is.null(group.selected)) {
-      X <- X[, object@group == group.selected]
+      X <- X[, get_group(object) == group.selected]
     }
   } else {
-    X <- as.matrix(object@data.collapsed)
+    X <- as.matrix(collapsed_data(object))
     if (!is.null(group.selected)) {
-      X <- X[, object@sample.data.collapsed$group == group.selected]
+      X <- X[, collapsed_sample_data(object)[["group"]] == group.selected]
     }
   }
   X <- t(variance_stabilization(X, var.stabilize.method))
@@ -70,8 +70,6 @@ run_pca <- function(object,
   dim.red[["pca_eigs"]] <- eigs
   dim.red[["pca_sample"]] <- pca.res$x
   dim.red[["pca_feature"]] <- pca.res$rotation
-  # dim.red[[paste0("pca_", type)]] <-
-  #   list("pca.scores" = pca.scores, "pca.eigs" = pca.eigs)
   slot(object, name = "dim.red", check = TRUE) <- dim.red
   return(object)
 }

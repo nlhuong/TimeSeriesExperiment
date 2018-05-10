@@ -17,55 +17,56 @@
 #' @importFrom viridis viridis
 #' @importFrom circlize colorRamp2
 #' @importFrom grid gpar
+#' @importFrom grDevices colorRampPalette
+#' @importFrom methods validObject
+#' @importFrom stats sd
 #' @export
 #' @examples
 #' endoderm_small
 #' endoderm_small <- normalize_data(endoderm_small)
+#' \dontrun{
 #' plot_heatmap(endoderm_small)
-#'
+#' }
 plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
                          feat_desc = "feature", sample_desc = "sample"){
   if (!validObject(object)) {
     stop("Invalid vistimeseq object.")
   }
-  if (!feat_desc %in% colnames(object@feature.data)){
+  if (!feat_desc %in% colnames(feature_data(object))){
     stop("\"feat_desc\" not in object@feature.data")
   }
-  if (!sample_desc %in% colnames(object@sample.data)){
+  if (!sample_desc %in% colnames(sample_data(object))){
     stop("\"sample_desc\" not in object@sample.data")
   }
-  if(is.null(object@data)){
-    cnts <- object@data
-  } else {
-    cnts <- object@raw.data
-  }
-  rownames(cnts) <- object@feature.data[, feat_desc]
-  colnames(cnts) <- object@sample.data[, sample_desc]
+  cnts <- get_data(object)
+  rownames(cnts) <- feature_data(object)[, feat_desc]
+  colnames(cnts) <- sample_data(object)[, sample_desc]
   top_feat <- apply(cnts, 1, sd)
   top_feat <- names(top_feat[order(-top_feat)])[1:num.feat]
-  cols_ordered <- order(object@group, object@replicate, object@time)
+  cols_ordered <- order(get_group(object), get_replicate(object),
+                        get_time(object))
   Y <- cnts[top_feat, cols_ordered]
   if (scale) {
     Y <- t(scale(t(Y), center = TRUE, scale = TRUE))
   }
 
-  smpdf <- object@sample.data %>%
+  smpdf <- sample_data(object) %>%
     select(group, replicate, time) %>%
     arrange(group, replicate, time) %>%
     mutate(time = as.numeric(time))
 
-  n_group <- length(unique(object@group))
+  n_group <- length(unique(get_group(object)))
   group_cols <- colorRampPalette(
     colors = brewer.pal(9, name = "Set1")[1:min(9, n_group)])(n_group)
-  names(group_cols) <- unique(object@group)
+  names(group_cols) <- unique(get_group(object))
 
-  n_replicates <- length(unique(object@replicate))
+  n_replicates <- length(unique(get_replicate(object)))
   rep_cols <- colorRampPalette(
     colors = brewer.pal(8, name = "Set3")[1:min(8, n_replicates)])(n_replicates)
-  names(rep_cols) <- unique(object@replicate)
+  names(rep_cols) <- unique(get_replicate(object))
 
   time_cols <- colorRamp2(
-    breaks = seq(min(object@time), max(object@time), length.out = 10),
+    breaks = seq(min(get_time(object)), max(get_time(object)), length.out = 10),
     colors =  viridis(10))
 
   ha1 <- ComplexHeatmap::HeatmapAnnotation(smpdf,
@@ -91,6 +92,7 @@ plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
 #'
 #' @return Returns a \code{ggplot2} objet.
 #'
+#' @importFrom ggplot2 ggplot aes aes_string geom_point geom_hline geom_vline xlab ylab coord_fixed
 #' @importFrom viridis viridis
 #' @importFrom dplyr left_join
 #' @importFrom tibble rownames_to_column column_to_rownames
@@ -101,27 +103,27 @@ plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
 #' plot_sample_pca(endoderm_small, col.var = "group")
 #'
 plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
-  if(! "pca_sample" %in% names(object@dim.red)) {
+  if(is.null(get_dim_reduced(object, "pca_sample"))) {
     stop("No 'pca_sample' in object@dim.red. Run PCA for samples first.")
   }
   axis <- if(is.numeric(axis)) paste0("PC", axis) else axis
-  pca.sample <- object@dim.red$pca_sample
-  pca.eigs <- object@dim.red$pca_eigs
+  pca.sample <- get_dim_reduced(object, "pca_sample")
+  pca.eigs <- get_dim_reduced(object, "pca_eigs")
 
   pca.scores <- pca.sample[, axis] %>%
     as.data.frame() %>%
     rownames_to_column("sample")
 
-  if(all(pca.scores$sample %in% object@sample.data$sample)) {
+  if(all(pca.scores$sample %in% sample_names(object))) {
     pca.scores <- suppressMessages(
       pca.scores %>%
-        left_join(object@sample.data) %>%
+        left_join(sample_data(object)) %>%
         column_to_rownames("sample")
     )
-  } else if (all(pca.scores$sample %in% object@sample.data.collapsed$sample)) {
+  } else if (all(pca.scores$sample %in% collapsed_sample_data(object)$sample)) {
     pca.scores <- suppressMessages(
       pca.scores %>%
-        left_join(object@sample.data.collapsed) %>%
+        left_join(collapsed_sample_data(object)) %>%
         column_to_rownames("sample")
     )
   } else {
@@ -151,6 +153,8 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
 
 
 #' @title Overlay (time) series over PCA grid
+#' @description PCA plot for data features, with time-series levels overlayed
+#' on top.
 #'
 #' @param object A \code{vistimeseq} object.
 #' @param axis An integer vector indicating principal components to use for
@@ -165,8 +169,10 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
 #' @param ... other parameters for the line plots.
 #'
 #' @importFrom Hmisc subplot
+#' @importFrom graphics plot legend
 #' @importFrom proxy dist
 #' @importFrom viridis viridis
+#' @importFrom methods validObject
 #' @export
 #' @examples
 #' endoderm_small
@@ -179,27 +185,27 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
   if (!validObject(object)){
     stop("Invalid vistimeseq object.")
   }
-  if(! "pca_feature" %in% names(object@dim.red)) {
+  if(is.null(get_dim_reduced(object, type = "pca_feature"))) {
     stop("No 'pca_feature' in object@dim.red. Run PCA for features first.")
   }
-  if (! "tc_collapsed" %in% names(object@timecourse.data)) {
-    message("First, aggregating replicates and converting",
-            "to time-course format.")
+  if (is.null(time_course(object, collapsed = TRUE))) {
     object <- collapse_replicates(object, FUN = mean)
     object <- convert_to_timecourse(object)
+    message("Aggregated data over replicates and converted",
+            "to time-course format.")
   }
   # Prepare scores data
-  tc <- object@timecourse.data$tc_collapsed
-  tc <- tc[, !grepl("Lag", colnames(tc))]
+  tc <- time_course(object, collapsed = TRUE)
+  tc <- tc[, !grepl("Lag_", colnames(tc))]
   tmp <- as.numeric(colnames(tc %>% select(-feature, -group, -replicate)))
   axis <- if(is.numeric(axis)) paste0("PC", axis) else axis
-  pca.feature <- object@dim.red$pca_feature
-  pca.eigs <- object@dim.red$pca_eigs
+  pca.feature <- get_dim_reduced(object, type = "pca_feature")
+  pca.eigs <- get_dim_reduced(object, type = "pca_eigs")
   pca.loadings <- suppressMessages(
     pca.feature[, axis] %>%
     as.data.frame() %>%
     rownames_to_column("feature") %>%
-    left_join(object@feature.data) %>%
+    left_join(feature_data(object)) %>%
     column_to_rownames("feature")
   )
   colnames(pca.loadings)[1:2] <-
@@ -234,7 +240,7 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
        asp=max(sqrt(pca.eigs[2]/pca.eigs[1]), 0.5), ...)
 
   groups.unique <-
-    if (is.null(group.highlight)) unique(object@group) else group.highlight
+    if (is.null(group.highlight)) unique(get_group(object)) else group.highlight
 
   if(is.null(linecol)) {
     linecol <- viridis(length(groups.unique))
@@ -276,41 +282,56 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
 #' faceted by computed clusters and experimental group.
 #'
 #' @param object A \code{vistimeseq} object.
-#' @param alpha transparency of trajectory lines.
+#' @param features A vector of names of selected features to plot.
+#' @param transparency transparency of trajectory lines.
 #' @param ncol number of columns in the facte plot.
 #'
 #' @return ggplot object
-#' @importFrom dplyr left_join mutate select group_by summarize_all arrange
+#' @importFrom ggplot2 ggplot aes geom_point geom_line geom_smooth facet_wrap
+#' @importFrom dplyr filter left_join mutate select group_by summarize_all arrange desc n contains
 #' @importFrom tidyr gather
+#' @importFrom methods validObject
 #'
 #' @export
 #' @examples
 #' endoderm_small <- cluster_timecourse_features(endoderm_small)
 #' plot_ts_clusters(endoderm_small)
 #'
-plot_ts_clusters <- function(object, alpha = 0.5, ncol = 4) {
+plot_ts_clusters <- function(object, features = NULL,
+                             transparency = 0.5, ncol = 4) {
   if (!validObject(object)){
     stop("Invalid vistimeseq object.")
   }
-  if(! "cluster_map" %in% names(object@cluster.features)) {
+  if(is.null(get_cluster_map(object))) {
     stop("No 'cluster_map' in object@cluster.features. Perform
          clustering with 'cluster_timecourse_features()' first.")
   }
-  if (! "tc_collapsed" %in% names(object@timecourse.data)) {
+  if (is.null(time_course(object, collapsed = TRUE))) {
     stop("No 'tc_collapsed' in object@timecourse.data, but 'cluster.features'
          slot is non-emty. Check if data 'vistimeseq' object is corrupted.")
   }
-  cluster_map <- object@cluster.features$cluster_map
+  if (is.null(features)){
+    features <- feature_names(object)
+  }
+  if (!all(features %in% feature_names(object))) {
+    stop("One or more feature in \"features\" not found in ",
+         "'object@feature.names'")
+  }
+  cluster_map <- get_cluster_map(object) %>%
+    filter(feature %in% features)
+
   freq_df <- cluster_map %>%
     group_by(cluster) %>%
     summarise(freq = n()) %>%
     arrange(desc(freq))
 
+  groups <- unique(get_group(object))
   cat_levels <- paste0("[", freq_df$cluster, ": ", freq_df$freq, "]")
-  cat_levels <- paste(rep(cat_levels, each = length(unique(object@group))),
-                      rep(unique(object@group), length(cat_levels)))
+  cat_levels <- paste(rep(cat_levels, each = length(groups)),
+                      rep(groups, length(cat_levels)))
   tc_data <- suppressMessages(
-    object@timecourse.data$tc_collapsed %>%
+    time_course(object, collapsed = TRUE) %>%
+      filter(feature %in% features) %>%
       select(-replicate, -contains("Lag_")) %>%
       left_join(cluster_map) %>%
       gather(
@@ -342,7 +363,7 @@ plot_ts_clusters <- function(object, alpha = 0.5, ncol = 4) {
     aes(y = value , x = time, color = group)
     ) +
     geom_line(
-      aes(group = feature), alpha = alpha
+      aes(group = feature), alpha = transparency
     ) +
     geom_point() +
     geom_line(
@@ -354,137 +375,104 @@ plot_ts_clusters <- function(object, alpha = 0.5, ncol = 4) {
 }
 
 
-
 #' @title Plot selected time series.
+#' @description Plotting expression over time for selected genes curve
+#' and colors correspond to distinct groups.
 #'
-#' @param X a data matrix or data.frame
-#' @param time a vector of length equal to ncol(X) indicating the time
-#' variable corresponding to the sample (data column).
-#' @param keep_rows slected features to plot.
-#' @param group a vector of length equal to ncol(X) indicating
-#' the group membership of the sample.
-#' @param replicate a vector of length equal to ncol(X) indicating
-#' the replicate (e.g. individual).
-#' @param feature_data a data.frame contating the information on features.
-#' @param ncol an integer indicating the number of columns for facetting
+#' @param object A \code{vistimeseq} object.
+#' @param features A vector of names of selected features to plot.
+#' @param smooth If TRUE a smoothed line is plotted for each gene
+#' and each group, else a piecewise linear average (over replicates) curve
+#' is plotted.
+#' @param ncol An integer indicating the number of columns for facetting.
+#' Default is 5.
 #'
 #' @return list of ggplot objects
 #'
-#' @importFrom dplyr filter group_by mutate left_join select summarise_all
-#' @importFrom tibble column_to_rownames
+#' @importFrom  ggplot2 ggplot aes geom_point geom_line geom_smooth facet_wrap
+#' @importFrom dplyr filter select mutate left_join group_by summarise_all
+#' @importFrom tidyr gather
 #' @export
-plot_time_series <- function(X, time, keep_rows = rownames(X),
-                             group = NULL, replicate = NULL,
-                             feature_data = NULL, ncol = 5,
-                             smooth = TRUE){
-  if(is.null(group))
-    group <- rep("G1", ncol(X))
-  if(is.null(replicate))
-    replicate <- rep("R1", ncol(X))
-  if(ncol(X) != length(group))
-    stop("ncol(X) must match length(group)")
-  if(ncol(X) != length(replicate))
-    stop("ncol(X) must match length(replicate)")
-  if(ncol(X) != length(time))
-    stop("ncol(X) must match length(time)")
-  if(!is.null(keep_rows) & !all(keep_rows %in% rownames(X)))
-    stop("keep_rows must be a subset of rownames(X)")
+#'
+plot_time_series <- function(object,
+                             features = feature_names(object),
+                             smooth = TRUE, ncol = 5){
+  if(!all(features %in% feature_names(object))){
+    stop("\"features\" must be a subset of object@feature.names")
+  }
+  feature_data <- feature_data(object)[features, ]
+  if(!"symbol" %in% colnames(feature_data)){
+    feature_data$symbol <- feature_data$feature
+  }
 
-  sample.data <- data.frame(sample = colnames(X),
-                            group, replicate, time,
-                            stringsAsFactors = FALSE)
-  feature.data <- data.frame(row.names = rownames(X),
-                             feature = rownames(X))
+  tc_data <- data_to_tc(
+    X = get_data(object)[features, ], time = get_time(object),
+    group = get_group(object), replicate = get_replicate(object))
 
-  if (!is.null(feature_data))
-    feature.data <- data.frame(feature.data, feature_data,
-                               stringsAsFactors = FALSE)
-  if(!"symbol" %in% colnames(feature.data))
-    feature.data$symbol <- rownames(feature.data)
-
-  feature.data <- feature.data[keep_rows, ]
-
-  X.long <- suppressMessages(
-    melt_matrix(t(X[keep_rows, ])) %>%
-      left_join(sample.data) %>%
-      left_join(feature.data) %>%
+  tc_data <- suppressMessages(
+    tc_data %>%
+      gather(key = "time", value = "value", -(feature:replicate)) %>%
+      left_join(feature_data %>% select(feature, symbol)) %>%
       mutate(
-        symbol = factor(symbol, levels = feature.data$symbol)
-      )
+        symbol = factor(symbol, levels = feature_data$symbol),
+        time = as.numeric(time))
   )
 
-  plt <- ggplot(X.long, aes(x = time, y = value, color = group)) +
-      geom_point(size = 1) +
-      facet_wrap(~ symbol, scales = "free", ncol = ncol)
-  if(length(unique(replicate)) > 1) {
+  plt <- ggplot(
+    tc_data,
+    aes(x = time, y = value, color = group)
+    ) +
+    geom_point(size = 1) +
+    facet_wrap(~ symbol, scales = "free", ncol = ncol)
+
+  if(length(unique(tc_data$replicate)) > 1) {
     plt <- plt + geom_line(aes(group = replicate), lty = 3, alpha = 0.7)
   }
   if(smooth) {
-    plt <- plt + geom_smooth(aes(x = as.numeric(time)), lwd = 1.5)
+    plt <- plt + geom_smooth(aes(x = time), lwd = 1.5)
   } else {
-    X.long.mean <- X.long %>%
-      mutate(time = as.numeric(time)) %>%
-      group_by(symbol, group, time) %>%
-      select(symbol, time, group, value) %>%
-      summarise_all(mean)
-    plt <- plt +
-      geom_line(data = X.long.mean, lwd = 1.5,
-                aes(x = time, y = value, color = group))
+    tc_data_mean <- tc_data %>%
+      select(-replicate) %>%
+      group_by(feature, symbol, group, time) %>%
+      summarise(value = mean(value))
+
+    plt <- plt + geom_line(data = tc_data_mean, lwd = 1.5)
   }
   return(plt)
 }
 
 
-#' @title Plot Gene Ontology limma::goana enrichment results.
+#' @title Plot enrichment results.
+#' @description Plotting top most enriched terms found with DE methods
+#' and tested for overrepresentation in GO/KEGG db using
+#' goana/kegga from limma package.
 #'
-#' @param DF a data matrix or data.frame results from limma::goana
-#' with gene list. Must contain columns Term, DE, and P.DE.
+#' @param enrich a data matrix or data.frame with enrichment result -
+#' outputs from \code{\link{pathway_enrichment}} function or
+#' \code{\link[limma]{goana}}, \code{\link[limma]{kegga}}.
+#' Must contain columns Term, DE, and P.DE.
+#' @param n_max max number of terms to show
 #'
 #' @return a ggplot object
 #'
-#' @importFrom dplyr filter group_by mutate left_join select summarise_all
-#' @importFrom tibble column_to_rownames
+#' @importFrom dplyr arrange mutate
+#' @importFrom viridis scale_color_viridis
+#' @importFrom ggplot2 ggplot aes geom_point
 #' @export
-plot_goana <- function(DF, nGSmax = 15) {
-  DF <- DF %>%  arrange(-DE, P.DE) %>%
-    mutate(Term = paste0(Term, " (", DE, "/", N , ")"),
-           Term = factor(Term, level = Term))
-
-  plt <- ggplot(DF[1:min(nGSmax, nrow(DF)), ],
-                aes(y = Term, x = -log10(P.DE),
-                    size = N, color = DE/N)) +
-    geom_point() +  viridis::scale_color_viridis()
+#'
+plot_enrichment <- function(enrich, n_max = 15) {
+  enrich <- enrich %>%
+    arrange(-DE, P.DE) %>%
+    mutate(
+      Term = paste0(Term, " (", DE, "/", N , ")"),
+      Term = factor(Term, levels = Term)
+    )
+  plt <- ggplot(
+    enrich[1:min(n_max, nrow(enrich)), ],
+    aes(y = Term, x = -log10(P.DE), size = N, color = DE/N)
+    ) +
+    geom_point() +
+    scale_color_viridis()
   return(plt)
 }
-
-
-#' #' @title Venn diagram for features significant at each timpoints
-#' #'
-#' #' @param df a data.frame of features by timepoints listing significant
-#' #' features for each timepoint, NA entries stands for non-significant,
-#' #' features do not have to be in the same order.
-#' #' @param size plot size, in centimeters.
-#' #' @param transparency transparency for the color(s) specified with zcolor
-#' #' @param cexil a character expansion for the intersection labels
-#' #' @param cexsn a character expansion for the set names
-#' #' @param zcolor a vector of colors for the custom zones,
-#' #' or predefined colors if "style"
-#' #' @param ... other parameters for the line plots.
-#' #'
-#' #' @importFrom venn venn
-#' #' @importFrom viridis viridis
-#' #' @export
-#' #' @examples
-#' #'
-#' timepoint_venn <- function(df, size = 50, transparency = 0.5,
-#'                            cexil = .9, cexsn = 1,
-#'                            zcolor = viridis(length(venn.lst)), ...) {
-#'   venn.lst <- lapply(colnames(df), function(i) {
-#'     df[!is.na(df[, i]), i]
-#'   })
-#'   names(venn.lst) <- colnames(df)
-#'   venn(venn.lst, size = size, transparency = transparency,
-#'        cexil = cexil, cexsn = cexsn, zcolor = viridis(length(venn.lst)), ...)
-#' }
-
 
