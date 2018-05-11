@@ -22,6 +22,9 @@ sample_data(object) <- value
 
 \item{value}{a \code{data.frame} with new sample data}
 }
+\value{
+a \code{data.frame}
+}
 \description{
 'sample.data' slots holds information on individual samples including
 corresponding sample name in column 'sample' as well as time, group

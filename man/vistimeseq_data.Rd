@@ -29,7 +29,10 @@ set_data(object) <- value
 
 \item{raw}{whether raw data should be returned}
 
-\item{value}{a data matrix or \code{data.frame}}
+\item{value}{a \code{data.frame}}
+}
+\value{
+a \code{data.frame}
 }
 \description{
 The 'raw.data' of 'data' slots hold data where columns are

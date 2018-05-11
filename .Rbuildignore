@@ -1,3 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.git$
 ^\.travis\.yml$
+^.*\.gitignore$
+^.*\.DS_Store$

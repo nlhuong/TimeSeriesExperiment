@@ -22,6 +22,9 @@ set_group(object) <- value
 
 \item{value}{a character vectore with new group membership}
 }
+\value{
+a character vector
+}
 \description{
 'grop' slots holds feature names
 }

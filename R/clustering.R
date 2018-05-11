@@ -23,7 +23,7 @@ assign_cluster_static <- function(hclst, h = NULL,  k = NULL) {
     data.frame("cluster" = clst) %>%
       rownames_to_column(var = "feature") %>%
       left_join(
-        data_frame(feature = hclst$labels, leaf_order = hclst$order)
+        data_frame("feature" = hclst$labels, "leaf_order" = hclst$order)
       ) %>% #arrange(leaf_ix) %>%
       mutate(cluster =  paste0("C", cluster))
   )
@@ -55,7 +55,7 @@ assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
     data.frame("cluster" = clst, row.names = hclst$labels) %>%
       rownames_to_column(var = "feature") %>%
       left_join(
-        data_frame(feature = hclst$labels, leaf_order = hclst$order)
+        data_frame("feature" = hclst$labels, "leaf_order" = hclst$order)
       ) %>% #arrange(leaf_ix) %>%
       mutate(cluster =  paste0("C", cluster))
   )
@@ -77,7 +77,8 @@ assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
 #' assignment.
 #' @param hclust_params parameters for \code{\link[stats]{hclust}} function.
 #' @param static_cut_params parameters for \code{\link{assign_cluster_static}}.
-#' @param dynamic_cut_params parameters for \code{\link{assign_cluster_dynamic}}.
+#' @param dynamic_cut_params parameters for
+#' \code{\link{assign_cluster_dynamic}}.
 #'
 #' @return a list with the \code{hclust} object, as well as \code{clust_map}
 #' and \code{clust_centroids} data.frames.
@@ -98,6 +99,8 @@ cluster_data <- function(
   hclust_params = list(),
   static_cut_params = list(h = 0.5),
   dynamic_cut_params = list(max_height = 0.9)) {
+
+  cluster <- feature <- NULL
 
   # Perform hierarchical clustering
   D <- dist(X, method = dist)
@@ -169,6 +172,7 @@ cluster_timecourse_features <- function(
   object, n_top_feat = 1000, groups = "all", lambda = c(0.5, 0.25),
   clust_params = list()){
 
+  group <- cluster <- feature <- NULL
   clust_params_default <- list(
     dist = "euclidean",
     dynamic = FALSE,
@@ -205,8 +209,9 @@ cluster_timecourse_features <- function(
     select(-(feature:replicate), -contains("Lag")) %>%
     colnames()
   features_sd <- tc_data %>%
-    select(-replicate, -contains("Lag")) %>%
-    mutate(sd = apply(as.matrix(.[timepoints]), 1, sd)) %>%
+    select(-replicate, -contains("Lag"))
+  features_sd[["sd"]] <- apply(features_sd[, timepoints], 1, sd)
+  features_sd <- features_sd %>%
     group_by(group) %>%
     top_n(n = n_top_feat, wt = sd)
   top_features <- unique(features_sd[["feature"]])

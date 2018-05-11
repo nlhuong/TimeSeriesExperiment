@@ -11,6 +11,9 @@
 \arguments{
 \item{object}{A vistimeseq object}
 }
+\value{
+nothing, just prints to console
+}
 \description{
 show method for \code{vistimeseq}
 }

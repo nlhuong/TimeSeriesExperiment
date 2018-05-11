@@ -26,6 +26,7 @@
 #'
 timepoint_de <- function(object, timepoints = "all",
                          min_gene_sum = 1, alpha = 0.05) {
+  group <- time <- NULL
   if (!validObject(object)){
     stop("Invalid 'vistimeseq' object.")
   }
@@ -118,6 +119,7 @@ timepoint_de <- function(object, timepoints = "all",
 trajectory_de <- function(object, dist_method = "euclidean",
                           p_adj_method = "BH", lambda = c(0.5, 0.25),
                           verbose = TRUE, ...) {
+  feature <- Df <- pval <- R2 <- NULL
   if (!validObject(object)){
     stop("Invalid 'vistimeseq' object.")
   }
@@ -131,7 +133,7 @@ trajectory_de <- function(object, dist_method = "euclidean",
   message("Testing differential feature trajectories.")
   tc <- time_course(object)
   feature_names <- unique(tc$feature)
-  adonis.res <- lapply(1:length(feature_names), function(i) {
+  adonis.res <- lapply(seq_along(feature_names), function(i) {
     feat <- feature_names[i]
     if((i %% 500) == 0 && verbose) {
       message("Feature: ", i)

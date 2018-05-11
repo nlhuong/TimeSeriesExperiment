@@ -173,9 +173,9 @@ vistimeseq <- setClass(
 #' @description Initializes the vistimeseq object and populates
 #' the time, replicate, and group slots.
 #'
-#' @param project Project name (string)
 #' @param raw.data Raw input data with columns corresponding to samples
 #' (observations) and rows to features
+#' @param project Project name (string)
 #' @param sample.data Optional. A \code{data.frame} object were rows are
 #' samples (observations) and columns are sample attributes
 #' (e.g. group/condition, replicate, time)
@@ -287,10 +287,10 @@ vistimeseq <- function(
     group <- rep("G1", nSamples)
   }
   if(is.null(colnames(raw.data))) {
-    colnames(raw.data) <- paste0("S", 1:nSamples)
+    colnames(raw.data) <- paste0("S", seq_len(nSamples))
   }
   if(is.null(rownames(raw.data))) {
-    rownames(raw.data) <- paste0("F", 1:nFeatures)
+    rownames(raw.data) <- paste0("F", seq_len(nFeatures))
   }
   sample_data <- data.frame(
     sample = colnames(raw.data),
@@ -327,3 +327,99 @@ vistimeseq <- function(
   return(object)
 }
 
+
+#' @title vistimeseq object and constructor from ExpressionSet
+#'
+#' @description Initializes the vistimeseq object from ExpressionSet
+#' and populates the time, replicate, and group slots.
+#'
+#' @param eset ExpressionSet object
+#' @param project Project name (string)
+#' @param time_column A character string equal to one of the column names
+#' of \code{sample.data}. This is an alternative, way of specifying the time
+#' corresponding to samples, if \code{time} argument is not provided.
+#' @param replicate_column A character string equal to one of the column names
+#' of \code{sample.data}. This is an alternative, way of specifying the
+#' replicate corresponding to samples, if \code{replicate} argument is not
+#' provided. If both \code{replicate} and \code{replicate_column} are not set,
+#' the function assumes all samples come from the same replicate, and assigns
+#' a replicate name 'R1' to all samples.
+#' @param group_column A character string equal to one of the column names
+#' of \code{sample.data}. This is an alternative, way of specifying the
+#' replicate corresponding to samples, if \code{replicate} argument is not
+#' provided. If both \code{group} and \code{group_column} are not set, the
+#' function assumes all samples come from the same group, and assigns a group
+#' name 'G1' to all samples.
+#'
+#' @return Returns a vistimeseq object with the raw data stored in
+#' object@@raw.data, object@@sample.data object@@group, object@@replicate,
+#' and object@@time are also initialized.
+#'
+#' @importFrom Biobase fData pData exprs
+#' @importFrom tibble rownames_to_column
+#' @importFrom dplyr rename
+#' @export
+#'
+#' @examples
+#' library(Biobase)
+#' cop1_eset <- readRDS(
+#' file = system.file("extdata", "NGS1471_esetCounts_fltr.rds",
+#'   package = "vistimeseq", mustWork = TRUE)
+#' )
+#' # convert timpoint data T0, T2.5, T4, ..., T13 to numeric values
+#' pData(cop1_eset)$time <- gsub("T", "", pData(cop1_eset)$time)
+#' pData(cop1_eset)$time <- as.numeric(pData(cop1_eset)$time)
+#' cop1_vistimeseq <- vistimeseqFromExpressionSet(
+#'   cop1_eset, time = "time", group = "genotype", replicate = "individual")
+#' cop1_vistimeseq
+#'
+vistimeseqFromExpressionSet <- function(
+  eset,
+  time_column,
+  replicate_column = NULL,
+  group_column = NULL,
+  project = "'vistimeseq' time course project"
+) {
+  gene_data <- fData(eset) %>%
+    rownames_to_column("feature")
+  smp_data <- pData(eset) %>%
+    rownames_to_column("sample")
+
+  if(!is.null(replicate_column)) {
+    if(replicate_column %in% colnames(smp_data)){
+      smp_data[["replicate"]] <- smp_data[[replicate_column]]
+    } else {
+      stop("\"replicate_column\" not found.")
+    }
+  } else {
+    smp_data[["replicate"]] <- rep("R1", nrow(smp_data))
+  }
+
+  if(!is.null(group_column)) {
+    if(group_column %in% colnames(smp_data)){
+      smp_data[["group"]] <- smp_data[[group_column]]
+    } else {
+      stop("\"group_column\" not found.")
+    }
+  } else {
+    smp_data[["group"]] <- rep("G1", nrow(smp_data))
+  }
+
+  if(!is.numeric(smp_data[[time_column]])) {
+    stop("time column must be numeric.")
+  }
+  smp_data[["time"]] <- smp_data[[time_column]]
+
+  cnts <- exprs(eset)[, smp_data$sample]
+
+  object <- vistimeseq(
+    project = project,
+    raw.data = cnts,
+    feature.data = gene_data,
+    sample.data = smp_data,
+    time_column = "time",
+    replicate_column = "replicate",
+    group_column = "group"
+  )
+  return(object)
+}

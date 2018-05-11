@@ -22,6 +22,9 @@ feature_data(object) <- value
 
 \item{value}{a \code{data.frame} with new feature data}
 }
+\value{
+a \code{data.frame}
+}
 \description{
 'feature.data' slots holds information on individual features including
 corresponding feature name in column 'feature'.

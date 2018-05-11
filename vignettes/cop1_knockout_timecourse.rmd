@@ -89,13 +89,38 @@ The dataset from the study is shipped together with the package as an
 ```{r, message=FALSE, warning=FALSE}
 # Load gene data
 cop1_eset <- readRDS(
-  file = system.file("extdata", "NGS1471_esetCounts.rds", 
+  file = system.file("extdata", "NGS1471_esetCounts_fltr.rds", 
                      package = "vistimeseq", mustWork = TRUE)
 )
 ```
 
-Then, we can access individual fields of `cop1_eset` using functions from
-`Biobase` packages. First, we extract the gene phenotype data.
+We can easily convert  `ExpressionSet`s to `vistimeseq` using 
+`vistimeseqFromExpressionSet()` funtion, indicating columns
+with relevant information. In `vistimeseq` the time variablie must be numeric,
+so we first convert need to it. 
+
+```{r error = TRUE, purl = FALSE}
+cop1_vistimeseq <- vistimeseqFromExpressionSet(
+  cop1_eset, time = "time", group = "genotype", replicate = "individual")
+cop1_vistimeseq
+```
+
+
+```{r}
+head(phenoData(cop1_eset)$time)
+# convert timpoint data T0, T2.5, T4, ..., T13 to numeric values
+pData(cop1_eset)$time <- gsub("T", "", pData(cop1_eset)$time)
+pData(cop1_eset)$time <- as.numeric(pData(cop1_eset)$time)
+cop1_vistimeseq <- vistimeseqFromExpressionSet(
+  cop1_eset, time = "time", group = "genotype", replicate = "individual")
+cop1_vistimeseq
+```
+
+Alternatively, we can build `vistimeseq` object from each of the component.
+Here we read each of the fields of the `ExpressionSet` using `Biobase`
+package.
+
+First, we extract the gene phenotype data.
 
 ```{r}
 # Gene data
@@ -188,12 +213,15 @@ rare ones which we assume to be too noisy and not containing enough signal
 for further analysis.
 
 Here, we find and remove all genes which have the mean expression (CPM) below 
-`min_mean_cpm` = 5 within either of the two groups of interest,
-*wild type* or *knock-out*.
+`min_mean_cpm` = 50 within either of the two groups of interest,
+*wild type* or *knock-out*. We set a very large threshold of 100
+for this vignette only because the graphichs below would make the size of this 
+vignette too large. When running on the your own study you should pick 
+the threshold more carefully.
 
 ```{r}
-# Fine genes with minimum mean count of 5 at least in one of the two groups
-min_mean_cpm <- 5
+# Fine genes with minimum mean count of 100 at least in one of the two groups
+min_mean_cpm <- 50
 group_cpm_means <- data.frame(row.names = feature_names(cop1_timeseq))
 for(g in unique(get_group(cop1_timeseq))) {
   g_cnts <- get_data(cop1_timeseq)[ , which(get_group(cop1_timeseq) == g)]
@@ -208,6 +236,11 @@ genes_expressed <- feature_names(cop1_timeseq)[group_cpm_max > min_mean_cpm]
 cop1_timeseq <- filter_features(cop1_timeseq, genes_expressed) 
 cop1_timeseq
 ```
+
+Note that here, we remove the majority of features and our results might be
+inaccurate. However, this vignette's purpose is only to inform how the package
+work and not intended as the whod dataset analysis. We do this because 
+of Bioconductor's constraint on file sizes. 
 
 Collapse replicates {#collapse-replicates .unnumbered}
 ------------------------------------------------------
@@ -401,11 +434,11 @@ cop1_timeseq <- run_pca(cop1_timeseq, var.stabilize.method = "asinh")
 ```
 
 ```{r pca-samples-group, fig.wide = TRUE, fig.height=3, fig.width=7}
-plot_sample_pca(cop1_timeseq, col.var = "group", size = 4) 
+plot_sample_pca(cop1_timeseq, col.var = "group", size = 5) 
 ```
 
 ```{r pca-samples-time, fig.wide = TRUE, fig.height=3, fig.width=7}
-plot_sample_pca(cop1_timeseq, col.var = "time", size = 4) 
+plot_sample_pca(cop1_timeseq, col.var = "time", size = 5) 
 ```
 
 In the plots above we see that the samples group mostly by time at which
@@ -473,14 +506,16 @@ of using only a subset of most variable genes for clustering is that, the core
 genes which exhibit negligible changes over time (which might be the majority 
 of genes) will not much effect on clustering results.
 
+Here we pick 1000 genes for clustering, whcih is roughly 1/3 of the
+number of genes after filtering.
 
 ```{r}
 params_for_clustering <- list(
   dynamic = TRUE, 
-  dynamic_cut_params = list(deepSplit = TRUE, minModuleSize = 150))
+  dynamic_cut_params = list(deepSplit = TRUE, minModuleSize = 60))
   
 cop1_timeseq <- cluster_timecourse_features(
-  cop1_timeseq, n_top_feat = 3000, groups = "all",
+  cop1_timeseq, n_top_feat = 1000, groups = "all",
   clust_params = params_for_clustering)
 
 ```
@@ -502,7 +537,7 @@ hclust_obj <- get_cluster_hclust(cop1_timeseq)
 plot(x = hclust_obj, labels = FALSE, xlab = "genes", sub = "")
 ```
 
-Here we plot average (over replicates) gene trajectories grouped into six
+Here we plot average (over replicates) gene trajectories grouped into 10
 clusters found using the above described approach. The expression profiles
 for wild type and knock-out are plotted separately, side by side.
 
@@ -514,9 +549,9 @@ plot_ts_clusters(cop1_timeseq, transparency = 0.2) +
 
 
 Timecourse plots above show genes clustered clearly into groups related
-to their pattern of response to LPS treatment. We see cluster C1, C2 and C4 
-generally inhibited. Genes in C6 spike right after LPS was applied. C3
-shows moderate secondary response, and C5 exhibit late increase in expression.
+to their pattern of response to LPS treatment. We see cluster C2, C5, and C6
+generally inhibited. Genes in C3 spike right after LPS was applied. C8
+shows moderate secondary response, and C1 exhibit late increase in expression.
 
 
 Differential Expression Ranking {#diff-expr .unnumbered}
@@ -631,20 +666,8 @@ Function `trajectory_de()` can be used to find differential genes using the
 above described method. Results of testing procedure are saved in
 `cop1_timeseq@diff.expr$trajectory_de`.
 
-```{r, echo = TRUE, eval = FALSE}
+```{r, echo = TRUE, eval = TRUE}
 cop1_timeseq <- trajectory_de(cop1_timeseq, dist_method = "euclidean") 
-```
-
-
-```{r, eval = FALSE, echo = FALSE}
-saveRDS(cop1_timeseq@diff.expr$trajectory_de, 
-        "../inst/extdata/cop1_cmp_sum_scale_trajectory_de.rds")
-```
-
-```{r, echo=FALSE}
-cop1_timeseq@diff.expr$trajectory_de <- readRDS(
-  system.file("extdata", "cop1_cmp_sum_scale_trajectory_de.rds",
-              package = "vistimeseq", mustWork = TRUE))
 ```
 
 ```{r}
@@ -673,7 +696,7 @@ genes_with_de_trajectory <- de_trajectory_res %>%
 (genes_to_plot <- genes_with_de_trajectory$feature[1:n_genes])
 ```
 
-```{r genes-de-trajectory, fig.width = 10, fig.height = 10, fig.wide = TRUE}
+```{r genes-de-trajectory, fig.width = 8, fig.height = 8, fig.wide = TRUE}
 plot_time_series(cop1_timeseq, features = genes_to_plot) +
   scale_color_manual(values = c("WT" =  "#1f78b4", "Loxp" = "#e31a1c")) 
 ```
@@ -731,24 +754,13 @@ parameters applied to enrichment results: `fltr_DE`, `fltr_N`, and
 `fltr_P.DE`. For details see the documentation `?pathway_enrichment`.
 
 
-```{r, echo = TRUE, eval = FALSE}
+```{r, echo = TRUE}
 enrich_res <- pathway_enrichment(
   object = cop1_timeseq, 
   features = genes_with_de_trajectory$feature, 
   species = "Mm", 
   fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05)
 ```
-
-```{r, echo = FALSE, eval = FALSE}
-saveRDS(enrich_res, "../inst/extdata/go_enrich_res.rds")
-```
-
-```{r, echo=FALSE, eval = TRUE}
-enrich_res <- readRDS(
-  system.file("extdata", "go_enrich_res.rds", package = "vistimeseq", 
-              mustWork = TRUE))
-```
-
 
 We can plot enrichment results for genes with differential trajectory
 in each cluster separately using `plot_enrichment()`.
@@ -761,9 +773,10 @@ points correspond the enrichment term size (N).
 Below we print we print for example a plot for cluster C6.
 
 ```{r go-enrich-clst,  fig.width = 8, fig.height = 4, fig.wide = TRUE}
+clst <- "C4"
 plot_enrichment(
-    enrich = enrich_res[["C6"]], n_max = 15) +
-  ggtitle(paste0("Cluster C6 enrichment"))
+    enrich = enrich_res[[clst]], n_max = 15) +
+  ggtitle(paste0("Cluster , ", clst, " enrichment"))
 ```
 
 

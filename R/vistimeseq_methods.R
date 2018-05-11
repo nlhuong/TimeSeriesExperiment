@@ -33,6 +33,8 @@ replace_names <- function(query, orig, replace) {
 #'
 #' @param object A vistimeseq object
 #'
+#' @return nothing, just prints to console
+#'
 setMethod(
   f = "show",
   signature = "vistimeseq",
@@ -57,7 +59,7 @@ setMethod(
 
 #' Number of samples and features
 #'
-#' Returns number of samples or in the data.
+#' Returns number of samples or features in the data.
 #'
 #' @docType methods
 #' @name n_samples
@@ -65,6 +67,7 @@ setMethod(
 #'
 #' @param object a \code{vistimeseq} object.
 #'
+#' @return an integer
 #' @export
 #' @examples
 #'
@@ -111,6 +114,7 @@ setMethod(f = "n_features", signature = "vistimeseq",
 #' @param object a \code{vistimeseq} object.
 #' @param value a character vector with new sample names
 #'
+#' @return a character vector
 #' @export
 #' @examples
 #' endoderm_small
@@ -167,6 +171,7 @@ setReplaceMethod(f = "sample_names", signature = "vistimeseq",
 #' @param object a \code{vistimeseq} object
 #' @param value a \code{data.frame} with new sample data
 #'
+#' @return a \code{data.frame}
 #' @examples
 #'
 #' endoderm_small
@@ -239,6 +244,7 @@ setReplaceMethod(f = "sample_data", signature = "vistimeseq",
 #' @param object a \code{vistimeseq} object.
 #' @param value a character vectore with new feature names
 #'
+#' @return a character vector
 #' @export
 #' @examples
 #' endoderm_small
@@ -271,7 +277,7 @@ set_feature_names <- function(object, value) {
     rownames(object@data.collapsed) <- value
   }
   if(!is.null(object@timecourse.data)) {
-    for(i in 1:length(object@timecourse.data)){
+    for(i in seq_along(object@timecourse.data)){
       object@timecourse.data[[i]]$feature <-
         replace_names(object@timecourse.data[[i]]$feature,
                       orig = object@feature.names,
@@ -334,6 +340,7 @@ setReplaceMethod(f = "feature_names", signature = "vistimeseq",
 #' @param object a \code{vistimeseq} object.
 #' @param value a \code{data.frame} with new feature data
 #'
+#' @return a \code{data.frame}
 #' @export
 #' @examples
 #' endoderm_small
@@ -382,6 +389,7 @@ setReplaceMethod(f = "feature_data", signature = "vistimeseq",
 #' @param object a \code{vistimeseq} object.
 #' @param value a character vectore with new group membership
 #'
+#' @return a character vector
 #' @export
 #' @examples
 #' endoderm_small
@@ -435,6 +443,7 @@ setGeneric("set_replicate<-", function(object, value)
 #' @param object a \code{vistimeseq} object.
 #' @param value a character vector with new replicate ids.
 #'
+#' @return a character vector
 #' @export
 #' @examples
 #' endoderm_small
@@ -479,6 +488,7 @@ setReplaceMethod(f = "set_replicate", signature = "vistimeseq",
 #' @param object a \code{vistimeseq} object.
 #' @param value a numeric vector with new time information.
 #'
+#' @return a numeric vector
 #' @export
 #' @examples
 #' endoderm_small
@@ -533,7 +543,9 @@ setReplaceMethod(f = "set_time", signature = "vistimeseq",
 #'
 #' @param object a \code{vistimeseq} object.
 #' @param raw whether raw data should be returned
-#' @param value a data matrix or \code{data.frame}
+#' @param value a \code{data.frame}
+#'
+#' @return a \code{data.frame}
 #'
 #' @export
 #' @examples
@@ -601,6 +613,7 @@ setReplaceMethod(f = "set_data", signature = "vistimeseq",
 #'
 #' @param object a \code{vistimeseq} object.
 #'
+#' @return a \code{data.frame}
 #' @export
 #' @examples
 #' endoderm_small
@@ -627,6 +640,7 @@ setMethod(f = "collapsed_data", signature = "vistimeseq",
 #'
 #' @param object a \code{vistimeseq} object.
 #'
+#' @return a \code{data.frame}
 #' @export
 #' @examples
 #' endoderm_small
@@ -654,6 +668,8 @@ setMethod(f = "collapsed_sample_data", signature = "vistimeseq",
 #'
 #' @param object a \code{vistimeseq} object.
 #' @param collapsed whether collapsed time-course should be returned
+#'
+#' @return a \code{data.frame}
 #'
 #' @export
 #' @examples
@@ -690,6 +706,7 @@ setMethod(f = "time_course", signature = "vistimeseq",
 #' @param type one of elements of 'dim.red' slot: 'pca_sample', 'pca_feature'
 #' and 'pca_eigs' or 'all' for returning the entire list.
 #'
+#' @return a \code{data.frame} or a list of \code{data.frame}s
 #' @export
 #' @examples
 #' endoderm_small
@@ -739,6 +756,7 @@ setMethod(f = "get_dim_reduced", signature = "vistimeseq",
 #'
 #' @param object a \code{vistimeseq} object.
 #'
+#' @return a \code{data.frame}
 #' @export
 #' @examples
 #'
@@ -768,6 +786,7 @@ setMethod(f = "get_cluster_map", signature = "vistimeseq",
 #' @name get_cluster_hclust
 #' @rdname feat_clust
 #'
+#' @return an hclust object
 #' @export
 #' @examples
 #'endoderm_small
@@ -801,6 +820,7 @@ setMethod(f = "get_cluster_hclust", signature = "vistimeseq",
 #' @param type one of elements of 'dim.red' slot: 'timepoint_de',
 #' 'trajectory_de' or 'all' for returning the entire list.
 #'
+#' @return a \code{data.frame} or a list of \code{data.frame}s
 #' @export
 #' @examples
 #' \dontrun{
@@ -845,6 +865,7 @@ setMethod(f = "get_diff_expr", signature = "vistimeseq",
 #' @param object a \code{vistimeseq} object.
 #' @param value a character string
 #'
+#' @return a character string
 #' @export
 #' @examples
 #' endoderm_small

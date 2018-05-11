@@ -20,7 +20,8 @@ assignment.}
 
 \item{static_cut_params}{parameters for \code{\link{assign_cluster_static}}.}
 
-\item{dynamic_cut_params}{parameters for \code{\link{assign_cluster_dynamic}}.}
+\item{dynamic_cut_params}{parameters for
+\code{\link{assign_cluster_dynamic}}.}
 }
 \value{
 a list with the \code{hclust} object, as well as \code{clust_map}

@@ -26,6 +26,9 @@ different for each group.}
 
 \item{...}{other parameters for the line plots.}
 }
+\value{
+None
+}
 \description{
 PCA plot for data features, with time-series levels overlayed
 on top.

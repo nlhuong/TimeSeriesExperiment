@@ -17,6 +17,9 @@ get_dim_reduced(object, type = "all")
 \item{type}{one of elements of 'dim.red' slot: 'pca_sample', 'pca_feature'
 and 'pca_eigs' or 'all' for returning the entire list.}
 }
+\value{
+a \code{data.frame} or a list of \code{data.frame}s
+}
 \description{
 'dim.red' slots is a list with 'pca_sample', 'pca_feature' and
 'pca_eigs' results from PCA projection.

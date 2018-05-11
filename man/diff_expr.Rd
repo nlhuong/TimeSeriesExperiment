@@ -17,6 +17,9 @@ get_diff_expr(object, type = "all")
 \item{type}{one of elements of 'dim.red' slot: 'timepoint_de',
 'trajectory_de' or 'all' for returning the entire list.}
 }
+\value{
+a \code{data.frame} or a list of \code{data.frame}s
+}
 \description{
 'diff.expr' slots is a list with differential expression results
 possibly containing elements named 'timepoint_de', and 'trajectory_de'.

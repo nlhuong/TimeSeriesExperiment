@@ -22,6 +22,9 @@ project_name(object) <- value
 
 \item{value}{a character string}
 }
+\value{
+a character string
+}
 \description{
 Returns project name.
 }

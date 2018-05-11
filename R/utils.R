@@ -3,6 +3,7 @@
 #' @name %>%
 #' @rdname pipe
 #' @keywords internal
+#' @return None
 #' @export
 #' @importFrom magrittr %>%
 #' @usage lhs \%>\% rhs
@@ -143,6 +144,7 @@ normalize_data <- function(object,
 #' @importFrom dplyr mutate select
 #' @importFrom  methods slot<-
 #' @importFrom methods validObject
+#' @importFrom stats aggregate
 #' @export
 #' @examples
 #' endoderm_small
@@ -151,6 +153,7 @@ normalize_data <- function(object,
 #' head(collapsed_data(endoderm_small))
 #'
 collapse_replicates <- function(object, FUN = mean) {
+  group <- time <- NULL
   if (!validObject(object)){
     stop("Invalid vistimeseq object.")
   }
@@ -171,18 +174,14 @@ collapse_replicates <- function(object, FUN = mean) {
     colnames(dat) <- paste0(get_group(object), "_", get_time(object))
     dat <- dat[, sample.data.collapsed$sample]
     slot(object, name = "data.collapsed", check = TRUE) <- dat
-    return(oject)
+    return(object)
   }
-  data.collapsed <- sapply(
-    seq_len(nrow(sample.data.collapsed)), function(i) {
-      ig <- sample.data.collapsed[i, "group"]
-      it <- sample.data.collapsed[i, "time"]
-      idx <- (get_group(object) == ig & get_time(object) == it)
-      idat <- dat[, idx]
-      apply(idat, 1, FUN)
-    }
-  )
-  colnames(data.collapsed) <- rownames(sample.data.collapsed)
+  data.collapsed <- aggregate(
+    t(dat), list(get_group(object), get_time(object)), FUN)
+  rownames(data.collapsed) <- paste0(data.collapsed$Group.1, "_",
+                                     data.collapsed$Group.2)
+  data.collapsed <- data.collapsed[, seq(3, ncol(data.collapsed))]
+  data.collapsed <- t(data.collapsed)[, sample.data.collapsed$sample]
   slot(object, name = "data.collapsed", check = TRUE) <-
     as.data.frame(data.collapsed)
   return(object)
@@ -215,6 +214,7 @@ collapse_replicates <- function(object, FUN = mean) {
 #' head(tc)
 #'
 data_to_tc <- function(X, time, replicate = NULL, group = NULL){
+  value <- feature <- NULL
   if (is.null(group)) group <- rep("G1", ncol(X))
   if (is.null(replicate)) replicate <- rep("R1", ncol(X))
   if (is.null(colnames(X))) colnames(X) <- seq_len(ncol(X))
@@ -333,8 +333,8 @@ add_lags_to_tc <- function(timecourse, lambda) {
   lags <- lapply(seq_along(lambda), function(i) {
     ilag <- lambda[i] * t(diff(t(timecourse), lag = i))
     colnames(ilag) <- paste0("Lag_",
-                             timeNames[(i+1):nT], "_",
-                             timeNames[1:(nT-i)])
+                             timeNames[seq((i+1), nT)], "_",
+                             timeNames[seq(1,(nT-i))])
     return(ilag)
   })
   lags <- do.call("cbind", lags)
@@ -375,6 +375,7 @@ add_lags_to_tc <- function(timecourse, lambda) {
 #' head(time_course(endoderm_small, collapsed = TRUE))
 #'
 add_lags <- function(object, lambda = c(0.5, 0.25)) {
+  group <- feature <- NULL
   if (!validObject(object)){
     stop("Invalid vistimeseq object.")
   }

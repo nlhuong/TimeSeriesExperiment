@@ -111,10 +111,12 @@ add_feature_data <- function(object, featuredata,
 #' endoderm_small
 #'
 filter_features <- function (object, features) {
+  feature <- NULL
   if (!validObject(object)){
     stop("Invalid 'vistimeseq' object.")
   }
-  if (all(is.numeric(features), !all(features %in% 1:n_features(object)))){
+  if (all(is.numeric(features),
+          !all(features %in% seq_len(n_features(object))))){
     stop("Some \"features\" not included in \"vistimeseq\" object.")
   }
   if(is.numeric(features)){

@@ -14,6 +14,9 @@ collapsed_sample_data(object)
 \arguments{
 \item{object}{a \code{vistimeseq} object.}
 }
+\value{
+a \code{data.frame}
+}
 \description{
 'sample.data.collapsed' slots holds sample data for data
 collapsed by replicates

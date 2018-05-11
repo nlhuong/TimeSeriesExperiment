@@ -22,6 +22,9 @@ set_time(object) <- value
 
 \item{value}{a numeric vector with new time information.}
 }
+\value{
+a numeric vector
+}
 \description{
 'grop' slots holds feature names
 }

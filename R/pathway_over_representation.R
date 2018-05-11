@@ -50,6 +50,7 @@ pathway_enrichment <- function(object, features, species,
                                clustered = TRUE, kegg = FALSE,
                                fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05,
                                ...){
+  feature <- cluster <- DE <- N <- P.DE <- NULL
   if(all(clustered, is.null(get_cluster_map(object)))) {
     stop("No 'cluster_map' in object@cluster.features. Perform
          clustering with 'cluster_timecourse_features()' first.")
@@ -99,7 +100,8 @@ pathway_enrichment <- function(object, features, species,
         species = species,
         species.KEGG = kegg_species, ...)
     }
-    n_DE <- fltr_DE * freq_clust %>% filter(cluster == clst) %>% .[["freq"]]
+    n_DE <- freq_clust %>% filter(cluster == clst)
+    n_DE <- fltr_DE * n_DE[["freq"]]
     res[[clst]] <- clust_res %>%
       filter(DE > n_DE, N <= fltr_N, P.DE <= fltr_P.DE)
   }

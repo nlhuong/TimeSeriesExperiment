@@ -22,6 +22,9 @@ sample_names(object) <- value
 
 \item{value}{a character vector with new sample names}
 }
+\value{
+a character vector
+}
 \description{
 'sample.names' slots holds sample names
 }

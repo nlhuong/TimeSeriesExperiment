@@ -14,6 +14,9 @@ collapsed_data(object)
 \arguments{
 \item{object}{a \code{vistimeseq} object.}
 }
+\value{
+a \code{data.frame}
+}
 \description{
 'data.collapsed' slots holds dataset collapsed by replicates
 }

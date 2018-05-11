@@ -22,6 +22,9 @@ feature_names(object) <- value
 
 \item{value}{a character vectore with new feature names}
 }
+\value{
+a character vector
+}
 \description{
 'feature.names' slots holds feature names
 }

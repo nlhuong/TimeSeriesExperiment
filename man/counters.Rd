@@ -21,8 +21,11 @@ n_features(object)
 \arguments{
 \item{object}{a \code{vistimeseq} object.}
 }
+\value{
+an integer
+}
 \description{
-Returns number of samples or in the data.
+Returns number of samples or features in the data.
 }
 \examples{
 

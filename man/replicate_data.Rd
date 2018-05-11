@@ -22,6 +22,9 @@ get_replicate(object)
 
 \item{value}{a character vector with new replicate ids.}
 }
+\value{
+a character vector
+}
 \description{
 'grop' slots holds feature names
 }

@@ -66,7 +66,7 @@ run_pca <- function(object,
   pca.res <- prcomp(X)
   dim.red <- list()
   eigs <- pca.res$sdev^2
-  names(eigs) <- paste0("eig_", 1:length(eigs))
+  names(eigs) <- paste0("eig_", seq_along(eigs))
   dim.red[["pca_eigs"]] <- eigs
   dim.red[["pca_sample"]] <- pca.res$x
   dim.red[["pca_feature"]] <- pca.res$rotation

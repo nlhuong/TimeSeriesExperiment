@@ -16,6 +16,9 @@ time_course(object, collapsed = FALSE)
 
 \item{collapsed}{whether collapsed time-course should be returned}
 }
+\value{
+a \code{data.frame}
+}
 \description{
 'timecourse.data' slots is a list with 'tc' and (optionally) 'tc_collapsed'
 storing timce-course format of the data.

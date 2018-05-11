@@ -22,6 +22,11 @@ get_cluster_hclust(object)
 \arguments{
 \item{object}{a \code{vistimeseq} object.}
 }
+\value{
+a \code{data.frame}
+
+an hclust object
+}
 \description{
 'cluster.features' slots is a list with '"hclust", "cluster_map"
 where first is an hclust object and second is a \code{data.frame} with cluster

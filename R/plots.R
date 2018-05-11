@@ -29,6 +29,7 @@
 #' }
 plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
                          feat_desc = "feature", sample_desc = "sample"){
+  group <- time <- NULL
   if (!validObject(object)) {
     stop("Invalid vistimeseq object.")
   }
@@ -42,7 +43,7 @@ plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
   rownames(cnts) <- feature_data(object)[, feat_desc]
   colnames(cnts) <- sample_data(object)[, sample_desc]
   top_feat <- apply(cnts, 1, sd)
-  top_feat <- names(top_feat[order(-top_feat)])[1:num.feat]
+  top_feat <- names(top_feat[order(-top_feat)])[seq_len(num.feat)]
   cols_ordered <- order(get_group(object), get_replicate(object),
                         get_time(object))
   Y <- cnts[top_feat, cols_ordered]
@@ -57,12 +58,12 @@ plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
 
   n_group <- length(unique(get_group(object)))
   group_cols <- colorRampPalette(
-    colors = brewer.pal(9, name = "Set1")[1:min(9, n_group)])(n_group)
+    colors = brewer.pal(9, name = "Set1")[seq_len(min(9, n_group))])(n_group)
   names(group_cols) <- unique(get_group(object))
 
   n_replicates <- length(unique(get_replicate(object)))
-  rep_cols <- colorRampPalette(
-    colors = brewer.pal(8, name = "Set3")[1:min(8, n_replicates)])(n_replicates)
+  rep_cols <- colorRampPalette(colors = brewer.pal(8, name = "Set3")[
+    seq_len(min(8, n_replicates))])(n_replicates)
   names(rep_cols) <- unique(get_replicate(object))
 
   time_cols <- colorRamp2(
@@ -92,7 +93,8 @@ plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
 #'
 #' @return Returns a \code{ggplot2} objet.
 #'
-#' @importFrom ggplot2 ggplot aes aes_string geom_point geom_hline geom_vline xlab ylab coord_fixed
+#' @importFrom ggplot2 ggplot aes aes_string geom_point geom_hline
+#' @importFrom ggplot2 geom_vline xlab ylab coord_fixed
 #' @importFrom viridis viridis
 #' @importFrom dplyr left_join
 #' @importFrom tibble rownames_to_column column_to_rownames
@@ -173,6 +175,8 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
 #' @importFrom proxy dist
 #' @importFrom viridis viridis
 #' @importFrom methods validObject
+#'
+#' @return None
 #' @export
 #' @examples
 #' endoderm_small
@@ -182,6 +186,7 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
 plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
                         group.highlight = NULL, linecol = NULL,
                         ...) {
+  feature <- group <- NULL
   if (!validObject(object)){
     stop("Invalid vistimeseq object.")
   }
@@ -227,8 +232,10 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
 
   min_dists <- apply(D, 1, min)
   min_dists_ix <- apply(D, 1, which.min)
-  x_min_dists <- sapply(1:nrow(xD), function(i) xD[i, min_dists_ix[i]])
-  y_min_dists <- sapply(1:nrow(yD), function(i) yD[i, min_dists_ix[i]])
+  x_min_dists <- vapply(seq_len(nrow(xD)), function(i) xD[i, min_dists_ix[i]],
+                        numeric(1))
+  y_min_dists <- vapply(seq_len(nrow(yD)), function(i) yD[i, min_dists_ix[i]],
+                        numeric(1))
   min_dists_ix[x_min_dists > dx/2 | y_min_dists > dy/2] <- NA
 
   # Plot all points corresponding to each feature
@@ -239,9 +246,11 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
        ylim = c(mins[2] - dy/2, maxes[2] + dy/2),
        asp=max(sqrt(pca.eigs[2]/pca.eigs[1]), 0.5), ...)
 
-  groups.unique <-
-    if (is.null(group.highlight)) unique(get_group(object)) else group.highlight
-
+  if (is.null(group.highlight)){
+    groups.unique <- unique(get_group(object))
+  } else {
+    groups.unique <- group.highlight
+  }
   if(is.null(linecol)) {
     linecol <- viridis(length(groups.unique))
     names(linecol) <- groups.unique
@@ -260,7 +269,7 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
         as.numeric()
       Hmisc::subplot(
         plot(tmp, gTC, type = "l", lwd = 2,
-             col =  linecol[gr], frame = F, axes = F,
+             col =  linecol[gr], frame = FALSE, axes = FALSE,
              xlab = "", ylab = "", ylim = ylimits),
              x = c(grid[i, 1] - dx/2, grid[i, 1] + dx/2),
              y = c(grid[i, 2] - dy/2, grid[i, 2] + dy/2)
@@ -288,7 +297,8 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
 #'
 #' @return ggplot object
 #' @importFrom ggplot2 ggplot aes geom_point geom_line geom_smooth facet_wrap
-#' @importFrom dplyr filter left_join mutate select group_by summarize_all arrange desc n contains
+#' @importFrom dplyr filter left_join mutate select group_by
+#' @importFrom dplyr summarize_all arrange desc n contains
 #' @importFrom tidyr gather
 #' @importFrom methods validObject
 #'
@@ -299,6 +309,7 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
 #'
 plot_ts_clusters <- function(object, features = NULL,
                              transparency = 0.5, ncol = 4) {
+  feature <- cluster <- freq <- group <- time <- value <- category <- NULL
   if (!validObject(object)){
     stop("Invalid vistimeseq object.")
   }
@@ -397,6 +408,7 @@ plot_ts_clusters <- function(object, features = NULL,
 plot_time_series <- function(object,
                              features = feature_names(object),
                              smooth = TRUE, ncol = 5){
+  feature <- symbol <- time <- value <- group <- NULL
   if(!all(features %in% feature_names(object))){
     stop("\"features\" must be a subset of object@feature.names")
   }
@@ -461,6 +473,7 @@ plot_time_series <- function(object,
 #' @export
 #'
 plot_enrichment <- function(enrich, n_max = 15) {
+  DE <- N <- P.DE <- Term <- NULL
   enrich <- enrich %>%
     arrange(-DE, P.DE) %>%
     mutate(
