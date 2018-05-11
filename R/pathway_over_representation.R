@@ -55,7 +55,7 @@ pathway_enrichment <- function(object, features, species,
                                ontology = c("BP", "CC", "MF"),
                                fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05,
                                ...){
-  feature <- cluster <- DE <- N <- P.DE <- NULL
+  feature <- cluster <- Ont <- DE <- N <- P.DE <- NULL
   if(all(clustered, is.null(get_cluster_map(object)))) {
     stop("No 'cluster_map' in object@cluster.features. Perform
          clustering with 'cluster_timecourse_features()' first.")

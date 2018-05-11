@@ -11,4 +11,4 @@ bioc_packages:
   - BiocCheck
 
 after_success:
-  - R CMD BiocCheck --new-package --no-check-vignettes [package name]*.tar.gz
+  - R CMD BiocCheck --new-package --no-check-vignettes vistimeseq_0.99.0.tar.gz
