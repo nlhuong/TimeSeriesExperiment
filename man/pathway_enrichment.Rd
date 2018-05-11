@@ -5,7 +5,8 @@
 \title{Pathway enrichment testing.}
 \usage{
 pathway_enrichment(object, features, species, clustered = TRUE,
-  kegg = FALSE, fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05, ...)
+  kegg = FALSE, ontology = c("BP", "CC", "MF"), fltr_DE = 0.1,
+  fltr_N = 500, fltr_P.DE = 0.05, ...)
 }
 \arguments{
 \item{object}{A \code{vistimeseq} object.}
@@ -21,6 +22,9 @@ and tested as separate sets.}
 
 \item{kegg}{Whether KEGG pathways should be used instead of gene ontology
 (GO)}
+
+\item{ontology}{character vector of ontologies to be included in output.
+Elements should be one or more of "BP", "CC" or "MF".}
 
 \item{fltr_DE}{A scalar fraction of the number of genes in tested set
 to use as a threshold for filtering genes based on "DE" column

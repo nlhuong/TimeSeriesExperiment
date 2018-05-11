@@ -13,6 +13,8 @@
 #' and tested as separate sets.
 #' @param kegg Whether KEGG pathways should be used instead of gene ontology
 #' (GO)
+#' @param ontology character vector of ontologies to be included in output.
+#' Elements should be one or more of "BP", "CC" or "MF".
 #' @param fltr_DE A scalar fraction of the number of genes in tested set
 #' to use as a threshold for filtering genes based on "DE" column
 #' (the number of genes in the DE set). Default is 0.1, i.e. at least
@@ -48,6 +50,7 @@
 #'
 pathway_enrichment <- function(object, features, species,
                                clustered = TRUE, kegg = FALSE,
+                               ontology = c("BP", "CC", "MF"),
                                fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05,
                                ...){
   feature <- cluster <- DE <- N <- P.DE <- NULL
@@ -103,12 +106,11 @@ pathway_enrichment <- function(object, features, species,
     n_DE <- freq_clust %>% filter(cluster == clst)
     n_DE <- fltr_DE * n_DE[["freq"]]
     res[[clst]] <- clust_res %>%
-      filter(DE > n_DE, N <= fltr_N, P.DE <= fltr_P.DE)
+      filter(Ont %in% ontology, DE > n_DE, N <= fltr_N, P.DE <= fltr_P.DE)
   }
   if(length(res) == 1) { res <- res[[1]] }
   return(res)
 }
-
 
 
 

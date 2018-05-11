@@ -39,6 +39,7 @@ Imports:
 Suggests:
     BiocStyle,
     knitr,
+    GO.db,
     org.Mm.eg.db,
     MASS,
     rmarkdown,
