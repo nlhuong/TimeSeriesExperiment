@@ -54,13 +54,15 @@ from \code{limma} package for testing over-representation of gene ontology
 endoderm_small
 endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- trajectory_de(endoderm_small)
-genes_with_de_trajectory <- get_diff_expr(endoderm_small, "trajectory_de") \%>\%
-  filter(pval <= max(0.05, min(pval)), R2 > 0.7) \%>\%
-  arrange(-R2)
+genes_with_de_trajectory <-
+  get_diff_expr(endoderm_small, "trajectory_de") \%>\%
+    filter(pval <= max(0.05, min(pval)), R2 > 0.7) \%>\%
+    arrange(-R2)
 res <- pathway_enrichment(
   object = endoderm_small, clustered = FALSE,
   features = genes_with_de_trajectory$feature,
-  species = "Hs", fltr_DE = 0, fltr_N = Inf, fltr_P.DE = 0.05)
+  species = "Hs", ontology = "BP", fltr_DE = 0,
+  fltr_N = Inf, fltr_P.DE = 0.05)
 head(res)
 }
 

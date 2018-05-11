@@ -758,8 +758,7 @@ parameters applied to enrichment results: `fltr_DE`, `fltr_N`, and
 enrich_res <- pathway_enrichment(
   object = cop1_timeseq, 
   features = genes_with_de_trajectory$feature, 
-  species = "Mm", 
-  fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05)
+  species = "Mm", ontology ="BP")
 ```
 
 We can plot enrichment results for genes with differential trajectory
