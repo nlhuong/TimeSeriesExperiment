@@ -42,7 +42,7 @@ and populates the time, replicate, and group slots.
 \examples{
 library(Biobase)
 cop1_eset <- readRDS(
-file = system.file("extdata", "NGS1471_esetCounts_fltr.rds",
+file = system.file("extdata", "NGS1471_esetCounts.rds",
   package = "vistimeseq", mustWork = TRUE)
 )
 # convert timpoint data T0, T2.5, T4, ..., T13 to numeric values

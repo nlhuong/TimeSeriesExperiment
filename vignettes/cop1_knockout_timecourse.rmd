@@ -22,8 +22,8 @@ library("knitr")
 library("rmarkdown")
 options(width = 200) 
 opts_chunk$set(
-  message = FALSE, error = FALSE,
-  warning = FALSE, fig.width = 8, fig.height = 7) 
+  message = FALSE, error = FALSE, warning = FALSE, 
+  fig.width = 8, fig.height = 7) 
 ```
 
 
@@ -88,8 +88,9 @@ The dataset from the study is shipped together with the package as an
 
 ```{r, message=FALSE, warning=FALSE}
 # Load gene data
+# WILL BE CHANGED TO IMPORT FROM GEO
 cop1_eset <- readRDS(
-  file = system.file("extdata", "NGS1471_esetCounts_fltr.rds", 
+  file = system.file("extdata", "NGS1471_esetCounts.rds", 
                      package = "vistimeseq", mustWork = TRUE)
 )
 ```
@@ -213,15 +214,15 @@ rare ones which we assume to be too noisy and not containing enough signal
 for further analysis.
 
 Here, we find and remove all genes which have the mean expression (CPM) below 
-`min_mean_cpm` = 50 within either of the two groups of interest,
-*wild type* or *knock-out*. We set a very large threshold of 100
+`min_mean_cpm` = 150 within either of the two groups of interest,
+*wild type* or *knock-out*. We set a very large threshold of 150
 for this vignette only because the graphichs below would make the size of this 
 vignette too large. When running on the your own study you should pick 
-the threshold more carefully.
+a lower threshold. 
 
 ```{r}
-# Fine genes with minimum mean count of 100 at least in one of the two groups
-min_mean_cpm <- 50
+# Fine genes with minimum mean count of 150 at least in one of the two groups
+min_mean_cpm <- 150
 group_cpm_means <- data.frame(row.names = feature_names(cop1_timeseq))
 for(g in unique(get_group(cop1_timeseq))) {
   g_cnts <- get_data(cop1_timeseq)[ , which(get_group(cop1_timeseq) == g)]
@@ -364,12 +365,12 @@ two exprerimental groups and whether a strong temporal trend can be detected.
 plot_heatmap(cop1_timeseq, num.feat = 100)
 ```
 
-In the above heatmap the colums are ordered by experimental group, replicate 
+In the heatmap the colums are ordered by experimental group, replicate 
 (mouse id) and time at which the sample was sequenced; the sample membership
 is indicated in the color bars on top of the columns. The main heatmap
 rectangle shows Z-scores of expression values represented by colors in
-the red-and-blue palette corresponding to high-and-low respectively. Even this
-first look at the data, shows us patterns present in the data -- within each 
+the red-and-blue palette corresponding to high-and-low respectively. Even the
+first look at the data, can show us patterns present in the data -- within each 
 condition, i.e. each mouse and in each experimental group there are expression
 levels seem to be dependent on time. 
 
@@ -433,11 +434,11 @@ PCA should be applied to sample resolved data or one with replicates aggregated
 cop1_timeseq <- run_pca(cop1_timeseq, var.stabilize.method = "asinh") 
 ```
 
-```{r pca-samples-group, fig.wide = TRUE, fig.height=3, fig.width=7}
+```{r pca-samples-group, fig.wide = TRUE, fig.height=4, fig.width=8}
 plot_sample_pca(cop1_timeseq, col.var = "group", size = 5) 
 ```
 
-```{r pca-samples-time, fig.wide = TRUE, fig.height=3, fig.width=7}
+```{r pca-samples-time, fig.wide = TRUE, fig.height=4, fig.width=8}
 plot_sample_pca(cop1_timeseq, col.var = "time", size = 5) 
 ```
 
@@ -475,7 +476,7 @@ between groups.
 
 
 
-```{r pca-genes, fig.width = 10, fig.height = 8}
+```{r pca-genes, fig.width = 11, fig.height = 10}
 plot_ts_pca(
   cop1_timeseq, 
   linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
@@ -506,16 +507,16 @@ of using only a subset of most variable genes for clustering is that, the core
 genes which exhibit negligible changes over time (which might be the majority 
 of genes) will not much effect on clustering results.
 
-Here we pick 1000 genes for clustering, whcih is roughly 1/3 of the
-number of genes after filtering.
+Here we pick 600 genes for clustering, whcih is roughly half of the
+number of genes in the object.
 
 ```{r}
 params_for_clustering <- list(
   dynamic = TRUE, 
-  dynamic_cut_params = list(deepSplit = TRUE, minModuleSize = 60))
+  dynamic_cut_params = list(deepSplit = TRUE, minModuleSize = 50))
   
 cop1_timeseq <- cluster_timecourse_features(
-  cop1_timeseq, n_top_feat = 1000, groups = "all",
+  cop1_timeseq, n_top_feat = 600, groups = "all",
   clust_params = params_for_clustering)
 
 ```
@@ -549,9 +550,9 @@ plot_ts_clusters(cop1_timeseq, transparency = 0.2) +
 
 
 Timecourse plots above show genes clustered clearly into groups related
-to their pattern of response to LPS treatment. We see cluster C2, C5, and C6
-generally inhibited. Genes in C3 spike right after LPS was applied. C8
-shows moderate secondary response, and C1 exhibit late increase in expression.
+to their pattern of response to LPS treatment. We see cluster  C6
+generally inhibited. Genes in C1 spike right after LPS was applied. C4
+shows moderate secondary response, and C5 exhibit late increase in expression.
 
 
 Differential Expression Ranking {#diff-expr .unnumbered}
@@ -769,10 +770,10 @@ the exact number of DE genes in a set (DE) and the size of the reference
 enrichment term (N). The points are colored by this fraction. The size of the 
 points correspond the enrichment term size (N).
 
-Below we print we print for example a plot for cluster C6.
+Below we print we print for example a plot for cluster C1.
 
 ```{r go-enrich-clst,  fig.width = 8, fig.height = 4, fig.wide = TRUE}
-clst <- "C4"
+clst <- "C1"
 plot_enrichment(
     enrich = enrich_res[[clst]], n_max = 15) +
   ggtitle(paste0("Cluster , ", clst, " enrichment"))
