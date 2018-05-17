@@ -10,5 +10,16 @@ warnings_are_errors: true
 bioc_packages:
   - BiocCheck
 
-after_success:
-  - R CMD BiocCheck --new-package --no-check-vignettes vistimeseq_0.99.0.tar.gz
+# customize build to add biocCheck
+
+script:
+  - R CMD build . --no-resave-data --no-manual
+  - R CMD check --no-build-vignettes vistimeseq_0.99.0.tar.gz
+  - R CMD BiocCheck --new-package vistimeseq_0.99.0.tar.gz
+
+os:
+  - linux
+  - osx
+
+# after_success:
+#  - R CMD BiocCheck --new-package --no-check-vignettes vistimeseq_0.99.0.tar.gz
