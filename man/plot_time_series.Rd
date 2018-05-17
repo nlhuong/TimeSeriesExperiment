@@ -26,3 +26,8 @@ list of ggplot objects
 Plotting expression over time for selected genes curve
 and colors correspond to distinct groups.
 }
+\examples{
+feat_to_plot <- feature_names(endoderm_small)[1:10]
+plot_time_series(endoderm_small, features = feat_to_plot)
+
+}

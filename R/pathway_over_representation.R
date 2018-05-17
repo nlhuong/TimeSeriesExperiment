@@ -40,8 +40,8 @@
 #' endoderm_small <- trajectory_de(endoderm_small)
 #' genes_with_de_trajectory <-
 #'   get_diff_expr(endoderm_small, "trajectory_de") %>%
-#'     filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
-#'     arrange(-R2)
+#'     dplyr::filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
+#'     dplyr::arrange(-R2)
 #' res <- pathway_enrichment(
 #'   object = endoderm_small, clustered = FALSE,
 #'   features = genes_with_de_trajectory$feature,
@@ -57,8 +57,8 @@ pathway_enrichment <- function(object, features, species,
                                ...){
   feature <- cluster <- Ont <- DE <- N <- P.DE <- NULL
   if(all(clustered, is.null(get_cluster_map(object)))) {
-    stop("No 'cluster_map' in object@cluster.features. Perform
-         clustering with 'cluster_timecourse_features()' first.")
+    stop("No 'cluster_map' in object@cluster.features. Perform, ",
+         "clustering with 'cluster_timecourse_features()' first.")
   }
   if(clustered) {
     cluster_map <- get_cluster_map(object)
@@ -70,8 +70,8 @@ pathway_enrichment <- function(object, features, species,
     species_db_pkg <- paste0("org.", species, ".eg.db")
     if(!(species_db_pkg %in% installed.packages())){
       stop(species_db_pkg, "must be installed use the following commands",
-           "source(\"https://bioconductor.org/biocLite.R\")
-            biocLite(", species_db_pkg, ")")
+           "source(\"https://bioconductor.org/biocLite.R\") ",
+            "biocLite(", species_db_pkg, ")")
 
     }
   }

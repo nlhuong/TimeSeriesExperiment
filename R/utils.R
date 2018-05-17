@@ -6,6 +6,8 @@
 #' @return None
 #' @export
 #' @importFrom magrittr %>%
+#' @examples
+#' matrix(sample(30), 10) %>% head
 #' @usage lhs \%>\% rhs
 NULL
 

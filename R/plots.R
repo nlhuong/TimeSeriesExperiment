@@ -404,6 +404,9 @@ plot_ts_clusters <- function(object, features = NULL,
 #' @importFrom dplyr filter select mutate left_join group_by summarise_all
 #' @importFrom tidyr gather
 #' @export
+#' @examples
+#' feat_to_plot <- feature_names(endoderm_small)[1:10]
+#' plot_time_series(endoderm_small, features = feat_to_plot)
 #'
 plot_time_series <- function(object,
                              features = feature_names(object),
@@ -412,7 +415,7 @@ plot_time_series <- function(object,
   if(!all(features %in% feature_names(object))){
     stop("\"features\" must be a subset of object@feature.names")
   }
-  feature_data <- feature_data(object)[features, ]
+  feature_data <- feature_data(object)[features, , drop = FALSE]
   if(!"symbol" %in% colnames(feature_data)){
     feature_data$symbol <- feature_data$feature
   }
@@ -471,6 +474,20 @@ plot_time_series <- function(object,
 #' @importFrom viridis scale_color_viridis
 #' @importFrom ggplot2 ggplot aes geom_point
 #' @export
+#' @examples
+#' \dontrun{
+#' endoderm_small <- normalize_data(endoderm_small)
+#' endoderm_small <- trajectory_de(endoderm_small)
+#' genes_with_de_trajectory <-
+#'   get_diff_expr(endoderm_small, "trajectory_de") %>%
+#'     dplyr::filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
+#'     dplyr::arrange(-R2)
+#' enrich_res <- pathway_enrichment(
+#'   object = endoderm_small, clustered = FALSE,
+#'   features = feature_names(endoderm_small)[1:10],
+#'   species = "Hs", ontology ="BP")
+#'   plot_enrichment( enrich = enrich_res, n_max = 15)
+#' }
 #'
 plot_enrichment <- function(enrich, n_max = 15) {
   DE <- N <- P.DE <- Term <- NULL

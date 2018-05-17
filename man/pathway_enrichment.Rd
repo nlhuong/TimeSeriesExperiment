@@ -56,8 +56,8 @@ endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- trajectory_de(endoderm_small)
 genes_with_de_trajectory <-
   get_diff_expr(endoderm_small, "trajectory_de") \%>\%
-    filter(pval <= max(0.05, min(pval)), R2 > 0.7) \%>\%
-    arrange(-R2)
+    dplyr::filter(pval <= max(0.05, min(pval)), R2 > 0.7) \%>\%
+    dplyr::arrange(-R2)
 res <- pathway_enrichment(
   object = endoderm_small, clustered = FALSE,
   features = genes_with_de_trajectory$feature,

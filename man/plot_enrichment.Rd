@@ -22,3 +22,19 @@ Plotting top most enriched terms found with DE methods
 and tested for overrepresentation in GO/KEGG db using
 goana/kegga from limma package.
 }
+\examples{
+\dontrun{
+endoderm_small <- normalize_data(endoderm_small)
+endoderm_small <- trajectory_de(endoderm_small)
+genes_with_de_trajectory <-
+  get_diff_expr(endoderm_small, "trajectory_de") \%>\%
+    dplyr::filter(pval <= max(0.05, min(pval)), R2 > 0.7) \%>\%
+    dplyr::arrange(-R2)
+enrich_res <- pathway_enrichment(
+  object = endoderm_small, clustered = FALSE,
+  features = feature_names(endoderm_small)[1:10],
+  species = "Hs", ontology ="BP")
+  plot_enrichment( enrich = enrich_res, n_max = 15)
+}
+
+}

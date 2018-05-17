@@ -12,4 +12,7 @@ None
 \description{
 Pipe operator
 }
+\examples{
+matrix(sample(30), 10) \%>\% head
+}
 \keyword{internal}
