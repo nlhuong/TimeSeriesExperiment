@@ -4,30 +4,29 @@ author:
   - name: Lan Huong Nguyen
     affiliation: Institute for Computational and Mathematical Engineering, Stanford University, CA 94305
 keywords: time-course, time series, PCA, clustering, differential expression.
-date: "`r BiocStyle::doc_date()`"
+date: "`r Sys.Date()`"
 output: 
-  BiocStyle::html_document:
+  rmarkdown::html_vignette:
     toc_float: true
-    df_print: paged
+    df_print: kable
 vignette: >
   %\VignetteIndexEntry{Gene expression time course data analysis}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 
 ```{r style, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
 rm(list = ls())
-library("BiocStyle")
 library("rmarkdown")
 options(width = 200) 
-
 # is_check <- ("CheckExEnv" %in% search()) || 
-#   any(c("_R_CHECK_TIMINGS_", "_R_CHECK_LICENSE_") %in% names(Sys.getenv()))
-
-knitr::opts_chunk$set(
-  eval = nzchar(Sys.getenv("MY_ENV_VARIABLE")), #!is_check,
-  message = FALSE, warning = FALSE, error = FALSE,
-  fig.width = 8, fig.height = 7) 
+#    any(c("_R_CHECK_TIMINGS_", "_R_CHECK_LICENSE_") %in% names(Sys.getenv()))
+# 
+# knitr::opts_chunk$set(
+#   eval = nzchar(Sys.getenv("MY_ENV_VARIABLE")), #!is_check,
+#   message = FALSE, warning = FALSE, error = FALSE,
+#   fig.width = 8, fig.height = 7) 
 ```
 
 
@@ -93,7 +92,10 @@ The dataset from the study is shipped together with the package as an
 ```{r, message=FALSE, warning=FALSE}
 # Load gene data
 # WILL CHANGE TO GEO IMPORT
-cop1_eset <- readRDS("../inst/extdata/NGS1471_esetCounts.rds")
+cop1_eset <- readRDS(
+  file = system.file("extdata", "NGS1471_esetCounts.rds", 
+                     package = "vistimeseq", mustWork = TRUE)
+)
 ```
 
 We can easily convert  `ExpressionSet`s to `vistimeseq` using 
@@ -104,7 +106,6 @@ so we first convert need to it.
 ```{r error = TRUE, purl = FALSE}
 cop1_vistimeseq <- vistimeseqFromExpressionSet(
   cop1_eset, time = "time", group = "genotype", replicate = "individual")
-cop1_vistimeseq
 ```
 
 
@@ -362,7 +363,7 @@ The plot of the expression matrix for these most variable features will
 give us some insight whether there is  a clear difference between the
 two exprerimental groups and whether a strong temporal trend can be detected.
 
-```{r heatmap, fig.height=8, fig.width=6}
+```{r heatmap, fig.height=8, fig.width=7}
 plot_heatmap(cop1_timeseq, num.feat = 100)
 ```
 
@@ -477,7 +478,7 @@ between groups.
 
 
 
-```{r pca-genes, fig.width = 10, fig.height = 8}
+```{r pca-genes, fig.width = 7, fig.height = 6}
 plot_ts_pca(
   cop1_timeseq, 
   linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
@@ -533,7 +534,7 @@ table(cluster_map$cluster)
 We can plot the hclust dendrogram obtained from hierarchical clustering 
 performed.
 
-```{r hclust-dendrogram}
+```{r hclust-dendrogram, fig.width = 7, fig.height = 4}
 # Plot the hierarchical clustering of genes2cluster
 hclust_obj <- get_cluster_hclust(cop1_timeseq) 
 plot(x = hclust_obj, labels = FALSE, xlab = "genes", sub = "")
@@ -619,7 +620,7 @@ between consecutive time-points. You can use functions from `UpSetR`
 package to show the overlap between the DE genes across timepoints:
 
 
-```{r tmp-de-intersect, fig.width=8, fig.height=4}
+```{r tmp-de-intersect, fig.width=7, fig.height=4}
 library(UpSetR)
 upset(fromList(de_genes), 
       sets = rev(c("2.5", "4", "6", "9", "13")), keep.order = TRUE,
@@ -692,7 +693,7 @@ genes with $R^2 \ge 0.7$ which constitutes a fraction of
 `r sum(de_trajectory_res$R2 > 0.7)/n_features(cop1_timeseq)` 
 of all the genes in the dataset.
 
-Here we print out 30 of the genes with highest $R^2$ value and 
+Here we print out 20 of the genes with highest $R^2$ value and 
 the pvalue equal 0.1. P-value of 0.1 is the minimum possible when
 performing permutation test on distances between 6 observations split evenly
 into 2 groups (0.1 = 2/(6 choose 3)).
@@ -700,14 +701,14 @@ into 2 groups (0.1 = 2/(6 choose 3)).
 
 ```{r}
 # Select top most different genes across two groups
-n_genes <- 30
+n_genes <- 20
 genes_with_de_trajectory <- de_trajectory_res %>% 
   filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
   arrange(-R2)
 (genes_to_plot <- genes_with_de_trajectory$feature[1:n_genes])
 ```
 
-```{r genes-de-trajectory, fig.width = 8, fig.height = 8, fig.wide = TRUE}
+```{r genes-de-trajectory, fig.width = 8, fig.height = 6, fig.wide = TRUE}
 plot_time_series(cop1_timeseq, features = genes_to_plot) +
   scale_color_manual(values = c("WT" =  "#1f78b4", "Loxp" = "#e31a1c")) 
 ```
@@ -790,7 +791,7 @@ points correspond the enrichment term size (N).
 
 Below we print we print for example a plot for cluster C2 and C6
 
-```{r go-enrich-clst-c2,  fig.width = 8, fig.height = 4, fig.wide = TRUE}
+```{r go-enrich-clst-c2,  fig.width = 7, fig.height = 3, fig.wide = TRUE}
 clst <- "C2"
 plot_enrichment(
     enrich = enrich_res[[clst]], n_max = 15) +
@@ -798,7 +799,7 @@ plot_enrichment(
 ```
 
 
-```{r go-enrich-clst-c6,  fig.width = 8, fig.height = 4, fig.wide = TRUE}
+```{r go-enrich-clst-c6,  fig.width = 7, fig.height = 3, fig.wide = TRUE}
 clst <- "C6"
 plot_enrichment(
     enrich = enrich_res[[clst]], n_max = 15) +

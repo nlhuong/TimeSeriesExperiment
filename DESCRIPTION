@@ -37,7 +37,6 @@ Imports:
     viridis,
     utils
 Suggests:
-    BiocStyle,
     knitr,
     GO.db,
     org.Mm.eg.db,
