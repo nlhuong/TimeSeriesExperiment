@@ -8,6 +8,7 @@ warnings_are_errors: true
 
 # BiocCheck
 bioc_packages:
+  - GenomeInfoDbData
   - BiocCheck
 
 # customize build to add biocCheck
@@ -20,7 +21,6 @@ script:
 os:
   - linux
   - osx
-  - windows
 
 # script:
 #  - R CMD build . --no-resave-data --no-manual
