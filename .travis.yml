@@ -10,6 +10,9 @@ warnings_are_errors: true
 bioc_packages:
   - GenomeInfoDbData
   - BiocCheck
+  - GO.db 
+  - org.Mm.eg.db
+  - org.Hs.eg.db
 
 # customize build to add biocCheck
 
