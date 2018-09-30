@@ -20,13 +20,6 @@ vignette: >
 rm(list = ls())
 library("rmarkdown")
 options(width = 200) 
-# is_check <- ("CheckExEnv" %in% search()) || 
-#    any(c("_R_CHECK_TIMINGS_", "_R_CHECK_LICENSE_") %in% names(Sys.getenv()))
-# 
-# knitr::opts_chunk$set(
-#   eval = nzchar(Sys.getenv("MY_ENV_VARIABLE")), #!is_check,
-#   message = FALSE, warning = FALSE, error = FALSE,
-#   fig.width = 8, fig.height = 7) 
 ```
 
 
@@ -140,6 +133,7 @@ corresponds to a wild type mouse or one with Cop1 knocked out, (2) the replicate
 id -- as multiple samples where collected for the same conditions, (3) and
 most importantly time -- the point in the course of the study at which a sample 
 was collected.
+
 
 ```{r}
 # Sample data
