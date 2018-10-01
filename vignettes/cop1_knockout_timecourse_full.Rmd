@@ -72,8 +72,7 @@ Obtain and process data {#get-data .unnumbered}
 First we load the necessary packages.
 
 ```{r message=FALSE, warning=FALSE}
-.packages <- c("dplyr", "edgeR", "ggplot2", "tibble", "tidyr", 
-               "viridis", "vistimeseq", "Biobase") 
+.packages <- c("edgeR", "tidyverse", "viridis", "vistimeseq", "Biobase") 
 sapply(.packages, require, character.only = TRUE)
 theme_set(theme_bw())
 theme_update(text = element_text(size = 15))
@@ -86,8 +85,9 @@ The dataset from the study is shipped together with the package as an
 # Load gene data
 # WILL CHANGE TO GEO IMPORT
 cop1_eset <- readRDS(
-  file = system.file("extdata", "NGS1471_esetCounts.rds", 
-                     package = "vistimeseq", mustWork = TRUE)
+  file = system.file(
+    "extdata", "NGS1471_esetCounts.rds", 
+     package = "vistimeseq", mustWork = TRUE)
 )
 ```
 

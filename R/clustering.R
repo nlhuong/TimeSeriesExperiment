@@ -262,9 +262,13 @@ cluster_timecourse_features <- function(
     feature = names(clst.remain),
     cluster = clst.remain,
     stringsAsFactors = FALSE)
-
+  cluster_map = rbind(clust_map, clust_map_remain)
+  feature_data(object) <- suppressMessages(
+    feature_data(object) %>%
+      left_join(cluster_map)
+  )
   clust_res <- list(hclust = cluster_hclust,
-    cluster_map = rbind(clust_map, clust_map_remain))
+    cluster_map = cluster_map)
   slot(object, name = "cluster.features", check = TRUE) <- clust_res
   return(object)
 }

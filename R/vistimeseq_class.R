@@ -20,12 +20,12 @@ check_vistimeseq <- function(object){
                     ncol_raw)
       errors <- c(errors, msg)
     }
-    if (! all(rownames(object@sample.data) == colnames(object@raw.data))) {
+    if (! all(object@sample.data$sample == colnames(object@raw.data))) {
       msg <- "Inconsistent row names in sample.data and column names in raw.data"
       errors <- c(errors, msg)
     }
     if (all(!is.null(object@data),
-            !all(rownames(object@sample.data) == colnames(object@data)))) {
+            !all(object@sample.data$sample == colnames(object@data)))) {
       msg <- "Inconsistent row names in sample.data and column names in data"
       errors <- c(errors, msg)
     }
@@ -38,18 +38,18 @@ check_vistimeseq <- function(object){
       )
       errors <- c(errors, msg)
     }
-    if (!all(rownames(object@feature.data) == rownames(object@raw.data))) {
+    if (!all(object@feature.data$feature == rownames(object@raw.data))) {
       msg <- "Inconsistent row names in feature.data and row names in raw.data"
       errors <- c(errors, msg)
     }
     if (all(!is.null(object@data),
-            !all(rownames(object@feature.data) == rownames(object@data)))) {
+            !all(object@feature.data$feature == rownames(object@data)))) {
       msg <- "Inconsistent row names in feature.data and row names in data"
       errors <- c(errors, msg)
     }
   }
   if (!is.null(object@data.collapsed)) {
-    if (!all(rownames(object@sample.data.collapsed) ==
+    if (!all(object@sample.data.collapsed$sample ==
              colnames(object@data.collapsed))) {
       msg <- paste("Inconsistent row names in sample.data.collapsed",
                    "and column names in data.collapsed")
@@ -294,12 +294,12 @@ vistimeseq <- function(
   }
   sample_data <- data.frame(
     sample = colnames(raw.data),
-    row.names = colnames(raw.data),
+    #row.names = colnames(raw.data),
     stringsAsFactors = FALSE)
 
   feature_data <- data.frame(
     feature = rownames(raw.data),
-    row.names = rownames(raw.data),
+    #row.names = rownames(raw.data),
     stringsAsFactors = FALSE)
 
   if(is.null(time)) {

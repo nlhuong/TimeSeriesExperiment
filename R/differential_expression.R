@@ -31,7 +31,7 @@ timepoint_de <- function(object, timepoints = "all",
     stop("Invalid 'vistimeseq' object.")
   }
   if (any(timepoints == "all")) {
-    timepoints <- unique(get_time(object))
+    timepoints <- sort(unique(get_time(object)))
   }
   if(!all(timepoints %in% unique(get_time(object)))) {
     stop("One or more entries of \"timepoints\" not found in 'object@time'.")
@@ -47,7 +47,7 @@ timepoint_de <- function(object, timepoints = "all",
     smp.t <- sample_data %>% filter(time == t)
     x.t <- get_data(object, raw = TRUE)[, smp.t$sample]
     x.t <- x.t[rowSums(x.t) >= min_gene_sum, ]  # filter out very sparse genes
-    gdata.t <- feature_data[rownames(x.t), ]
+    gdata.t <- feature_data %>% filter(feature %in% rownames(x.t))
 
     # Construct a DGEList object
     dge <- DGEList(counts = x.t, genes = gdata.t, samples = smp.t)

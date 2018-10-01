@@ -166,7 +166,6 @@ collapse_replicates <- function(object, FUN = mean) {
                 stringsAsFactors = FALSE) %>%
     mutate(sample = paste0(group, "_", time)) %>%
     select(sample, group, time)
-  rownames(sample.data.collapsed) <- sample.data.collapsed$sample
   slot(object, name = "sample.data.collapsed", check = TRUE) <-
     sample.data.collapsed
 

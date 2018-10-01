@@ -145,7 +145,7 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
     geom_vline(aes(xintercept = 0), size=.2) +
     xlab(axis_label[1]) +
     ylab(axis_label[2]) +
-    coord_fixed(sqrt(pca.eigs[2]/pca.eigs[1]))
+    coord_fixed(1)  # ratio must reflect variances of new PC coordinates from prcomp
 
   if(all(!is.null(pca.scores), is.numeric(pca.scores[, col.var]))){
     plt <- plt + viridis::scale_fill_viridis()
@@ -244,7 +244,7 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
   plot(pca.loadings[, 1:2], type = "p", pch = 16,
        xlim = c(mins[1] - dx/2, maxes[1] + dx/2),
        ylim = c(mins[2] - dy/2, maxes[2] + dy/2),
-       asp=max(sqrt(pca.eigs[2]/pca.eigs[1]), 0.5), ...)
+       asp=1, ...)  # ratio must reflect variances of new PC coordinates from prcomp
 
   if (is.null(group.highlight)){
     groups.unique <- unique(get_group(object))

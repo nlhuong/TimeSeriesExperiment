@@ -51,20 +51,29 @@
 #'}
 #'
 pathway_enrichment <- function(object, features, species,
-                               clustered = TRUE, kegg = FALSE,
+                               universe = NULL, clustered = TRUE, kegg = FALSE,
                                ontology = c("BP", "CC", "MF"),
-                               fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05,
-                               ...){
+                               fltr_DE = 0.1, fltr_N = 500,
+                               fltr_P.DE = 0.05, ...){
   feature <- cluster <- Ont <- DE <- N <- P.DE <- NULL
+  if(is.null(universe)) {
+    universe <- feature_names(object)
+    if (!all(features %in% universe)) {
+      stop("Some selected 'features' are not in the 'universe'.")
+    }
+  }
   if(all(clustered, is.null(get_cluster_map(object)))) {
     stop("No 'cluster_map' in object@cluster.features. Perform, ",
          "clustering with 'cluster_timecourse_features()' first.")
   }
-  if(clustered) {
-    cluster_map <- get_cluster_map(object)
-  } else {
-    cluster_map <- data.frame(feature = features, cluster = "C1")
+  feature_df <- feature_data(object) %>% arrange(cluster)
+  if(!clustered) {
+    feature_df$cluster <- "OneCluster"
   }
+  freq_clust <- feature_df %>%
+    group_by(cluster) %>%
+    summarise(freq = n())
+
   if(!kegg) {
     if(nchar(species) != 2) { stop("wrong \"species\" name.") }
     species_db_pkg <- paste0("org.", species, ".eg.db")
@@ -75,14 +84,6 @@ pathway_enrichment <- function(object, features, species,
 
     }
   }
-  feature_df <- suppressMessages(
-    data.frame(feature = features, stringsAsFactors = FALSE) %>%
-      left_join(cluster_map %>% mutate(feature = as.character(feature))) %>%
-      arrange(cluster)
-  )
-  freq_clust <- feature_df %>%
-    group_by(cluster) %>%
-    summarise(freq = n())
 
   res <- vector("list", length(unique(feature_df$cluster)))
   names(res) <- unique(feature_df$cluster)
@@ -92,18 +93,18 @@ pathway_enrichment <- function(object, features, species,
     }
     clst_df <- feature_df %>%
       filter(feature_df$cluster == clst)
-    if(!kegg){
-      clust_res <- goana(
-        de = clst_df$feature,
-        universe = feature_names(object),
-        species = species, ...)
-    } else{
+    if(kegg){
       kegg_species <- ifelse(nchar(species) == 3, species, NULL)
       clust_res <- kegga(
         de = clst_df$feature,
-        universe = feature_names(object),
+        universe = universe,
         species = species,
         species.KEGG = kegg_species, ...)
+    } else{
+      clust_res <- goana(
+        de = clst_df$feature,
+        universe = universe,
+        species = species, ...)
     }
     n_DE <- freq_clust %>% filter(cluster == clst)
     n_DE <- fltr_DE * n_DE[["freq"]]
