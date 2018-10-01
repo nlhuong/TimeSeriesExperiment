@@ -400,7 +400,7 @@ plot_ts_clusters <- function(object, features = NULL,
 #'
 #' @return list of ggplot objects
 #'
-#' @importFrom  ggplot2 ggplot aes geom_point geom_line geom_smooth facet_wrap
+#' @importFrom ggplot2 ggplot aes geom_point geom_line geom_smooth facet_wrap
 #' @importFrom dplyr filter select mutate left_join group_by summarise_all
 #' @importFrom tidyr gather
 #' @export

@@ -2,7 +2,7 @@ Package: vistimeseq
 Type: Package
 Title: Analysis for short time-course sequencing data
 Version: 0.99.0
-Date: 2018-04-28
+Date: 2018-09-30
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
 Description: Visualization and analysis toolbox for short time course data 
@@ -17,18 +17,22 @@ Imports:
     Biobase,
     circlize,
     dynamicTreeCut,
+    dplyr,
     edgeR,
     DESeq2,
+    ggplot2,
     graphics,
     grDevices,
     grid,
     Hmisc,
     limma,
     methods,
+    magrittr,
     proxy,
     RColorBrewer,
     stats,
-    tidyverse,
+    tibble,
+    tidyr,
     vegan,
     viridis,
     utils
@@ -48,3 +52,4 @@ RoxygenNote: 6.0.1
 biocViews: TimeCourse, Sequencing, RNASeq, Microbiome,
     GeneExpression, Transcription, Normalization, DifferentialExpression,
     PrincipalComponent, Clustering, Visualization, Pathways
+
