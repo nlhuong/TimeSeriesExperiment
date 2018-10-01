@@ -415,7 +415,8 @@ plot_time_series <- function(object,
   if(!all(features %in% feature_names(object))){
     stop("\"features\" must be a subset of object@feature.names")
   }
-  feature_data <- feature_data(object)[features, , drop = FALSE]
+  feature_data <- feature_data(object) %>% filter(feature %in% features)
+
   if(!"symbol" %in% colnames(feature_data)){
     feature_data$symbol <- feature_data$feature
   }
