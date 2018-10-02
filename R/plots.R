@@ -433,25 +433,27 @@ plot_time_series <- function(object,
         symbol = factor(symbol, levels = feature_data$symbol),
         time = as.numeric(time))
   )
-
+  tc_data <- tc_data %>%
+    mutate(category = paste0(group, "_", replicate))
   plt <- ggplot(
     tc_data,
-    aes(x = time, y = value, color = group)
-    ) +
+    aes(x = time, y = value, color = group)) +
     geom_point(size = 1) +
     facet_wrap(~ symbol, scales = "free", ncol = ncol)
 
   if(length(unique(tc_data$replicate)) > 1) {
-    plt <- plt + geom_line(aes(group = replicate), lty = 3, alpha = 0.7)
+    plt <- plt + geom_line(aes(group = category), lty = 3, alpha = 0.7)
   }
   if(smooth) {
     plt <- plt + geom_smooth(aes(x = time), lwd = 1.5)
   } else {
-    tc_data_mean <- tc_data %>%
-      select(-replicate) %>%
-      group_by(feature, symbol, group, time) %>%
-      summarise(value = mean(value))
-
+    tc_data_mean <- suppressMessages(
+      tc_data %>%
+        select(-replicate) %>%
+        group_by(feature, group, time) %>%
+        summarise(value = mean(value)) %>%
+        left_join(feature_data)
+    )
     plt <- plt + geom_line(data = tc_data_mean, lwd = 1.5)
   }
   return(plt)

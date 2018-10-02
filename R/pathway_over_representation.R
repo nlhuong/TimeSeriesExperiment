@@ -5,9 +5,13 @@
 #'(GO) terms or KEGG pathways in sets of genes.
 #'
 #' @param object A \code{vistimeseq} object.
-#' @param features A vector of names of selected features to plot.
+#' @param features A vector of ENTREZID for enrichment testing.
 #' @param species A character string  specifying the species.
 #' See \code{\link[limma]{goana}} for details.
+#' @param feature_column the feature column in 'feature.data' slot holding
+#' ENTREZIDs, by deafult the 'feature' column.
+#' @param universe A vector of genes in the universe. By default
+#' all the genes in the 'raw.data' slot.
 #' @param clustered Whether \code{features} should be grouped based on
 #' cluster assignment (stored in \code{object@cluster.features$cluster_map})
 #' and tested as separate sets.
@@ -51,6 +55,7 @@
 #'}
 #'
 pathway_enrichment <- function(object, features, species,
+                               feature_column = "feature",
                                universe = NULL, clustered = TRUE, kegg = FALSE,
                                ontology = c("BP", "CC", "MF"),
                                fltr_DE = 0.1, fltr_N = 500,
@@ -66,7 +71,13 @@ pathway_enrichment <- function(object, features, species,
     stop("No 'cluster_map' in object@cluster.features. Perform, ",
          "clustering with 'cluster_timecourse_features()' first.")
   }
-  feature_df <- feature_data(object) %>% arrange(cluster)
+
+  feature_df <- feature_data(object)
+  feature_df$feature <- feature_df[[feature_column]]
+  feature_df <- feature_df %>%
+    filter(feature %in% features) %>%
+    arrange(cluster)
+
   if(!clustered) {
     feature_df$cluster <- "OneCluster"
   }
@@ -84,7 +95,6 @@ pathway_enrichment <- function(object, features, species,
 
     }
   }
-
   res <- vector("list", length(unique(feature_df$cluster)))
   names(res) <- unique(feature_df$cluster)
   for (clst in names(res)) {
@@ -93,6 +103,10 @@ pathway_enrichment <- function(object, features, species,
     }
     clst_df <- feature_df %>%
       filter(feature_df$cluster == clst)
+    if(nrow(clst_df) == 0) {
+      res[[clst]] <- NULL
+      next
+    }
     if(kegg){
       kegg_species <- ifelse(nchar(species) == 3, species, NULL)
       clust_res <- kegga(

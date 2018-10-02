@@ -126,7 +126,7 @@ filter_features <- function (object, features) {
     stop("Some \"features\" not included in \"vistimeseq\" object.")
   }
 
-  fltr_feature_data <- feature_data(object)[features, , drop = FALSE]
+  fltr_feature_data <- feature_data(object) %>% filter(feature %in% features)
   fltr_raw_data <- get_data(object, raw = TRUE)[features, , drop = FALSE]
   fltr_data <- get_data(object, raw = FALSE)[features, , drop = FALSE]
 

@@ -4,17 +4,23 @@
 \alias{pathway_enrichment}
 \title{Pathway enrichment testing.}
 \usage{
-pathway_enrichment(object, features, species, clustered = TRUE,
-  kegg = FALSE, ontology = c("BP", "CC", "MF"), fltr_DE = 0.1,
-  fltr_N = 500, fltr_P.DE = 0.05, ...)
+pathway_enrichment(object, features, species, feature_column = "feature",
+  universe = NULL, clustered = TRUE, kegg = FALSE, ontology = c("BP",
+  "CC", "MF"), fltr_DE = 0.1, fltr_N = 500, fltr_P.DE = 0.05, ...)
 }
 \arguments{
 \item{object}{A \code{vistimeseq} object.}
 
-\item{features}{A vector of names of selected features to plot.}
+\item{features}{A vector of ENTREZID for enrichment testing.}
 
 \item{species}{A character string  specifying the species.
 See \code{\link[limma]{goana}} for details.}
+
+\item{feature_column}{the feature column in 'feature.data' slot holding
+ENTREZIDs, by deafult the 'feature' column.}
+
+\item{universe}{A vector of genes in the universe. By default
+all the genes in the 'raw.data' slot.}
 
 \item{clustered}{Whether \code{features} should be grouped based on
 cluster assignment (stored in \code{object@cluster.features$cluster_map})

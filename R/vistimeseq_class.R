@@ -79,6 +79,64 @@ check_vistimeseq <- function(object){
 
 
 ###############################################################################
+#' @title Imputing missing samples
+#'
+#' @description Sometimes datasets include a missing sample. Here we impute
+#' the expression values by taking the mean expression of two samples
+#' from the same group and replicate (same individual) at two times surrounding
+#' the time of the missing sample
+#'
+#' @param raw.data Raw input data with columns corresponding to samples
+#' (observations) and rows to features
+#' @param project Project name (string)
+#' @param sample.data Optional. A \code{data.frame} object were rows are
+#' samples (observations) and columns are sample attributes
+#' (e.g. group/condition, replicate, time)
+#'
+#' @return list of modified raw.data and sample.data
+#'
+impute_data <- function(raw.data, sample.data) {
+  time_levels <- sort(unique(sample.data$time))
+  sample.data <- sample.data %>%
+    mutate(gr_rep = paste0(group, "_replicate"))
+
+  for(id in unique(sample.data$gr_rep)) {
+    smp_gr_time <- filter(sample.data, gr_rep == id)
+    gr <- strsplit(id, "_")[[1]][1]
+    rep <- strsplit(id, "_")[[1]][2]
+    missing_time <- !(time_levels %in% smp_gr_time$time)
+    if(any(missing_time)) {
+      message("Missing sample for group: ", gr, " replicate ", rep,
+              " at time ", time_levels[missing_time], ".")
+      if (any(missing_time[-1] & missing_time[-length(missing_time)])) {
+        stop("Two or more consecutive samples are missing for the same",
+             "group-replicate. Please fix the experimental design.")
+      }
+      message("Imputing counts for the missing sample...")
+      for (i in which(missing_time)) {
+        t_surround <- time_levels[c(max(1, i -1), min(i+1, length(time_levels)))]
+        surrounding_samples <- smp_gr_time %>% filter(time %in% t_surround) %>%
+          .[["sample"]]
+        if (length(surrounding_samples) == 1) {
+          missing_sample <- raw.data[, surrounding_samples]
+        } else {
+          missing_sample <- rowMeans(raw.data[, surrounding_samples])
+        }
+        raw.data <- cbind(raw.data, missing_sample)
+        missing_sample_name <- paste0("Imputed_G", gr, "_R", rep, "_T",
+                                      time_levels[i])
+        colnames(raw.data)[ncol(raw.data)] <- missing_sample_name
+        sample.data <- add_row(
+          sample.data, sample = missing_sample_name,
+          group = gr, replicate = rep, time = time_levels[i]
+        )
+      }
+    }
+  }
+  return(list(raw.data = raw.data, sample.data = sample.data))
+}
+
+###############################################################################
 #' @title The Time Course Data Class
 #'
 #' @description The \code{vistimeseq} object is the main object in the time course
@@ -292,19 +350,30 @@ vistimeseq <- function(
   if(is.null(rownames(raw.data))) {
     rownames(raw.data) <- paste0("F", seq_len(nFeatures))
   }
-  sample_data <- data.frame(
-    sample = colnames(raw.data),
-    #row.names = colnames(raw.data),
-    stringsAsFactors = FALSE)
-
-  feature_data <- data.frame(
-    feature = rownames(raw.data),
-    #row.names = rownames(raw.data),
-    stringsAsFactors = FALSE)
-
-  if(is.null(time)) {
-    time <- numeric()
+  if(!all(colnames(raw.data) %in% rownames(sample.data))){
+    stop("Not all colnames(raw.data) in rownames(sample.data)")
   }
+  if(is.null(time)) {
+    time <- rep(NA, ncol(raw.data))
+    class(time) <- "numeric"
+  }
+
+  sample.data <- sample.data[colnames(raw.data), ]
+  sample.data <- sample.data %>%
+  mutate(
+    sample = colnames(raw.data),
+    time = time,
+    replicate = replicate,
+    group = group
+  )
+
+  feature.data <- feature.data %>%
+    mutate(feature = rownames(raw.data))
+
+  imputed <- impute_data(raw.data, sample.data)
+  sample.data <- imputed$sample.data
+  raw.data <- imputed$raw.data
+
   object <- new(
     Class = "vistimeseq",
     project.name = project,
@@ -312,11 +381,11 @@ vistimeseq <- function(
     data = raw.data,
     sample.names = colnames(raw.data),
     feature.names = rownames(raw.data),
-    sample.data  = sample_data,
-    feature.data = feature_data,
-    time = time,
-    replicate = replicate,
-    group = group
+    sample.data  = sample.data,
+    feature.data = feature.data,
+    time = sample.data$time,
+    replicate = sample.data$replicate,
+    group = sample.data$group
   )
   if (!is.null(sample.data)) {
     object <- add_sample_data(object = object, sampledata = sample.data)
@@ -380,43 +449,40 @@ vistimeseqFromExpressionSet <- function(
   group_column = NULL,
   project = "'vistimeseq' time course project"
 ) {
-  gene_data <- fData(eset) %>%
-    rownames_to_column("feature")
-  smp_data <- pData(eset) %>%
-    rownames_to_column("sample")
+  feature.data <- fData(eset)
+  sample.data <- pData(eset)
 
   if(!is.null(replicate_column)) {
-    if(replicate_column %in% colnames(smp_data)){
-      smp_data[["replicate"]] <- smp_data[[replicate_column]]
+    if(replicate_column %in% colnames(sample.data)){
+      sample.data[["replicate"]] <- sample.data[[replicate_column]]
     } else {
       stop("\"replicate_column\" not found.")
     }
   } else {
-    smp_data[["replicate"]] <- rep("R1", nrow(smp_data))
+    sample.data[["replicate"]] <- rep("R1", nrow(sample.data))
   }
 
   if(!is.null(group_column)) {
-    if(group_column %in% colnames(smp_data)){
-      smp_data[["group"]] <- smp_data[[group_column]]
+    if(group_column %in% colnames(sample.data)){
+      sample.data[["group"]] <- sample.data[[group_column]]
     } else {
       stop("\"group_column\" not found.")
     }
   } else {
-    smp_data[["group"]] <- rep("G1", nrow(smp_data))
+    sample.data[["group"]] <- rep("G1", nrow(sample.data))
   }
 
-  if(!is.numeric(smp_data[[time_column]])) {
+  if(!is.numeric(sample.data[[time_column]])) {
     stop("time column must be numeric.")
   }
-  smp_data[["time"]] <- smp_data[[time_column]]
-
-  cnts <- exprs(eset)[, smp_data$sample]
+  sample.data[["time"]] <- sample.data[[time_column]]
+  raw.data <- exprs(eset)
 
   object <- vistimeseq(
     project = project,
-    raw.data = cnts,
-    feature.data = gene_data,
-    sample.data = smp_data,
+    raw.data = raw.data,
+    feature.data = feature.data,
+    sample.data = sample.data,
     time_column = "time",
     replicate_column = "replicate",
     group_column = "group"

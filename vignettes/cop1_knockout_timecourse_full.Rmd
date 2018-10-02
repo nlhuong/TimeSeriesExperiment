@@ -72,7 +72,7 @@ Obtain and process data {#get-data .unnumbered}
 First we load the necessary packages.
 
 ```{r message=FALSE, warning=FALSE}
-.packages <- c("edgeR", "tidyverse", "viridis", "vistimeseq", "Biobase") 
+.packages <- c("edgeR", "viridis", "vistimeseq", "Biobase", "tidyverse") 
 sapply(.packages, require, character.only = TRUE)
 theme_set(theme_bw())
 theme_update(text = element_text(size = 15))
@@ -98,7 +98,8 @@ so we first convert need to it.
 
 ```{r error = TRUE, purl = FALSE}
 cop1_vistimeseq <- vistimeseqFromExpressionSet(
-  cop1_eset, time = "time", group = "genotype", replicate = "individual")
+  cop1_eset, time_column = "time", group_column = "genotype", 
+  replicate_column = "individual")
 ```
 
 
@@ -669,16 +670,19 @@ cop1_timeseq <- trajectory_de(cop1_timeseq, dist_method = "euclidean")
 
 ```{r, eval = FALSE}
 de_trajectory_res <- get_diff_expr(cop1_timeseq, "trajectory_de")
-head(de_trajectory_res)
-```
-
-```{r, eval = FALSE, echo = FALSE}
 saveRDS(de_trajectory_res, "de_trajectory_cop1_full.rds")
 ```
 
 ```{r echo = FALSE}
 de_trajectory_res <- readRDS("de_trajectory_cop1_full.rds")
 ```
+
+```{r, eval = FALSE}
+head(de_trajectory_res)
+```
+
+
+
 
 
 You can filter out the genes based on the $R^2$ value (the percenteage
@@ -765,9 +769,6 @@ enrich_res <- pathway_enrichment(
   object = cop1_timeseq, 
   features = genes_with_de_trajectory$feature, 
   species = "Mm", ontology ="BP")
-```
-
-```{r, eval = FALSE, echo = FALSE}
 saveRDS(enrich_res, "enrich_res_cop1_full.rds")
 ```
 
