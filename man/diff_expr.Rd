@@ -25,10 +25,7 @@ a \code{data.frame} or a list of \code{data.frame}s
 possibly containing elements named 'timepoint_de', and 'trajectory_de'.
 }
 \examples{
-\dontrun{
-endoderm_small
 endoderm_small <- trajectory_de(endoderm_small)
 head(get_diff_expr(endoderm_small, "trajectory_de"))
-}
 
 }

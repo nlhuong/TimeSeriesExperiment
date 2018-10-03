@@ -27,13 +27,13 @@ plotting functions.
 \examples{
 idx <- sample(1:26, n_features(endoderm_small), replace = TRUE)
 random_letters <- data.frame(
-  letters = LETTERS[idx],
- row.names = feature_names(endoderm_small)
+   letters = LETTERS[idx],
+   row.names = feature_names(endoderm_small)
 )
 endoderm_small <- add_feature_data(
-  object = endoderm_small,
-  featuredata = random_letters
-  )
+    object = endoderm_small,
+    featuredata = random_letters
+)
 head(feature_data(endoderm_small))
 
 }

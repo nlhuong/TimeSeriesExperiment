@@ -67,11 +67,11 @@ object@raw.data, object@sample.data object@group, object@replicate,
 and object@time are also initialized.
 }
 \description{
-The \code{vistimeseq} object is the main object in the time course
-experiment analysis. It stores all relevant information associated with
-the dataset, including the raw data, group, replicate and time associated
-with each sample (column of the data). The object includes also slots for
-results from some class-specific methods.
+The \code{vistimeseq} object is the main object in the time
+course experiment analysis. It stores all relevant information associated
+with the dataset, including the raw data, group, replicate and time
+associated with each sample (column of the data). The object includes also
+slots for results from some class-specific methods.
 
 Each vistimeseq object has a number of key slots listed below.
 
@@ -89,20 +89,20 @@ the time, replicate, and group slots.
 \item{\code{norm.data}}{Normalized data.}
 
 \item{\code{sample.data}}{A \code{data.frame} object were rows are samples
-(observations) and columns are sample attributes (e.g. group/condition,
-replicate, time)}
+(observations) and columns are sample attributes 
+(e.g. group/condition replicate, time)}
 
 \item{\code{sample.data.collapsed}}{A \code{data.frame} with rows corresponding
-to samples aggregated over replicates. The columns indicate group membership
-and time.}
+to samples aggregated over replicates. The columns indicate group 
+membership and time.}
 
-\item{\code{feature.data}}{A \code{data.frame} object were rows are features and
-columns are feature names under different conventions (e.g. Enterez IDs,
-gene symbols) or feature attributes (e.g. chromosome, location in the
-genome, biotype, gc content etc.)}
+\item{\code{feature.data}}{A \code{data.frame} object were rows are features 
+and columns are feature names under different conventions 
+(e.g. Enterez IDs, gene symbols) or feature attributes 
+(e.g. chromosome, location in the genome, biotype, gc content etc.)}
 
-\item{\code{group}}{A character vector of length \code{ncol(raw.data)} indicating
-the group membership of the sample}
+\item{\code{group}}{A character vector of length \code{ncol(raw.data)} 
+indicating the group membership of the sample}
 
 \item{\code{replicate}}{Vector of length \code{ncol(raw.data)} indicating
 the replicate from which the sample came from}
@@ -117,12 +117,14 @@ ones providing the data at each available time point.
 \code{vistimeseq} methods will typically generate elements named:
 'tc', 'tc_with_lags', 'tc_collapsed' and 'tc_collapsed_with_lags'.}
 
-\item{\code{dim.red}}{List of stored dimmensional reductions; named by technique}
+\item{\code{dim.red}}{List of stored dimmensional reductions; 
+named by technique used.}
 
 \item{\code{cluster.features}}{A list storing results from timecourse (feature)
 clustering.}
 
-\item{\code{diff.expr}}{A list storing results of differential expression analysis.}
+\item{\code{diff.expr}}{A list storing results of differential 
+expression analysis.}
 }}
 
 \examples{

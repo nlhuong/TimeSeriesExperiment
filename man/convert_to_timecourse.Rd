@@ -10,8 +10,8 @@ convert_to_timecourse(object, feature.trans.method = "var_stab",
 \arguments{
 \item{object}{A \code{vistimeseq} object}
 
-\item{feature.trans.method}{Method for feature normalization. Default "none".
-Currently supports only "none" (no transformation),
+\item{feature.trans.method}{Method for feature normalization. 
+Default "none". Currently supports only "none" (no transformation),
 "scale_feat_sum" (scaling by feature sum),
 or "var_stab" (variance stabilization). Default is "var_stab".}
 
@@ -33,9 +33,7 @@ row gives data values over time (at each time point) for each
 feature, group, and replicate.
 }
 \examples{
-endoderm_small
 endoderm_small <- normalize_data(endoderm_small)
-endoderm_small <- collapse_replicates(endoderm_small)     # Optional
 endoderm_small <- convert_to_timecourse(endoderm_small)
 head(time_course(endoderm_small))
 

@@ -29,8 +29,8 @@ an hclust object
 }
 \description{
 'cluster.features' slots is a list with '"hclust", "cluster_map"
-where first is an hclust object and second is a \code{data.frame} with cluster
-assignement, both computed with \code{cluster_timecourse_features()}
+where first is an hclust object and second is a \code{data.frame} with 
+cluster assignement, both computed with \code{cluster_timecourse_features()}
 function.
 
 'cluster.features' slots is a list with '"hclust", "cluster_map"
@@ -47,6 +47,6 @@ head(get_cluster_map(endoderm_small))
 endoderm_small
 endoderm_small <- cluster_timecourse_features(endoderm_small)
 plot(get_cluster_hclust(endoderm_small), labels = FALSE, xlab = "genes",
-    sub = "")
+      sub = "")
 
 }

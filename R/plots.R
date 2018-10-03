@@ -27,55 +27,57 @@
 #' \dontrun{
 #' plot_heatmap(endoderm_small)
 #' }
-plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
-                         feat_desc = "feature", sample_desc = "sample"){
-  group <- time <- NULL
-  if (!validObject(object)) {
-    stop("Invalid vistimeseq object.")
-  }
-  if (!feat_desc %in% colnames(feature_data(object))){
-    stop("\"feat_desc\" not in object@feature.data")
-  }
-  if (!sample_desc %in% colnames(sample_data(object))){
-    stop("\"sample_desc\" not in object@sample.data")
-  }
-  cnts <- get_data(object)
-  rownames(cnts) <- feature_data(object)[, feat_desc]
-  colnames(cnts) <- sample_data(object)[, sample_desc]
-  top_feat <- apply(cnts, 1, sd)
-  top_feat <- names(top_feat[order(-top_feat)])[seq_len(num.feat)]
-  cols_ordered <- order(get_group(object), get_replicate(object),
-                        get_time(object))
-  Y <- cnts[top_feat, cols_ordered]
-  if (scale) {
-    Y <- t(scale(t(Y), center = TRUE, scale = TRUE))
-  }
+plot_heatmap <- function(
+    object, num.feat = 200, scale = TRUE, feat_desc = "feature",
+    sample_desc = "sample"){
+    group <- time <- NULL
+    if (!validObject(object)) {
+        stop("Invalid vistimeseq object.")
+    }
+    if (!feat_desc %in% colnames(feature_data(object))){
+        stop("\"feat_desc\" not in object@feature.data")
+    }
+    if (!sample_desc %in% colnames(sample_data(object))){
+        stop("\"sample_desc\" not in object@sample.data")
+    }
+    cnts <- get_data(object)
+    rownames(cnts) <- feature_data(object)[, feat_desc]
+    colnames(cnts) <- sample_data(object)[, sample_desc]
+    top_feat <- apply(cnts, 1, sd)
+    top_feat <- names(top_feat[order(-top_feat)])[seq_len(num.feat)]
+    cols_ordered <- order(get_group(object), get_replicate(object),
+                                                get_time(object))
+    Y <- cnts[top_feat, cols_ordered]
+    if (scale) {
+        Y <- t(scale(t(Y), center = TRUE, scale = TRUE))
+    }
 
-  smpdf <- sample_data(object) %>%
-    select(group, replicate, time) %>%
-    arrange(group, replicate, time) %>%
-    mutate(time = as.numeric(time))
+    smpdf <- sample_data(object) %>%
+        select(group, replicate, time) %>%
+        arrange(group, replicate, time) %>%
+        mutate(time = as.numeric(time))
 
-  n_group <- length(unique(get_group(object)))
-  group_cols <- colorRampPalette(
-    colors = brewer.pal(9, name = "Set1")[seq_len(min(9, n_group))])(n_group)
-  names(group_cols) <- unique(get_group(object))
+    n_group <- length(unique(get_group(object)))
+    cols <- brewer.pal(9, name = "Set1")[seq_len(min(9, n_group))]
+    group_cols <- colorRampPalette(colors = cols)(n_group)
+    names(group_cols) <- unique(get_group(object))
 
-  n_replicates <- length(unique(get_replicate(object)))
-  rep_cols <- colorRampPalette(colors = brewer.pal(8, name = "Set3")[
-    seq_len(min(8, n_replicates))])(n_replicates)
-  names(rep_cols) <- unique(get_replicate(object))
+    n_replicates <- length(unique(get_replicate(object)))
+    rep_cols <- colorRampPalette(colors = brewer.pal(8, name = "Set3")[
+        seq_len(min(8, n_replicates))])(n_replicates)
+    names(rep_cols) <- unique(get_replicate(object))
 
-  time_cols <- colorRamp2(
-    breaks = seq(min(get_time(object)), max(get_time(object)), length.out = 10),
-    colors =  viridis(10))
+    time_cols <- colorRamp2(
+        breaks = seq(min(get_time(object)), max(get_time(object)), 
+                     length.out = 10),
+        colors =    viridis(10))
 
-  ha1 <- ComplexHeatmap::HeatmapAnnotation(smpdf,
-    col = list(group = group_cols, replicate = rep_cols, time = time_cols))
+    ha1 <- ComplexHeatmap::HeatmapAnnotation(smpdf,
+        col = list(group = group_cols, replicate = rep_cols, time = time_cols))
 
-  ComplexHeatmap::Heatmap(
-    Y, name = "Z-score", cluster_columns = FALSE,
-    top_annotation = ha1, row_names_gp = gpar(fontsize = 8))
+    ComplexHeatmap::Heatmap(
+        Y, name = "Z-score", cluster_columns = FALSE,
+        top_annotation = ha1, row_names_gp = gpar(fontsize = 8))
 }
 
 
@@ -105,52 +107,54 @@ plot_heatmap <- function(object, num.feat = 200, scale = TRUE,
 #' plot_sample_pca(endoderm_small, col.var = "group")
 #'
 plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
-  if(is.null(get_dim_reduced(object, "pca_sample"))) {
-    stop("No 'pca_sample' in object@dim.red. Run PCA for samples first.")
-  }
-  axis <- if(is.numeric(axis)) paste0("PC", axis) else axis
-  pca.sample <- get_dim_reduced(object, "pca_sample")
-  pca.eigs <- get_dim_reduced(object, "pca_eigs")
+    if(is.null(get_dim_reduced(object, "pca_sample"))) {
+        stop("No 'pca_sample' in object@dim.red. Run PCA for samples first.")
+    }
+    axis <- if(is.numeric(axis)) paste0("PC", axis) else axis
+    pca.sample <- get_dim_reduced(object, "pca_sample")
+    pca.eigs <- get_dim_reduced(object, "pca_eigs")
 
-  pca.scores <- pca.sample[, axis] %>%
-    as.data.frame() %>%
-    rownames_to_column("sample")
+    pca.scores <- pca.sample[, axis] %>%
+        as.data.frame() %>%
+        rownames_to_column("sample")
 
-  if(all(pca.scores$sample %in% sample_names(object))) {
-    pca.scores <- suppressMessages(
-      pca.scores %>%
-        left_join(sample_data(object)) %>%
-        column_to_rownames("sample")
+    if(all(pca.scores$sample %in% sample_names(object))) {
+        pca.scores <- suppressMessages(
+            pca.scores %>%
+                left_join(sample_data(object)) %>%
+                column_to_rownames("sample")
+        )
+    } else if (all(pca.scores$sample %in% 
+                   collapsed_sample_data(object)$sample)) {
+        pca.scores <- suppressMessages(
+            pca.scores %>%
+                left_join(collapsed_sample_data(object)) %>%
+                column_to_rownames("sample")
+        )
+    } else {
+        stop("Sample names in sample data and PCA coordinates disagree.")
+    }
+
+    axis_label <- paste0(
+        colnames(pca.scores)[1:2], " [",
+        signif(pca.eigs[1:2]/sum(pca.eigs)*100, 3), "%]"
     )
-  } else if (all(pca.scores$sample %in% collapsed_sample_data(object)$sample)) {
-    pca.scores <- suppressMessages(
-      pca.scores %>%
-        left_join(collapsed_sample_data(object)) %>%
-        column_to_rownames("sample")
-    )
-  } else {
-    stop("Sample names in sample data and PCA coordinates disagree.")
-  }
+    plt <- ggplot(
+        data = pca.scores,
+        aes(x = pca.scores[[1]], y = pca.scores[[2]])
+        ) +
+        geom_point(
+          aes_string(fill = col.var), color = "grey80", pch = 21, ...) +
+        geom_hline(aes(yintercept =0), size=.2) +
+        geom_vline(aes(xintercept = 0), size=.2) +
+        xlab(axis_label[1]) +
+        ylab(axis_label[2]) +
+        coord_fixed(1)  # ratio must reflect variances of new PCs from prcomp
 
-  axis_label <- paste0(
-    colnames(pca.scores)[1:2], " [",
-    signif(pca.eigs[1:2]/sum(pca.eigs)*100, 3), "%]"
-  )
-  plt <- ggplot(
-    data = pca.scores,
-    aes(x = pca.scores[[1]], y = pca.scores[[2]])
-    ) +
-    geom_point(aes_string(fill = col.var), color = "grey80", pch = 21, ...) +
-    geom_hline(aes(yintercept =0), size=.2) +
-    geom_vline(aes(xintercept = 0), size=.2) +
-    xlab(axis_label[1]) +
-    ylab(axis_label[2]) +
-    coord_fixed(1)  # ratio must reflect variances of new PC coordinates from prcomp
-
-  if(all(!is.null(pca.scores), is.numeric(pca.scores[, col.var]))){
-    plt <- plt + viridis::scale_fill_viridis()
-  }
-  return(plt)
+    if(all(!is.null(pca.scores), is.numeric(pca.scores[, col.var]))){
+        plt <- plt + viridis::scale_fill_viridis()
+    }
+    return(plt)
 }
 
 
@@ -183,106 +187,107 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
 #' endoderm_small <- run_pca(endoderm_small)
 #' plot_ts_pca(endoderm_small)
 #'
-plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
-                        group.highlight = NULL, linecol = NULL,
-                        ...) {
-  feature <- group <- NULL
-  if (!validObject(object)){
-    stop("Invalid vistimeseq object.")
-  }
-  if(is.null(get_dim_reduced(object, type = "pca_feature"))) {
-    stop("No 'pca_feature' in object@dim.red. Run PCA for features first.")
-  }
-  if (is.null(time_course(object, collapsed = TRUE))) {
-    object <- collapse_replicates(object, FUN = mean)
-    object <- convert_to_timecourse(object)
-    message("Aggregated data over replicates and converted",
-            "to time-course format.")
-  }
-  # Prepare scores data
-  tc <- time_course(object, collapsed = TRUE)
-  tc <- tc[, !grepl("Lag_", colnames(tc))]
-  tmp <- as.numeric(colnames(tc %>% select(-feature, -group, -replicate)))
-  axis <- if(is.numeric(axis)) paste0("PC", axis) else axis
-  pca.feature <- get_dim_reduced(object, type = "pca_feature")
-  pca.eigs <- get_dim_reduced(object, type = "pca_eigs")
-  pca.loadings <- suppressMessages(
-    pca.feature[, axis] %>%
-    as.data.frame() %>%
-    rownames_to_column("feature") %>%
-    left_join(feature_data(object)) %>%
-    column_to_rownames("feature")
-  )
-  colnames(pca.loadings)[1:2] <-
-    paste0(colnames(pca.loadings)[1:2], " [",
-           signif(pca.eigs[1:2]/sum(pca.eigs)*100, 3), "%]")
-
-  # Create a grid over score values
-  mins <- apply(pca.loadings[, 1:2], 2, min)
-  maxes <- apply(pca.loadings[, 1:2], 2, max)
-  x <- seq(mins[1], maxes[1], length.out = m)
-  y <- seq(mins[2], maxes[2], length.out = n)
-  dx <- x[2] - x[1]; dy <- y[2] - y[1]
-  grid <- expand.grid(x, y)
-
-  # Find gene closest to the grid center
-  xD <- proxy::dist(grid[, 1], pca.loadings[, 1])
-  yD <- proxy::dist(grid[, 2], pca.loadings[, 2])
-  D <- proxy::dist(grid, pca.loadings[, 1:2])
-
-  min_dists <- apply(D, 1, min)
-  min_dists_ix <- apply(D, 1, which.min)
-  x_min_dists <- vapply(seq_len(nrow(xD)), function(i) xD[i, min_dists_ix[i]],
-                        numeric(1))
-  y_min_dists <- vapply(seq_len(nrow(yD)), function(i) yD[i, min_dists_ix[i]],
-                        numeric(1))
-  min_dists_ix[x_min_dists > dx/2 | y_min_dists > dy/2] <- NA
-
-  # Plot all points corresponding to each feature
-  par(mar=par()$mar * c(2, 1.2, 1.2, 1.2), xpd=TRUE, #c(par()$mar[1], 0, 0, 0)
-      cex = 0.7, cex.main = 2, cex.axis = 1.5, cex.lab = 1.5)
-  plot(pca.loadings[, 1:2], type = "p", pch = 16,
-       xlim = c(mins[1] - dx/2, maxes[1] + dx/2),
-       ylim = c(mins[2] - dy/2, maxes[2] + dy/2),
-       asp=1, ...)  # ratio must reflect variances of new PC coordinates from prcomp
-
-  if (is.null(group.highlight)){
-    groups.unique <- unique(get_group(object))
-  } else {
-    groups.unique <- group.highlight
-  }
-  if(is.null(linecol)) {
-    linecol <- viridis(length(groups.unique))
-    names(linecol) <- groups.unique
-  }
-  ylimits <- c(min(tc %>% select(-feature, -group, -replicate)),
-               max(tc %>% select(-feature, -group, -replicate)))
-
-  # Plot all the time-course profiles
-  for(i in seq_along(min_dists_ix)) {
-    igene <- rownames(pca.feature)[min_dists_ix[i]]
-    if(is.na(min_dists_ix[i])) next
-    for (gr in groups.unique) {
-      gTC <- tc %>%
-        filter(feature == igene, group == gr) %>%
-        select(-feature, -group, -replicate) %>%
-        as.numeric()
-      Hmisc::subplot(
-        plot(tmp, gTC, type = "l", lwd = 2,
-             col =  linecol[gr], frame = FALSE, axes = FALSE,
-             xlab = "", ylab = "", ylim = ylimits),
-             x = c(grid[i, 1] - dx/2, grid[i, 1] + dx/2),
-             y = c(grid[i, 2] - dy/2, grid[i, 2] + dy/2)
-      )
+plot_ts_pca <- function(
+    object, axis = 1:2, m = 20, n = 20, group.highlight = NULL, linecol = NULL,
+    ...) {
+    feature <- group <- NULL
+    if (!validObject(object)){
+        stop("Invalid vistimeseq object.")
     }
-  }
-  # Add a legend
-  par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0),
-      mar = c(1, 0, 0, 0), new = TRUE)
-  plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
-  legend("bottom", inset = c(0, 0), horiz = TRUE,
-         groups.unique, col = linecol, xpd = TRUE,
-         lty = c(1,1), lwd = c(3,3))
+    if(is.null(get_dim_reduced(object, type = "pca_feature"))) {
+        stop("No 'pca_feature' in object@dim.red. Run PCA for features first.")
+    }
+    if (is.null(time_course(object, collapsed = TRUE))) {
+        object <- collapse_replicates(object, FUN = mean)
+        object <- convert_to_timecourse(object)
+        message("Aggregated data over replicates and converted",
+                        "to time-course format.")
+    }
+    # Prepare scores data
+    tc <- time_course(object, collapsed = TRUE)
+    tc <- tc[, !grepl("Lag_", colnames(tc))]
+    tmp <- as.numeric(colnames(tc %>% select(-feature, -group, -replicate)))
+    axis <- if(is.numeric(axis)) paste0("PC", axis) else axis
+    pca.feature <- get_dim_reduced(object, type = "pca_feature")
+    pca.eigs <- get_dim_reduced(object, type = "pca_eigs")
+    pca.loadings <- suppressMessages(
+        pca.feature[, axis] %>%
+        as.data.frame() %>%
+        rownames_to_column("feature") %>%
+        left_join(feature_data(object)) %>%
+        column_to_rownames("feature")
+    )
+    colnames(pca.loadings)[1:2] <-
+        paste0(colnames(pca.loadings)[1:2], " [",
+                     signif(pca.eigs[1:2]/sum(pca.eigs)*100, 3), "%]")
+
+    # Create a grid over score values
+    mins <- apply(pca.loadings[, 1:2], 2, min)
+    maxes <- apply(pca.loadings[, 1:2], 2, max)
+    x <- seq(mins[1], maxes[1], length.out = m)
+    y <- seq(mins[2], maxes[2], length.out = n)
+    dx <- x[2] - x[1]; dy <- y[2] - y[1]
+    grid <- expand.grid(x, y)
+
+    # Find gene closest to the grid center
+    xD <- proxy::dist(grid[, 1], pca.loadings[, 1])
+    yD <- proxy::dist(grid[, 2], pca.loadings[, 2])
+    D <- proxy::dist(grid, pca.loadings[, 1:2])
+
+    min_dists <- apply(D, 1, min)
+    min_dists_ix <- apply(D, 1, which.min)
+    x_min_dists <- vapply(seq_len(nrow(xD)), 
+                          function(i) xD[i, min_dists_ix[i]], numeric(1))
+    y_min_dists <- vapply(seq_len(nrow(yD)), 
+                          function(i) yD[i, min_dists_ix[i]], numeric(1))
+    min_dists_ix[x_min_dists > dx/2 | y_min_dists > dy/2] <- NA
+
+    # Plot all points corresponding to each feature
+    par(mar=par()$mar * c(2, 1.2, 1.2, 1.2), xpd = TRUE, 
+        cex = 0.7, cex.main = 2, cex.axis = 1.5, cex.lab = 1.5)
+    plot(pca.loadings[, 1:2], type = "p", pch = 16,
+             xlim = c(mins[1] - dx/2, maxes[1] + dx/2),
+             ylim = c(mins[2] - dy/2, maxes[2] + dy/2),
+             asp=1,  # ratio must reflect variances of new PC from prcomp
+             ...)
+
+    if (is.null(group.highlight)){
+        groups.unique <- unique(get_group(object))
+    } else {
+        groups.unique <- group.highlight
+    }
+    if(is.null(linecol)) {
+        linecol <- viridis(length(groups.unique))
+        names(linecol) <- groups.unique
+    }
+    ylimits <- c(min(tc %>% select(-feature, -group, -replicate)),
+                             max(tc %>% select(-feature, -group, -replicate)))
+
+    # Plot all the time-course profiles
+    for(i in seq_along(min_dists_ix)) {
+        igene <- rownames(pca.feature)[min_dists_ix[i]]
+        if(is.na(min_dists_ix[i])) next
+        for (gr in groups.unique) {
+            gTC <- tc %>%
+                filter(feature == igene, group == gr) %>%
+                select(-feature, -group, -replicate) %>%
+                as.numeric()
+            Hmisc::subplot(
+                plot(tmp, gTC, type = "l", lwd = 2,
+                     col =  linecol[gr], frame = FALSE, axes = FALSE,
+                     xlab = "", ylab = "", ylim = ylimits),
+                     x = c(grid[i, 1] - dx/2, grid[i, 1] + dx/2),
+                     y = c(grid[i, 2] - dy/2, grid[i, 2] + dy/2)
+            )
+        }
+    }
+    # Add a legend
+    par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0),
+        mar = c(1, 0, 0, 0), new = TRUE)
+    plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+    legend("bottom", inset = c(0, 0), horiz = TRUE,
+                 groups.unique, col = linecol, xpd = TRUE,
+                 lty = c(1,1), lwd = c(3,3))
 }
 
 #' @title Plot (time) series over clusters.
@@ -307,82 +312,82 @@ plot_ts_pca <- function(object, axis = 1:2, m = 20, n = 20,
 #' endoderm_small <- cluster_timecourse_features(endoderm_small)
 #' plot_ts_clusters(endoderm_small)
 #'
-plot_ts_clusters <- function(object, features = NULL,
-                             transparency = 0.5, ncol = 4) {
-  feature <- cluster <- freq <- group <- time <- value <- category <- NULL
-  if (!validObject(object)){
-    stop("Invalid vistimeseq object.")
-  }
-  if(is.null(get_cluster_map(object))) {
-    stop("No 'cluster_map' in object@cluster.features. Perform
-         clustering with 'cluster_timecourse_features()' first.")
-  }
-  if (is.null(time_course(object, collapsed = TRUE))) {
-    stop("No 'tc_collapsed' in object@timecourse.data, but 'cluster.features'
-         slot is non-emty. Check if data 'vistimeseq' object is corrupted.")
-  }
-  if (is.null(features)){
-    features <- feature_names(object)
-  }
-  if (!all(features %in% feature_names(object))) {
-    stop("One or more feature in \"features\" not found in ",
-         "'object@feature.names'")
-  }
-  cluster_map <- get_cluster_map(object) %>%
-    filter(feature %in% features)
+plot_ts_clusters <- function(
+    object, features = NULL, transparency = 0.5, ncol = 4) {
+    feature <- cluster <- freq <- group <- time <- value <- category <- NULL
+    if (!validObject(object)){
+        stop("Invalid vistimeseq object.")
+    }
+    if(is.null(get_cluster_map(object))) {
+        stop("No 'cluster_map' in object@cluster.features. Perform
+                 clustering with 'cluster_timecourse_features()' first.")
+    }
+    if (is.null(time_course(object, collapsed = TRUE))) {
+        stop("No 'tc_collapsed' in object@timecourse.data, but ",
+             "'cluster.features' slot is non-emty. Check if data 'vistimeseq' ",
+             "object is corrupted.")
+    }
+    if (is.null(features)){
+        features <- feature_names(object)
+    }
+    if (!all(features %in% feature_names(object))) {
+        stop("One or more feature in \"features\" not found in ",
+                 "'object@feature.names'")
+    }
+    cluster_map <- get_cluster_map(object) %>%
+        filter(feature %in% features)
 
-  freq_df <- cluster_map %>%
-    group_by(cluster) %>%
-    summarise(freq = n()) %>%
-    arrange(desc(freq))
+    freq_df <- cluster_map %>%
+        group_by(cluster) %>%
+        summarise(freq = n()) %>%
+        arrange(desc(freq))
 
-  groups <- unique(get_group(object))
-  cat_levels <- paste0("[", freq_df$cluster, ": ", freq_df$freq, "]")
-  cat_levels <- paste(rep(cat_levels, each = length(groups)),
-                      rep(groups, length(cat_levels)))
-  tc_data <- suppressMessages(
-    time_course(object, collapsed = TRUE) %>%
-      filter(feature %in% features) %>%
-      select(-replicate, -contains("Lag_")) %>%
-      left_join(cluster_map) %>%
-      gather(
-        key = "time", value  = "value",
-        -feature, -group, -cluster
-      ) %>%
-      left_join(freq_df) %>%
-      mutate(
-        time = as.numeric(time),
-        value = as.numeric(value),
-        category = paste0("[", cluster, ": ", freq, "] ", group)
-      ) %>%
-      arrange(cluster, group, feature, time) %>%
-      mutate(
-        category = factor(category, levels = cat_levels))
-  )
-  # Compute cluster mean expression profile for each group
-  tc_cluster_mean <- suppressMessages(
-    tc_data %>%
-      select(-feature) %>%
-      group_by(cluster, group, category, time) %>%
-      summarize_all(mean) %>%
-      left_join(freq_df) %>%
-      arrange(cluster, group)
-  )
-
-  plt <- ggplot(
-    tc_data,
-    aes(y = value , x = time, color = group)
-    ) +
-    geom_line(
-      aes(group = feature), alpha = transparency
-    ) +
-    geom_point() +
-    geom_line(
-      data = tc_cluster_mean, lwd = 1.5, color = "grey50",
-      aes(group = group)
-    ) +
-    facet_wrap(~category, scales = "free", ncol = ncol)
-  return(plt)
+    groups <- unique(get_group(object))
+    cat_levels <- paste0("[", freq_df$cluster, ": ", freq_df$freq, "]")
+    cat_levels <- paste(rep(cat_levels, each = length(groups)),
+                        rep(groups, length(cat_levels)))
+    tc_data <- suppressMessages(
+        time_course(object, collapsed = TRUE) %>%
+            filter(feature %in% features) %>%
+            select(-replicate, -contains("Lag_")) %>%
+            left_join(cluster_map) %>%
+            gather(
+                key = "time", value  = "value",
+                -feature, -group, -cluster
+            ) %>%
+            left_join(freq_df) %>%
+            mutate(
+                time = as.numeric(time),
+                value = as.numeric(value),
+                category = paste0("[", cluster, ": ", freq, "] ", group)
+            ) %>%
+            arrange(cluster, group, feature, time) %>%
+            mutate(
+                category = factor(category, levels = cat_levels))
+    )
+    # Compute cluster mean expression profile for each group
+    tc_cluster_mean <- suppressMessages(
+        tc_data %>%
+            select(-feature) %>%
+            group_by(cluster, group, category, time) %>%
+            summarize_all(mean) %>%
+            left_join(freq_df) %>%
+            arrange(cluster, group)
+    )
+    plt <- ggplot(
+        tc_data,
+        aes(y = value , x = time, color = group)
+        ) +
+        geom_line(
+            aes(group = feature), alpha = transparency
+        ) +
+        geom_point() +
+        geom_line(
+            data = tc_cluster_mean, lwd = 1.5, color = "grey50",
+            aes(group = group)
+        ) +
+        facet_wrap(~category, scales = "free", ncol = ncol)
+    return(plt)
 }
 
 
@@ -408,55 +413,54 @@ plot_ts_clusters <- function(object, features = NULL,
 #' feat_to_plot <- feature_names(endoderm_small)[1:10]
 #' plot_time_series(endoderm_small, features = feat_to_plot)
 #'
-plot_time_series <- function(object,
-                             features = feature_names(object),
-                             smooth = TRUE, ncol = 5){
-  feature <- symbol <- time <- value <- group <- NULL
-  if(!all(features %in% feature_names(object))){
-    stop("\"features\" must be a subset of object@feature.names")
-  }
-  feature_data <- feature_data(object) %>% filter(feature %in% features)
+plot_time_series <- function(
+    object, features = feature_names(object), smooth = TRUE, ncol = 5){
+    feature <- symbol <- time <- value <- group <- category <- NULL
+    if(!all(features %in% feature_names(object))){
+        stop("\"features\" must be a subset of object@feature.names")
+    }
+    feature_data <- feature_data(object) %>% filter(feature %in% features)
 
-  if(!"symbol" %in% colnames(feature_data)){
-    feature_data$symbol <- feature_data$feature
-  }
+    if(!"symbol" %in% colnames(feature_data)){
+        feature_data$symbol <- feature_data$feature
+    }
 
-  tc_data <- data_to_tc(
-    X = get_data(object)[features, ], time = get_time(object),
-    group = get_group(object), replicate = get_replicate(object))
+    tc_data <- data_to_tc(
+        X = get_data(object)[features, ], time = get_time(object),
+        group = get_group(object), replicate = get_replicate(object))
 
-  tc_data <- suppressMessages(
-    tc_data %>%
-      gather(key = "time", value = "value", -(feature:replicate)) %>%
-      left_join(feature_data %>% select(feature, symbol)) %>%
-      mutate(
-        symbol = factor(symbol, levels = feature_data$symbol),
-        time = as.numeric(time))
-  )
-  tc_data <- tc_data %>%
-    mutate(category = paste0(group, "_", replicate))
-  plt <- ggplot(
-    tc_data,
-    aes(x = time, y = value, color = group)) +
-    geom_point(size = 1) +
-    facet_wrap(~ symbol, scales = "free", ncol = ncol)
-
-  if(length(unique(tc_data$replicate)) > 1) {
-    plt <- plt + geom_line(aes(group = category), lty = 3, alpha = 0.7)
-  }
-  if(smooth) {
-    plt <- plt + geom_smooth(aes(x = time), lwd = 1.5)
-  } else {
-    tc_data_mean <- suppressMessages(
-      tc_data %>%
-        select(-replicate) %>%
-        group_by(feature, group, time) %>%
-        summarise(value = mean(value)) %>%
-        left_join(feature_data)
+    tc_data <- suppressMessages(
+        tc_data %>%
+            gather(key = "time", value = "value", -(feature:replicate)) %>%
+            left_join(feature_data %>% select(feature, symbol)) %>%
+            mutate(
+                symbol = factor(symbol, levels = feature_data$symbol),
+                time = as.numeric(time))
     )
-    plt <- plt + geom_line(data = tc_data_mean, lwd = 1.5)
-  }
-  return(plt)
+    tc_data <- tc_data %>%
+        mutate(category = paste0(group, "_", replicate))
+    plt <- ggplot(
+        tc_data,
+        aes(x = time, y = value, color = group)) +
+        geom_point(size = 1) +
+        facet_wrap(~ symbol, scales = "free", ncol = ncol)
+
+    if(length(unique(tc_data$replicate)) > 1) {
+        plt <- plt + geom_line(aes(group = category), lty = 3, alpha = 0.7)
+    }
+    if(smooth) {
+        plt <- plt + geom_smooth(aes(x = time), lwd = 1.5)
+    } else {
+        tc_data_mean <- suppressMessages(
+            tc_data %>%
+                select(-replicate) %>%
+                group_by(feature, group, time) %>%
+                summarise(value = mean(value)) %>%
+                left_join(feature_data)
+        )
+        plt <- plt + geom_line(data = tc_data_mean, lwd = 1.5)
+    }
+    return(plt)
 }
 
 
@@ -478,34 +482,29 @@ plot_time_series <- function(object,
 #' @importFrom ggplot2 ggplot aes geom_point
 #' @export
 #' @examples
-#' \dontrun{
-#' endoderm_small <- normalize_data(endoderm_small)
-#' endoderm_small <- trajectory_de(endoderm_small)
-#' genes_with_de_trajectory <-
-#'   get_diff_expr(endoderm_small, "trajectory_de") %>%
-#'     dplyr::filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
-#'     dplyr::arrange(-R2)
+#' selected_genes <- c('114299', '2825', '3855', '221400', '7941',
+#'                     '6164', '1292', '6161', '6144', '23521')
 #' enrich_res <- pathway_enrichment(
 #'   object = endoderm_small, clustered = FALSE,
-#'   features = feature_names(endoderm_small)[1:10],
-#'   species = "Hs", ontology ="BP")
-#'   plot_enrichment( enrich = enrich_res, n_max = 15)
-#' }
+#'   features = selected_genes,
+#'   species = "Hs", ontology = "BP", fltr_DE = 0,
+#'   fltr_N = Inf, fltr_P.DE = 0.05)
+#' plot_enrichment(enrich = enrich_res, n_max = 15)
 #'
 plot_enrichment <- function(enrich, n_max = 15) {
-  DE <- N <- P.DE <- Term <- NULL
-  enrich <- enrich %>%
-    arrange(-DE, P.DE) %>%
-    mutate(
-      Term = paste0(Term, " (", DE, "/", N , ")"),
-      Term = factor(Term, levels = Term)
-    )
-  plt <- ggplot(
-    enrich[1:min(n_max, nrow(enrich)), ],
-    aes(y = Term, x = -log10(P.DE), size = N, color = DE/N)
-    ) +
-    geom_point() +
-    scale_color_viridis()
-  return(plt)
+    DE <- N <- P.DE <- Term <- NULL
+    enrich <- enrich %>%
+        arrange(-DE, P.DE) %>%
+        mutate(
+            Term = paste0(Term, " (", DE, "/", N , ")"),
+            Term = factor(Term, levels = Term)
+        )
+    plt <- ggplot(
+        enrich[1:min(n_max, nrow(enrich)), ],
+        aes(y = Term, x = -log10(P.DE), size = N, color = DE/N)
+        ) +
+        geom_point() +
+        scale_color_viridis()
+    return(plt)
 }
 

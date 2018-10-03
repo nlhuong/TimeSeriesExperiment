@@ -36,40 +36,41 @@
 #' head(get_dim_reduced(endoderm_small, "pca_sample")[, 1:5])
 #' head(get_dim_reduced(endoderm_small, "pca_eigs"))
 #'
-run_pca <- function(object,
-                    collapse.replicates = FALSE,
-                    group.selected = NULL,
-                    var.stabilize.method = "log1p") {
-  if (!validObject(object)){
-    stop("Invalid vistimeseq object.")
-  }
-  if (all(!is.null(group.selected), !group.selected %in% get_group(object))){
-    stop("\"group.selected\", ", group.selected, ", is not in the data.")
-  }
-  if(all(collapse.replicates, is.null(collapsed_data(object)))){
-    message("Aggregate over replicates.")
-    object <- collapse_replicates(object)
-  }
+run_pca <- function(
+    object,
+    collapse.replicates = FALSE,
+    group.selected = NULL,
+    var.stabilize.method = "log1p") {
+    if (!validObject(object)){
+        stop("Invalid vistimeseq object.")
+    }
+    if (all(!is.null(group.selected), !group.selected %in% get_group(object))){
+        stop("\"group.selected\", ", group.selected, ", is not in the data.")
+    }
+    if(all(collapse.replicates, is.null(collapsed_data(object)))){
+        message("Aggregate over replicates.")
+        object <- collapse_replicates(object)
+    }
 
-  if(!collapse.replicates){
-    X <- as.matrix(get_data(object))
-    if (!is.null(group.selected)) {
-      X <- X[, get_group(object) == group.selected]
+    if(!collapse.replicates){
+        X <- as.matrix(get_data(object))
+        if (!is.null(group.selected)) {
+            X <- X[, get_group(object) == group.selected]
+        }
+    } else {
+        X <- as.matrix(collapsed_data(object))
+        if (!is.null(group.selected)) {
+            X <- X[, collapsed_sample_data(object)[["group"]] == group.selected]
+        }
     }
-  } else {
-    X <- as.matrix(collapsed_data(object))
-    if (!is.null(group.selected)) {
-      X <- X[, collapsed_sample_data(object)[["group"]] == group.selected]
-    }
-  }
-  X <- t(variance_stabilization(X, var.stabilize.method))
-  pca.res <- prcomp(X)
-  dim.red <- list()
-  eigs <- pca.res$sdev^2
-  names(eigs) <- paste0("eig_", seq_along(eigs))
-  dim.red[["pca_eigs"]] <- eigs
-  dim.red[["pca_sample"]] <- pca.res$x
-  dim.red[["pca_feature"]] <- pca.res$rotation
-  slot(object, name = "dim.red", check = TRUE) <- dim.red
-  return(object)
+    X <- t(variance_stabilization(X, var.stabilize.method))
+    pca.res <- prcomp(X)
+    dim.red <- list()
+    eigs <- pca.res$sdev^2
+    names(eigs) <- paste0("eig_", seq_along(eigs))
+    dim.red[["pca_eigs"]] <- eigs
+    dim.red[["pca_sample"]] <- pca.res$x
+    dim.red[["pca_feature"]] <- pca.res$rotation
+    slot(object, name = "dim.red", check = TRUE) <- dim.red
+    return(object)
 }

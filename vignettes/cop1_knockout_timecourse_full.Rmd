@@ -7,7 +7,6 @@ keywords: time-course, time series, PCA, clustering, differential expression.
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
-    toc_float: true
     df_print: kable
 vignette: >
   %\VignetteIndexEntry{Gene expression time course data analysis}
@@ -52,10 +51,10 @@ analysis for DE genes.
 Introduction {#introduction .unnumbered}
 ========================================
 
-We will demonstrate the effectiveness of `vistimeseq` package using the in-house 
-dataset exploring the role of Cop1 in pro-inflammatory response. The experiments 
-were designed to study the induction and repression kinetics of genes in bone 
-marrow derived macrophages (BMDMs).
+We will demonstrate the effectiveness of `vistimeseq` package using 
+the in-house dataset exploring the role of Cop1 in pro-inflammatory response. 
+The experiments were designed to study the induction and repression kinetics 
+of genes in bone marrow derived macrophages (BMDMs).
 
 The dataset includes cells from 6 mice. The cells were divided into two equal 
 groups. For one group the Cop1 gene was in vitro knock out with tamoxifen. 
@@ -424,8 +423,8 @@ argument.
 Additionally, the user might limit calculations to only specific group of 
 samples, e.g. in this case you might be interested in visualizing samples
 only in the wild type group. A user can also indicate whether
-PCA should be applied to sample resolved data or one with replicates aggregated  
-(stored in "data.collapsed" slot of a `vistimseq` object).
+PCA should be applied to sample resolved data or one with replicates 
+aggregated (stored in "data.collapsed" slot of a `vistimseq` object).
 
 ```{r}
 cop1_timeseq <- run_pca(cop1_timeseq, var.stabilize.method = "asinh") 
@@ -498,11 +497,11 @@ is computationally intensive (with $O(n^3)$ complexity for standard
 implementations), we apply it only to a subset of genes. 
 Specifically, we pick `n_top_genes` with average (over replicates) most 
 variable expression over time in each of selected `groups` (here
-we use both wild type and knock-out) to perform clustering. Remaining genes are, 
-then, assigned to a cluster with the closest centroid. An additional advantage
-of using only a subset of most variable genes for clustering is that, the core 
-genes which exhibit negligible changes over time (which might be the majority 
-of genes) will not much effect on clustering results.
+we use both wild type and knock-out) to perform clustering. Remaining genes 
+are, then, assigned to a cluster with the closest centroid. An additional
+advantage of using only a subset of most variable genes for clustering is that, 
+the core genes which exhibit negligible changes over time (which might be the 
+majority of genes) will not much effect on clustering results.
 
 Here we pick 1000 genes for clustering, whcih is roughly 1/3 of the
 number of genes after filtering.
@@ -655,20 +654,17 @@ a permutation based method does not yield high power. Combined with
 multiple hypothesis testing correction (for testing thousands of genes),
 we expect the method's p-values to be mostly below significance level
 of $\alpha = 0.5$. However, this approach is still useful, as we can user 
-raw (unadjusted) p-values to filter out the genes that are with high probability 
-not significant, and use the $R^2$ value (the percenteage variance explained 
-by groups) for ranking the genes in terms of the difference 
-in expression profiles between two groups.
+raw (unadjusted) p-values to filter out the genes that are with 
+high probability not significant, and use the $R^2$ value (the percenteage 
+variance explained by groups) for ranking the genes in terms of the 
+difference in expression profiles between two groups.
 
-Function `trajectory_de()` can be used to find differential genes using the
-above described method. Results of testing procedure are saved in
+Function `trajectory_de()` can be used to find differential genes using 
+the above described method. Results of testing procedure are saved in
 `cop1_timeseq@diff.expr$trajectory_de`.
 
-```{r, echo = TRUE, eval = FALSE}
-cop1_timeseq <- trajectory_de(cop1_timeseq, dist_method = "euclidean") 
-```
-
 ```{r, eval = FALSE}
+cop1_timeseq <- trajectory_de(cop1_timeseq, dist_method = "euclidean") 
 de_trajectory_res <- get_diff_expr(cop1_timeseq, "trajectory_de")
 saveRDS(de_trajectory_res, "de_trajectory_cop1_full.rds")
 ```
@@ -677,7 +673,7 @@ saveRDS(de_trajectory_res, "de_trajectory_cop1_full.rds")
 de_trajectory_res <- readRDS("de_trajectory_cop1_full.rds")
 ```
 
-```{r, eval = FALSE}
+```{r}
 head(de_trajectory_res)
 ```
 
@@ -693,8 +689,8 @@ of all the genes in the dataset.
 
 Here we print out 20 of the genes with highest $R^2$ value and 
 the pvalue equal 0.1. P-value of 0.1 is the minimum possible when
-performing permutation test on distances between 6 observations split evenly
-into 2 groups (0.1 = 2/(6 choose 3)).
+performing permutation test on distances between 6 observations split 
+evenly into 2 groups (0.1 = 2/(6 choose 3)).
 
 
 ```{r}
@@ -713,10 +709,10 @@ plot_time_series(cop1_timeseq, features = genes_to_plot) +
 
 
 Note, that in this analysis of variance approach we can specify a distance 
-metric. Additionally, if you are interested in finding out genes DE in specific 
-time intervals e.g. beginning or end of an experiment, you can choose to keep 
-only the timepoints of interest are remove the rest from the time-courses 
-stored in `cop1_timeseq@timecourse.data$tc`. 
+metric. Additionally, if you are interested in finding out genes DE in 
+specific time intervals e.g. beginning or end of an experiment, you can
+choose to keep only the timepoints of interest are remove the rest from 
+the time-courses stored in `cop1_timeseq@timecourse.data$tc`. 
 `trajectory_de()` would then compute the distance for the specified
 time period and return DE genes at these specific time intervals.
 
@@ -729,9 +725,9 @@ In this section we will describe procedures to find functional pathways/gene
 sets corresponding to genes exhibiting differential expression profiles.
 We use publicly available reference databases to find relevant pathways. 
 
-You can select any list of genes for this step. However, the method is intended
-for sets of genes found differentially expressed using methods provided by
-`vistimeseq`, discussed in the previous section.
+You can select any list of genes for this step. However, the method 
+is intended for sets of genes found differentially expressed using methods 
+provided by `vistimeseq`, discussed in the previous section.
 
 Below, we use genes with DE trajectory, selected in the previous section.
 There are `r length(genes_with_de_trajectory$feature)` in the set:
@@ -781,8 +777,8 @@ in each cluster separately using `plot_enrichment()`.
 Here we plot the top `n_max = 15` terms for each cluster.
 Next to enrichment terms, in the brackets, we have included information on
 the exact number of DE genes in a set (DE) and the size of the reference
-enrichment term (N). The points are colored by this fraction. The size of the 
-points correspond the enrichment term size (N).
+enrichment term (N). The points are colored by this fraction. The size of 
+the points correspond the enrichment term size (N).
 
 Below we print we print for example a plot for cluster C2 and C6
 

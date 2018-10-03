@@ -7,8 +7,8 @@
 assign_cluster_static(hclst, h = NULL, k = NULL)
 }
 \arguments{
-\item{hclst}{an object of class \code{hclust} representing the clustering of
-features of X.}
+\item{hclst}{an object of class \code{hclust} representing the clustering 
+of features of X.}
 
 \item{h}{a the fraction of the max tree height at which to cut and assign
 labels.}

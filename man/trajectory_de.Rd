@@ -34,10 +34,8 @@ Performs differential trajectory testing for timecourse
 data using \code{\link[vegan]{adonis}} method.
 }
 \examples{
-\dontrun{
-endoderm_small
 endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- trajectory_de(endoderm_small)
 head(get_diff_expr(endoderm_small, "trajectory_de"))
-}
+
 }

@@ -8,73 +8,80 @@
 #' @return \code{TRUE} if valid and a character vector with errors.
 #'
 check_vistimeseq <- function(object){
-  errors <- character()
-  ncol_raw <- ncol(object@raw.data)
-  nrow_raw <- nrow(object@raw.data)
-  nrow_sample_data <- nrow(object@sample.data)
-  nrow_feature_data <- nrow(object@feature.data)
-  if (nrow_sample_data > 0) {
-    if(ncol_raw != nrow_sample_data) {
-      msg <- paste0("Number of rows in sample.data is ", nrow_sample_data,
-                    ". Should be equal to number of columns in raw.data, ",
-                    ncol_raw)
-      errors <- c(errors, msg)
+    errors <- character()
+    ncol_raw <- ncol(object@raw.data)
+    nrow_raw <- nrow(object@raw.data)
+    nrow_sample_data <- nrow(object@sample.data)
+    nrow_feature_data <- nrow(object@feature.data)
+    if (nrow_sample_data > 0) {
+        if(ncol_raw != nrow_sample_data) {
+            msg <- paste0(
+              "Number of rows in sample.data is ", nrow_sample_data,
+              ". Should be equal to number of columns in raw.data, ",
+              ncol_raw)
+            errors <- c(errors, msg)
+        }
+        if (! all(object@sample.data$sample == colnames(object@raw.data))) {
+            msg <- "Inconsistent row names in sample.data and column names" +
+                            " in raw.data"
+            errors <- c(errors, msg)
+        }
+        if (all(!is.null(object@data),
+                !all(object@sample.data$sample == colnames(object@data)))) {
+            msg <- "Inconsistent row names in sample.data" + 
+                " and column names in data"
+            errors <- c(errors, msg)
+        }
     }
-    if (! all(object@sample.data$sample == colnames(object@raw.data))) {
-      msg <- "Inconsistent row names in sample.data and column names in raw.data"
-      errors <- c(errors, msg)
+    if (nrow_feature_data > 0) {
+        if (nrow_raw != nrow_feature_data) {
+            msg <- paste0(
+              "Number of rows in feature.data is ", nrow_feature_data,
+              ". Should be equal to number of rows in raw.data, ", nrow_raw)
+            errors <- c(errors, msg)
+        }
+        if (!all(object@feature.data$feature == rownames(object@raw.data))) {
+            msg <- "Inconsistent row names in feature.data and row " + 
+                "names in raw.data"
+            errors <- c(errors, msg)
+        }
+        if (all(!is.null(object@data),
+                !all(object@feature.data$feature == rownames(object@data)))) {
+            msg <- "Inconsistent row names in feature.data "+
+                "and row names in data"
+            errors <- c(errors, msg)
+        }
     }
-    if (all(!is.null(object@data),
-            !all(object@sample.data$sample == colnames(object@data)))) {
-      msg <- "Inconsistent row names in sample.data and column names in data"
-      errors <- c(errors, msg)
+    if (!is.null(object@data.collapsed)) {
+        if (!all(object@sample.data.collapsed$sample ==
+                         colnames(object@data.collapsed))) {
+            msg <- paste("Inconsistent row names in sample.data.collapsed",
+                                     "and column names in data.collapsed")
+            errors <- c(errors, msg)
+        }
     }
-  }
-  if (nrow_feature_data > 0) {
-    if (nrow_raw != nrow_feature_data) {
-      msg <- paste0("Number of rows in feature.data is ", nrow_feature_data,
-                    ". Should be equal to number of rows in raw.data, ",
-                    nrow_raw
-      )
-      errors <- c(errors, msg)
+    length_group <- length(object@group)
+    length_replicate <- length(object@replicate)
+    length_time <- length(object@time)
+    if (all(length_group > 0, length_group != ncol_raw)) {
+        msg <- paste0(
+          "Group is length ", length_group,
+          ". Should be equal to number of rows in raw.data, ", ncol_raw)
+        errors <- c(errors, msg)
     }
-    if (!all(object@feature.data$feature == rownames(object@raw.data))) {
-      msg <- "Inconsistent row names in feature.data and row names in raw.data"
-      errors <- c(errors, msg)
+    if (all(length_replicate > 0, length_replicate != ncol_raw)) {
+        msg <- paste0(
+          "Replicate is length ", length_replicate,
+          ". Should be equal to number of rows in raw.data, ", ncol_raw)
+        errors <- c(errors, msg)
     }
-    if (all(!is.null(object@data),
-            !all(object@feature.data$feature == rownames(object@data)))) {
-      msg <- "Inconsistent row names in feature.data and row names in data"
-      errors <- c(errors, msg)
+    if (all(length_time > 0, length_time != ncol_raw)) {
+        msg <- paste0(
+          "Time is length ", length_time,
+          ". Should be equal to number of rows in raw.data, ", ncol_raw)
+        errors <- c(errors, msg)
     }
-  }
-  if (!is.null(object@data.collapsed)) {
-    if (!all(object@sample.data.collapsed$sample ==
-             colnames(object@data.collapsed))) {
-      msg <- paste("Inconsistent row names in sample.data.collapsed",
-                   "and column names in data.collapsed")
-      errors <- c(errors, msg)
-    }
-  }
-  length_group <- length(object@group)
-  length_replicate <- length(object@replicate)
-  length_time <- length(object@time)
-  if (all(length_group > 0, length_group != ncol_raw)) {
-    msg <- paste0("Group is length ", length_group,
-                  ". Should be equal to number of rows in raw.data, ", ncol_raw)
-    errors <- c(errors, msg)
-  }
-  if (all(length_replicate > 0, length_replicate != ncol_raw)) {
-    msg <- paste0("Replicate is length ", length_replicate,
-                  ". Should be equal to number of rows in raw.data, ", ncol_raw)
-    errors <- c(errors, msg)
-  }
-  if (all(length_time > 0, length_time != ncol_raw)) {
-    msg <- paste0("Time is length ", length_time,
-                  ". Should be equal to number of rows in raw.data, ", ncol_raw)
-    errors <- c(errors, msg)
-  }
-  if (length(errors) == 0) TRUE else errors
+    if (length(errors) == 0) TRUE else errors
 }
 
 
@@ -88,62 +95,72 @@ check_vistimeseq <- function(object){
 #'
 #' @param raw.data Raw input data with columns corresponding to samples
 #' (observations) and rows to features
-#' @param project Project name (string)
 #' @param sample.data Optional. A \code{data.frame} object were rows are
 #' samples (observations) and columns are sample attributes
 #' (e.g. group/condition, replicate, time)
 #'
 #' @return list of modified raw.data and sample.data
 #'
+#' @importFrom dplyr filter mutate
+#' @importFrom tibble add_row
+#'
 impute_data <- function(raw.data, sample.data) {
-  time_levels <- sort(unique(sample.data$time))
-  sample.data <- sample.data %>%
-    mutate(gr_rep = paste0(group, "_replicate"))
 
-  for(id in unique(sample.data$gr_rep)) {
-    smp_gr_time <- filter(sample.data, gr_rep == id)
-    gr <- strsplit(id, "_")[[1]][1]
-    rep <- strsplit(id, "_")[[1]][2]
-    missing_time <- !(time_levels %in% smp_gr_time$time)
-    if(any(missing_time)) {
-      message("Missing sample for group: ", gr, " replicate ", rep,
-              " at time ", time_levels[missing_time], ".")
-      if (any(missing_time[-1] & missing_time[-length(missing_time)])) {
-        stop("Two or more consecutive samples are missing for the same",
-             "group-replicate. Please fix the experimental design.")
-      }
-      message("Imputing counts for the missing sample...")
-      for (i in which(missing_time)) {
-        t_surround <- time_levels[c(max(1, i -1), min(i+1, length(time_levels)))]
-        surrounding_samples <- smp_gr_time %>% filter(time %in% t_surround) %>%
-          .[["sample"]]
-        if (length(surrounding_samples) == 1) {
-          missing_sample <- raw.data[, surrounding_samples]
-        } else {
-          missing_sample <- rowMeans(raw.data[, surrounding_samples])
-        }
-        raw.data <- cbind(raw.data, missing_sample)
-        missing_sample_name <- paste0("Imputed_G", gr, "_R", rep, "_T",
-                                      time_levels[i])
-        colnames(raw.data)[ncol(raw.data)] <- missing_sample_name
-        sample.data <- add_row(
-          sample.data, sample = missing_sample_name,
-          group = gr, replicate = rep, time = time_levels[i]
-        )
-      }
+    group <- time <- category <- NULL
+    if(!any(c("group", "replicate", "time") %in% colnames(sample.data))) {
+        stop("Missing columns 'group', 'replicate', or 'time' in 'sample.data'")
     }
-  }
-  return(list(raw.data = raw.data, sample.data = sample.data))
+
+    time_levels <- sort(unique(sample.data$time))
+    sample.data <- sample.data %>%
+        mutate(category = paste0(group, "_", replicate))
+
+    for(id in unique(sample.data$category)) {
+        smp_gr_time <- filter(sample.data, category == id)
+        gr <- strsplit(id, "_")[[1]][1]
+        rep <- strsplit(id, "_")[[1]][2]
+        missing_time <- !(time_levels %in% smp_gr_time$time)
+        if(any(missing_time)) {
+            message("Missing sample for group: ", gr, " replicate ", rep,
+                            " at time ", time_levels[missing_time], ".")
+            if (any(missing_time[-1] & missing_time[-length(missing_time)])) {
+                stop("Two or more consecutive samples are missing for the same",
+                         "group-replicate. Please fix the experimental design.")
+            }
+            message("Imputing counts for the missing sample...")
+            for (i in which(missing_time)) {
+                t_surround <- time_levels[
+                    c(max(1, i -1), min(i+1, length(time_levels)))]
+                surrounding_samples <- smp_gr_time %>% 
+                  filter(time %in% t_surround)
+                surrounding_samples <- surrounding_samples[["sample"]]
+                if (length(surrounding_samples) == 1) {
+                    missing_sample <- raw.data[, surrounding_samples]
+                } else {
+                    missing_sample <- rowMeans(raw.data[, surrounding_samples])
+                }
+                raw.data <- cbind(raw.data, missing_sample)
+                missing_sample_name <- paste0(
+                  "Imputed_G", gr, "_R", rep, "_T", time_levels[i])
+                colnames(raw.data)[ncol(raw.data)] <- missing_sample_name
+                sample.data <- add_row(
+                    sample.data, sample = missing_sample_name,
+                    group = gr, replicate = rep, time = time_levels[i]
+                )
+            }
+        }
+    }
+    return(list(raw.data = raw.data, sample.data = sample.data))
 }
 
 ###############################################################################
 #' @title The Time Course Data Class
 #'
-#' @description The \code{vistimeseq} object is the main object in the time course
-#' experiment analysis. It stores all relevant information associated with
-#' the dataset, including the raw data, group, replicate and time associated
-#' with each sample (column of the data). The object includes also slots for
-#' results from some class-specific methods.
+#' @description The \code{vistimeseq} object is the main object in the time
+#' course experiment analysis. It stores all relevant information associated
+#' with the dataset, including the raw data, group, replicate and time
+#' associated with each sample (column of the data). The object includes also
+#' slots for results from some class-specific methods.
 #'
 #' Each vistimeseq object has a number of key slots listed below.
 #'
@@ -152,17 +169,17 @@ impute_data <- function(raw.data, sample.data) {
 #' (observations) and rows to features.
 #' @slot norm.data Normalized data.
 #' @slot sample.data A \code{data.frame} object were rows are samples
-#' (observations) and columns are sample attributes (e.g. group/condition,
-#' replicate, time)
+#' (observations) and columns are sample attributes 
+#' (e.g. group/condition replicate, time)
 #' @slot sample.data.collapsed A \code{data.frame} with rows corresponding
-#' to samples aggregated over replicates. The columns indicate group membership
-#' and time.
-#' @slot feature.data A \code{data.frame} object were rows are features and
-#' columns are feature names under different conventions (e.g. Enterez IDs,
-#' gene symbols) or feature attributes (e.g. chromosome, location in the
-#' genome, biotype, gc content etc.)
-#' @slot group A character vector of length \code{ncol(raw.data)} indicating
-#' the group membership of the sample
+#' to samples aggregated over replicates. The columns indicate group 
+#' membership and time.
+#' @slot feature.data A \code{data.frame} object were rows are features 
+#' and columns are feature names under different conventions 
+#' (e.g. Enterez IDs, gene symbols) or feature attributes 
+#' (e.g. chromosome, location in the genome, biotype, gc content etc.)
+#' @slot group A character vector of length \code{ncol(raw.data)} 
+#' indicating the group membership of the sample
 #' @slot replicate Vector of length \code{ncol(raw.data)} indicating
 #' the replicate from which the sample came from
 #' @slot time Vector of length \code{ncol(raw.data)} indicating the time
@@ -173,10 +190,12 @@ impute_data <- function(raw.data, sample.data) {
 #' ones providing the data at each available time point.
 #' \code{vistimeseq} methods will typically generate elements named:
 #' 'tc', 'tc_with_lags', 'tc_collapsed' and 'tc_collapsed_with_lags'.
-#' @slot dim.red List of stored dimmensional reductions; named by technique
+#' @slot dim.red List of stored dimmensional reductions; 
+#' named by technique used.
 #' @slot cluster.features A list storing results from timecourse (feature)
 #' clustering.
-#' @slot diff.expr A list storing results of differential expression analysis.
+#' @slot diff.expr A list storing results of differential 
+#' expression analysis.
 #'
 #' @name vistimeseq
 #' @rdname vistimeseq
@@ -184,44 +203,44 @@ impute_data <- function(raw.data, sample.data) {
 #' @exportClass vistimeseq
 #'
 vistimeseq <- setClass(
-  "vistimeseq",
-   slots = c(
-    project.name = "character",
-    raw.data = "ANY",
-    data = "ANY",
-    sample.names = "character",
-    feature.names = "character",
-    sample.data = "data.frame",
-    feature.data = "data.frame",
-    data.collapsed = "ANY",
-    sample.data.collapsed = "data.frame",
-    group = "ANY",
-    replicate = "ANY",
-    time = "numeric",
-    timecourse.data = "list",
-    dim.red = "list",
-    cluster.features = "list",
-    diff.expr = "list"
-  ),
-  prototype = list(
-    project.name = character(),
-    raw.data = NULL,
-    data = NULL,
-    sample.names = character(),
-    feature.names = character(),
-    sample.data = data.frame(),
-    feature.data = data.frame(),
-    data.collapsed = NULL,
-    sample.data.collapsed = data.frame(),
-    group = character(),
-    replicate = character(),
-    time = numeric(),
-    timecourse.data = list(),
-    dim.red = list(),
-    cluster.features = list(),
-    diff.expr = list()
-  ),
-  validity = check_vistimeseq
+    "vistimeseq",
+     slots = c(
+        project.name = "character",
+        raw.data = "ANY",
+        data = "ANY",
+        sample.names = "character",
+        feature.names = "character",
+        sample.data = "data.frame",
+        feature.data = "data.frame",
+        data.collapsed = "ANY",
+        sample.data.collapsed = "data.frame",
+        group = "ANY",
+        replicate = "ANY",
+        time = "numeric",
+        timecourse.data = "list",
+        dim.red = "list",
+        cluster.features = "list",
+        diff.expr = "list"
+    ),
+    prototype = list(
+        project.name = character(),
+        raw.data = NULL,
+        data = NULL,
+        sample.names = character(),
+        feature.names = character(),
+        sample.data = data.frame(),
+        feature.data = data.frame(),
+        data.collapsed = NULL,
+        sample.data.collapsed = data.frame(),
+        group = character(),
+        replicate = character(),
+        time = numeric(),
+        timecourse.data = list(),
+        dim.red = list(),
+        cluster.features = list(),
+        diff.expr = list()
+    ),
+    validity = check_vistimeseq
 )
 
 
@@ -285,115 +304,132 @@ vistimeseq <- setClass(
 #' test_vistimeseq
 #'
 vistimeseq <- function(
-  raw.data,
-  project = "'vistimeseq' time course project",
-  sample.data = NULL,
-  feature.data = NULL,
-  time = NULL,
-  time_column = NULL,
-  replicate = NULL,
-  replicate_column = NULL,
-  group = NULL,
-  group_column = NULL
+    raw.data,
+    project = "'vistimeseq' time course project",
+    sample.data = NULL,
+    feature.data = NULL,
+    time = NULL,
+    time_column = NULL,
+    replicate = NULL,
+    replicate_column = NULL,
+    group = NULL,
+    group_column = NULL
 ) {
-  nSamples <- ncol(raw.data)
-  nFeatures <- nrow(raw.data)
-
-  if (all(is.null(time), is.null(time_column))){
-    stop("Either time or time_column must be specified")
-  }
-  if(all(!is.null(time), !is.numeric(time))){
-    stop("if specified, \"time\" must be a numeric vector.")
-  }
-  if(all(!is.null(time), (length(time) != nSamples))){
-    stop("Length of time is ", length(time),". Should be equal to the number",
-         " of columns in raw.data, ", nSamples)
-  }
-  if(!is.null(time_column)){
-    if (!time_column %in% colnames(sample.data)){
-      stop("No time_column, ", time_column, " in data frame sample.data")
+    nSamples <- ncol(raw.data)
+    nFeatures <- nrow(raw.data)
+    if(is.null(colnames(raw.data))) {
+        colnames(raw.data) <- paste0("S", seq_len(nSamples))
     }
-    time <- suppressMessages(as.numeric(sample.data[, time_column]))
-    if (all(is.na(time)))
-      stop("Invalid time input, must be numeric.")
-  }
-  if (all(!is.null(replicate), (length(replicate) != nSamples))) {
-    stop("Length of replicate is ", length(replicate),
-         ". Should be equal to the number of columns in raw.data, ", nSamples)
-  }
-  if (!is.null(replicate_column)) {
-    if (! replicate_column %in% colnames(sample.data)) {
-      stop("No replicate_column, ", replicate_column,
-           " in data frame sample.data")
+    if(is.null(rownames(raw.data))) {
+        rownames(raw.data) <- paste0("F", seq_len(nFeatures))
     }
-    replicate <- sample.data[, replicate_column]
-  }
-  if (all(!is.null(group), (length(group) != nSamples))) {
-    stop("Length of group is ", length(group),
-         ". Should be equal to the number of columns in raw.data, ", nSamples)
-  }
-  if (!is.null(group_column)) {
-    if (!group_column %in% colnames(sample.data)){
-      stop("No group_column, ", group_column, " in data frame sample.data")
+    if (all(is.null(time), is.null(time_column))){
+        stop("Either time or time_column must be specified")
     }
-    group <- sample.data[, group_column]
-  }
-  if(is.null(replicate)){
-    replicate <- rep("R1", nSamples)
-  }
-  if(is.null(group)){
-    group <- rep("G1", nSamples)
-  }
-  if(is.null(colnames(raw.data))) {
-    colnames(raw.data) <- paste0("S", seq_len(nSamples))
-  }
-  if(is.null(rownames(raw.data))) {
-    rownames(raw.data) <- paste0("F", seq_len(nFeatures))
-  }
-  if(!all(colnames(raw.data) %in% rownames(sample.data))){
-    stop("Not all colnames(raw.data) in rownames(sample.data)")
-  }
-  if(is.null(time)) {
-    time <- rep(NA, ncol(raw.data))
-    class(time) <- "numeric"
-  }
+    if(all(!is.null(time), !is.numeric(time))){
+        stop("if specified, \"time\" must be a numeric vector.")
+    }
+    if(all(!is.null(time), (length(time) != nSamples))){
+        stop("Length of time is ", length(time),
+             ". Should be equal to the number of columns in raw.data, ", 
+             nSamples)
+    }
+    if(!is.null(time_column)){
+        if (!time_column %in% colnames(sample.data)){
+            stop("No time_column, ", time_column, " in data frame sample.data")
+        }
+        time <- suppressMessages(as.numeric(sample.data[[time_column]]))
+        if (all(is.na(time)))
+            stop("Invalid time input, must be numeric.")
+    }
+    if (all(!is.null(replicate), (length(replicate) != nSamples))) {
+        stop("Length of replicate is ", length(replicate),
+              ". Should be equal to the number of columns in raw.data, ", 
+             nSamples)
+    }
+    if (!is.null(replicate_column)) {
+        if (! replicate_column %in% colnames(sample.data)) {
+            stop("No replicate_column, ", replicate_column,
+                     " in data frame sample.data")
+        }
+        replicate <- sample.data[[replicate_column]]
+    }
+    if (all(!is.null(group), (length(group) != nSamples))) {
+        stop("Length of group is ", length(group),
+             ". Should be equal to the number of columns in raw.data, ", 
+             nSamples)
+    }
+    if (!is.null(group_column)) {
+        if (!group_column %in% colnames(sample.data)){
+            stop("No group_column, ", group_column, 
+                 " in data frame sample.data")
+        }
+        group <- sample.data[[group_column]]
+    }
+    if(is.null(time)) {
+        stop("Missing time coordinates.")
+    }
+    if(is.null(replicate)){
+        replicate <- rep("R1", nSamples)
+    }
+    if(is.null(group)){
+        group <- rep("G1", nSamples)
+    }
 
-  sample.data <- sample.data[colnames(raw.data), ]
-  sample.data <- sample.data %>%
-  mutate(
-    sample = colnames(raw.data),
-    time = time,
-    replicate = replicate,
-    group = group
-  )
+    if(is.null(sample.data)) {
+        sample.data <- data.frame(
+            sample = colnames(raw.data),
+            time = time,
+            replicate = replicate,
+            group = group
+        )
+    } else {
+        if(!all(colnames(raw.data) %in% rownames(sample.data))){
+            stop("Not all colnames(raw.data) in rownames(sample.data)")
+        }
+        sample.data <- sample.data[colnames(raw.data), ]
+        sample.data <- sample.data %>%
+            mutate(
+                sample = colnames(raw.data),
+                time = time,
+                replicate = replicate,
+                group = group
+            )
+    }
+    if(is.null(feature.data)) {
+        feature.data <- data.frame(feature = rownames(raw.data))
+    } else {
+        if(!all(rownames(raw.data) %in% rownames(feature.data))){
+            stop("Not all rownames(raw.data) in rownames(feature.data)")
+        }
+        feature.data <- feature.data[rownames(raw.data), ]
+        feature.data <- feature.data %>%
+            mutate(feature = rownames(raw.data))
+    }
+    imputed <- impute_data(raw.data, sample.data)
+    sample.data <- imputed$sample.data
+    raw.data <- imputed$raw.data
 
-  feature.data <- feature.data %>%
-    mutate(feature = rownames(raw.data))
-
-  imputed <- impute_data(raw.data, sample.data)
-  sample.data <- imputed$sample.data
-  raw.data <- imputed$raw.data
-
-  object <- new(
-    Class = "vistimeseq",
-    project.name = project,
-    raw.data = raw.data,
-    data = raw.data,
-    sample.names = colnames(raw.data),
-    feature.names = rownames(raw.data),
-    sample.data  = sample.data,
-    feature.data = feature.data,
-    time = sample.data$time,
-    replicate = sample.data$replicate,
-    group = sample.data$group
-  )
-  if (!is.null(sample.data)) {
-    object <- add_sample_data(object = object, sampledata = sample.data)
-  }
-  if (!is.null(feature.data)) {
-    object <- add_feature_data(object = object, featuredata = feature.data)
-  }
-  return(object)
+    object <- new(
+        Class = "vistimeseq",
+        project.name = project,
+        raw.data = raw.data,
+        data = raw.data,
+        sample.names = colnames(raw.data),
+        feature.names = rownames(raw.data),
+        sample.data  = sample.data,
+        feature.data = feature.data,
+        time = sample.data$time,
+        replicate = sample.data$replicate,
+        group = sample.data$group
+    )
+    if (!is.null(sample.data)) {
+        object <- add_sample_data(object = object, sampledata = sample.data)
+    }
+    if (!is.null(feature.data)) {
+        object <- add_feature_data(object = object, featuredata = feature.data)
+    }
+    return(object)
 }
 
 
@@ -443,49 +479,49 @@ vistimeseq <- function(
 #' cop1_vistimeseq
 #'
 vistimeseqFromExpressionSet <- function(
-  eset,
-  time_column,
-  replicate_column = NULL,
-  group_column = NULL,
-  project = "'vistimeseq' time course project"
+    eset,
+    time_column,
+    replicate_column = NULL,
+    group_column = NULL,
+    project = "'vistimeseq' time course project"
 ) {
-  feature.data <- fData(eset)
-  sample.data <- pData(eset)
+    feature.data <- fData(eset)
+    sample.data <- pData(eset)
 
-  if(!is.null(replicate_column)) {
-    if(replicate_column %in% colnames(sample.data)){
-      sample.data[["replicate"]] <- sample.data[[replicate_column]]
+    if(!is.null(replicate_column)) {
+        if(replicate_column %in% colnames(sample.data)){
+            sample.data[["replicate"]] <- sample.data[[replicate_column]]
+        } else {
+            stop("\"replicate_column\" not found.")
+        }
     } else {
-      stop("\"replicate_column\" not found.")
+        sample.data[["replicate"]] <- rep("R1", nrow(sample.data))
     }
-  } else {
-    sample.data[["replicate"]] <- rep("R1", nrow(sample.data))
-  }
 
-  if(!is.null(group_column)) {
-    if(group_column %in% colnames(sample.data)){
-      sample.data[["group"]] <- sample.data[[group_column]]
+    if(!is.null(group_column)) {
+        if(group_column %in% colnames(sample.data)){
+            sample.data[["group"]] <- sample.data[[group_column]]
+        } else {
+            stop("\"group_column\" not found.")
+        }
     } else {
-      stop("\"group_column\" not found.")
+        sample.data[["group"]] <- rep("G1", nrow(sample.data))
     }
-  } else {
-    sample.data[["group"]] <- rep("G1", nrow(sample.data))
-  }
 
-  if(!is.numeric(sample.data[[time_column]])) {
-    stop("time column must be numeric.")
-  }
-  sample.data[["time"]] <- sample.data[[time_column]]
-  raw.data <- exprs(eset)
+    if(!is.numeric(sample.data[[time_column]])) {
+        stop("time column must be numeric.")
+    }
+    sample.data[["time"]] <- sample.data[[time_column]]
+    raw.data <- exprs(eset)
 
-  object <- vistimeseq(
-    project = project,
-    raw.data = raw.data,
-    feature.data = feature.data,
-    sample.data = sample.data,
-    time_column = "time",
-    replicate_column = "replicate",
-    group_column = "group"
-  )
-  return(object)
+    object <- vistimeseq(
+        project = project,
+        raw.data = raw.data,
+        feature.data = feature.data,
+        sample.data = sample.data,
+        time_column = "time",
+        replicate_column = "replicate",
+        group_column = "group"
+    )
+    return(object)
 }

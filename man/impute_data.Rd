@@ -13,8 +13,6 @@ impute_data(raw.data, sample.data)
 \item{sample.data}{Optional. A \code{data.frame} object were rows are
 samples (observations) and columns are sample attributes
 (e.g. group/condition, replicate, time)}
-
-\item{project}{Project name (string)}
 }
 \value{
 list of modified raw.data and sample.data

@@ -13,7 +13,7 @@ pathway_enrichment(object, features, species, feature_column = "feature",
 
 \item{features}{A vector of ENTREZID for enrichment testing.}
 
-\item{species}{A character string  specifying the species.
+\item{species}{A character string    specifying the species.
 See \code{\link[limma]{goana}} for details.}
 
 \item{feature_column}{the feature column in 'feature.data' slot holding
@@ -56,20 +56,13 @@ from \code{limma} package for testing over-representation of gene ontology
 (GO) terms or KEGG pathways in sets of genes.
 }
 \examples{
-\dontrun{
-endoderm_small
-endoderm_small <- normalize_data(endoderm_small)
-endoderm_small <- trajectory_de(endoderm_small)
-genes_with_de_trajectory <-
-  get_diff_expr(endoderm_small, "trajectory_de") \%>\%
-    dplyr::filter(pval <= max(0.05, min(pval)), R2 > 0.7) \%>\%
-    dplyr::arrange(-R2)
-res <- pathway_enrichment(
+selected_genes <- c('114299', '2825', '3855', '221400', '7941',
+                    '6164', '1292', '6161', '6144', '23521')
+enrich_res <- pathway_enrichment(
   object = endoderm_small, clustered = FALSE,
-  features = genes_with_de_trajectory$feature,
+  features = selected_genes,
   species = "Hs", ontology = "BP", fltr_DE = 0,
   fltr_N = Inf, fltr_P.DE = 0.05)
-head(res)
-}
+head(enrich_res)
 
 }
