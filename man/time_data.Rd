@@ -4,7 +4,6 @@
 \name{get_time}
 \alias{get_time}
 \alias{get_time,vistimeseq-method}
-\alias{get_time}
 \alias{set_time<-}
 \alias{set_time<-,vistimeseq-method}
 \title{Accessors for the 'time' slot of a \code{vistimeseq} object.}

@@ -4,8 +4,8 @@
 \alias{plot_time_series}
 \title{Plot selected time series.}
 \usage{
-plot_time_series(object, features = feature_names(object), smooth = TRUE,
-  ncol = 5)
+plot_time_series(object, features = feature_names(object),
+  smooth = TRUE, ncol = 5)
 }
 \arguments{
 \item{object}{A \code{vistimeseq} object.}

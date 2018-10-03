@@ -4,10 +4,8 @@
 \name{n_samples}
 \alias{n_samples}
 \alias{n_samples,vistimeseq-method}
-\alias{n_samples}
 \alias{n_features}
 \alias{n_features,vistimeseq-method}
-\alias{n_features}
 \title{Number of samples and features}
 \usage{
 n_samples(object)

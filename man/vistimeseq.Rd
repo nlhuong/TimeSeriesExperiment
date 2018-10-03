@@ -3,7 +3,6 @@
 \name{vistimeseq}
 \alias{vistimeseq}
 \alias{vistimeseq-class}
-\alias{vistimeseq}
 \title{The Time Course Data Class}
 \usage{
 vistimeseq(raw.data, project = "'vistimeseq' time course project",

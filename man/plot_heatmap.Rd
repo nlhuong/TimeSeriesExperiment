@@ -4,8 +4,8 @@
 \alias{plot_heatmap}
 \title{Plot a heatmap}
 \usage{
-plot_heatmap(object, num.feat = 200, scale = TRUE, feat_desc = "feature",
-  sample_desc = "sample")
+plot_heatmap(object, num.feat = 200, scale = TRUE,
+  feat_desc = "feature", sample_desc = "sample")
 }
 \arguments{
 \item{object}{A \code{vistimeseq} object}

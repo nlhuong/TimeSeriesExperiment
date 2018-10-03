@@ -4,7 +4,6 @@
 \name{feature_data}
 \alias{feature_data}
 \alias{feature_data,vistimeseq-method}
-\alias{feature_data}
 \alias{feature_data<-}
 \alias{feature_data<-,vistimeseq-method}
 \title{Accessors for the 'feature.data' slot of a \code{vistimeseq} object.}

@@ -4,7 +4,6 @@
 \name{collapsed_sample_data}
 \alias{collapsed_sample_data}
 \alias{collapsed_sample_data,vistimeseq-method}
-\alias{collapsed_sample_data}
 \title{Accessors for the 'data.collapsed' slot of a \code{vistimeseq} object.}
 \usage{
 collapsed_sample_data(object)

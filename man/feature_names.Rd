@@ -4,7 +4,6 @@
 \name{feature_names}
 \alias{feature_names}
 \alias{feature_names,vistimeseq-method}
-\alias{feature_names}
 \alias{feature_names<-}
 \alias{feature_names<-,vistimeseq-method}
 \title{Accessors for the 'feature.names' slot of a \code{vistimeseq} object.}

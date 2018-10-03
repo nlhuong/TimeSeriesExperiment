@@ -4,7 +4,8 @@
 \alias{plot_ts_clusters}
 \title{Plot (time) series over clusters.}
 \usage{
-plot_ts_clusters(object, features = NULL, transparency = 0.5, ncol = 4)
+plot_ts_clusters(object, features = NULL, transparency = 0.5,
+  ncol = 4)
 }
 \arguments{
 \item{object}{A \code{vistimeseq} object.}

@@ -11,7 +11,7 @@ Description: Visualization and analysis toolbox for short time course data
   methods for retrieving enriched pathways.
 License: MIT + file LICENSE
 Depends:
-  R (>= 3.4)
+  R (>= 3.5)
 VignetteBuilder: knitr
 Imports:
     Biobase,
@@ -48,8 +48,7 @@ Suggests:
     testthat
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 biocViews: TimeCourse, Sequencing, RNASeq, Microbiome,
     GeneExpression, Transcription, Normalization, DifferentialExpression,
     PrincipalComponent, Clustering, Visualization, Pathways
-

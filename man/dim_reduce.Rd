@@ -4,7 +4,6 @@
 \name{get_dim_reduced}
 \alias{get_dim_reduced}
 \alias{get_dim_reduced,vistimeseq-method}
-\alias{get_dim_reduced}
 \title{Accessors for the 'dim.red' slot of a \code{vistimeseq} object.}
 \usage{
 get_dim_reduced(object, type = "all")

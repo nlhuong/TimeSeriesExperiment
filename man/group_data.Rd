@@ -4,7 +4,6 @@
 \name{get_group}
 \alias{get_group}
 \alias{get_group,vistimeseq-method}
-\alias{get_group}
 \alias{set_group<-}
 \alias{set_group<-,vistimeseq-method}
 \title{Accessors for the 'group' slot of a \code{vistimeseq} object.}

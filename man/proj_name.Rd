@@ -4,7 +4,6 @@
 \name{project_name}
 \alias{project_name}
 \alias{project_name,vistimeseq-method}
-\alias{project_name}
 \alias{project_name<-}
 \alias{project_name<-,vistimeseq-method}
 \title{Project name}

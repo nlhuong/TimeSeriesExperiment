@@ -7,7 +7,6 @@
 \alias{feat_clust}
 \alias{get_cluster_hclust}
 \alias{get_cluster_hclust,vistimeseq-method}
-\alias{get_cluster_hclust}
 \title{Accessors for the "cluster_map" element of 'cluster.features' slot of
 a \code{vistimeseq} object.}
 \usage{

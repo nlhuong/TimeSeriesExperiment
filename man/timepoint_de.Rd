@@ -4,7 +4,8 @@
 \alias{timepoint_de}
 \title{Differential timepoint expression testing.}
 \usage{
-timepoint_de(object, timepoints = "all", min_gene_sum = 1, alpha = 0.05)
+timepoint_de(object, timepoints = "all", min_gene_sum = 1,
+  alpha = 0.05)
 }
 \arguments{
 \item{object}{A \code{vistimeseq} object.}

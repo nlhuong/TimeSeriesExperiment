@@ -4,7 +4,6 @@
 \name{time_course}
 \alias{time_course}
 \alias{time_course,vistimeseq-method}
-\alias{time_course}
 \title{Accessors for the 'timecourse.data' slot of a \code{vistimeseq} object.}
 \usage{
 time_course(object, collapsed = FALSE)

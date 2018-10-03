@@ -5,7 +5,6 @@
 \alias{set_replicate<-}
 \alias{get_replicate}
 \alias{get_replicate,vistimeseq-method}
-\alias{get_replicate}
 \alias{set_replicate<-,vistimeseq-method}
 \title{Accessors for the 'replicate' slot of a \code{vistimeseq} object.}
 \usage{

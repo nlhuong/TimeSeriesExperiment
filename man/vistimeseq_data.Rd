@@ -4,7 +4,6 @@
 \name{get_data}
 \alias{get_data}
 \alias{get_data,vistimeseq-method}
-\alias{get_data}
 \alias{set_raw_data<-}
 \alias{set_raw_data<-,vistimeseq-method}
 \alias{set_data<-}

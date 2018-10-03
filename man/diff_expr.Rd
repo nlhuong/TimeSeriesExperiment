@@ -4,7 +4,6 @@
 \name{get_diff_expr}
 \alias{get_diff_expr}
 \alias{get_diff_expr,vistimeseq-method}
-\alias{get_diff_expr}
 \title{Accessors for the 'diff.expr' slot of a \code{vistimeseq} object.}
 \usage{
 get_diff_expr(object, type = "all")

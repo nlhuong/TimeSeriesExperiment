@@ -4,7 +4,6 @@
 \name{sample_names}
 \alias{sample_names}
 \alias{sample_names,vistimeseq-method}
-\alias{sample_names}
 \alias{sample_names<-}
 \alias{sample_names<-,vistimeseq-method}
 \title{Accessors for the 'sample.names' slot of a \code{vistimeseq} object.}
