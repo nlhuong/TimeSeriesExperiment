@@ -333,7 +333,9 @@ weight $0.025$.
 # Add lags to time-course data
 cop1_timeseq <- add_lags(cop1_timeseq, lambda = c(0.5, 0.25))
 head(time_course(cop1_timeseq))
-head(time_course(cop1_timeseq, collapsed = TRUE))
+
+# similarly you can inspect the collapsed timecourses:
+# head(time_course(cop1_timeseq, collapsed = TRUE))
 ```
 
 At this point, we completed all data pre-processing steps available in 
@@ -472,7 +474,7 @@ between groups.
 
 
 
-```{r pca-genes, fig.width = 6, fig.height = 6}
+```{r pca-genes, fig.width = 7, fig.height = 6}
 plot_ts_pca(
   cop1_timeseq, 
   linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
@@ -539,7 +541,7 @@ clusters found using the above described approach. The expression profiles
 for wild type and knock-out are plotted separately, side by side.
 
 
-```{r gene-clusters, fig.width = 8, fig.height = 6, fig.wide = TRUE}
+```{r gene-clusters, fig.width = 7, fig.height = 5.5, fig.wide = TRUE}
 plot_ts_clusters(cop1_timeseq, transparency = 0.2) +
   scale_color_manual(values = c("WT" = "#1f78b4", "Loxp" = "#e31a1c"))
 ```
@@ -700,7 +702,7 @@ genes_with_de_trajectory <- de_trajectory_res %>%
 (genes_to_plot <- genes_with_de_trajectory$feature[1:n_genes])
 ```
 
-```{r genes-de-trajectory, fig.width = 8, fig.height = 6, fig.wide = TRUE}
+```{r genes-de-trajectory, fig.width = 7, fig.height = 5.5, fig.wide = TRUE}
 plot_time_series(cop1_timeseq, features = genes_to_plot) +
   scale_color_manual(values = c("WT" =  "#1f78b4", "Loxp" = "#e31a1c")) 
 ```
@@ -788,12 +790,7 @@ plot_enrichment(
 ```
 
 
-```{r go-enrich-clst-c6,  fig.width = 7, fig.height = 3, fig.wide = TRUE}
-clst <- "C6"
-plot_enrichment(
-    enrich = enrich_res[[clst]], n_max = 15) +
-  ggtitle(paste0("Cluster , ", clst, " enrichment"))
-```
+
 
 Session Information {#session-info .unnumbered}
 ===============================================

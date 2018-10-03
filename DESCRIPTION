@@ -11,7 +11,7 @@ Description: Visualization and analysis toolbox for short time course data
   methods for retrieving enriched pathways.
 License: MIT + file LICENSE
 Depends:
-  R (>= 3.4.0)
+  R (>= 3.4)
 VignetteBuilder: knitr
 Imports:
     Biobase,

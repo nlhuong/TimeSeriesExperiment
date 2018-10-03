@@ -34,8 +34,7 @@ timepoint_de <- function(
         timepoints <- sort(unique(get_time(object)))
     }
     if(!all(timepoints %in% unique(get_time(object)))) {
-       stop("One or more entries of \"timepoints\" not found in", 
-            " 'object@time'.")
+      stop("One or more entries of \"timepoints\" not found in 'object@time'.")
     }
     # we rename "group" to "condition" beacuse in 'model.matrix()' misuses
     # 'group' in design argument
@@ -142,9 +141,10 @@ trajectory_de <- function(
         itc <- tc %>%
             filter(feature == feat)
         iadonis <- suppressMessages(
-            adonis(itc %>% select(-(feature:replicate)) ~ group,
-                   data = itc %>% select(feature:replicate),
-                   method = dist_method)#, ...)
+            adonis(
+              formula = itc %>% select(-(feature:replicate)) ~ group,
+              data = itc %>% select(feature:replicate),
+              method = dist_method, ...)
         )
         ires <- iadonis$aov.tab[1, ]
         ires$feature <- feature_names[i]
