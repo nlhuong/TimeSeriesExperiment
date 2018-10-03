@@ -188,8 +188,8 @@ plot_sample_pca <- function(object, axis = c(1, 2), col.var = NULL, ...) {
 #' plot_ts_pca(endoderm_small)
 #'
 plot_ts_pca <- function(
-    object, axis = c(1, 2), m = 20, n = 20, group.highlight = NULL, linecol = NULL,
-    ...) {
+    object, axis = c(1, 2), m = 20, n = 20, group.highlight = NULL,
+    linecol = NULL, ...) {
     feature <- group <- NULL
     if (!validObject(object)){
         stop("Invalid vistimeseq object.")

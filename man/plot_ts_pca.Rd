@@ -4,8 +4,8 @@
 \alias{plot_ts_pca}
 \title{Overlay (time) series over PCA grid}
 \usage{
-plot_ts_pca(object, axis = 1:2, m = 20, n = 20, group.highlight = NULL,
-  linecol = NULL, ...)
+plot_ts_pca(object, axis = c(1, 2), m = 20, n = 20,
+  group.highlight = NULL, linecol = NULL, ...)
 }
 \arguments{
 \item{object}{A \code{vistimeseq} object.}

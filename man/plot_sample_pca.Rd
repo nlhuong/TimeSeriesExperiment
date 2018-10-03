@@ -4,7 +4,7 @@
 \alias{plot_sample_pca}
 \title{Plot a standard PCA}
 \usage{
-plot_sample_pca(object, axis = 1:2, col.var = NULL, ...)
+plot_sample_pca(object, axis = c(1, 2), col.var = NULL, ...)
 }
 \arguments{
 \item{object}{A \code{vistimeseq} object}
