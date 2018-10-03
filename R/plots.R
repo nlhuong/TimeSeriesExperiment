@@ -106,7 +106,7 @@ plot_heatmap <- function(
 #' endoderm_small <- run_pca(endoderm_small)
 #' plot_sample_pca(endoderm_small, col.var = "group")
 #'
-plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
+plot_sample_pca <- function(object, axis = c(1, 2), col.var = NULL, ...) {
     if(is.null(get_dim_reduced(object, "pca_sample"))) {
         stop("No 'pca_sample' in object@dim.red. Run PCA for samples first.")
     }
@@ -136,8 +136,8 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
     }
 
     axis_label <- paste0(
-        colnames(pca.scores)[1:2], " [",
-        signif(pca.eigs[1:2]/sum(pca.eigs)*100, 3), "%]"
+        colnames(pca.scores)[c(1, 2)], " [",
+        signif(pca.eigs[c(1, 2)]/sum(pca.eigs)*100, 3), "%]"
     )
     plt <- ggplot(
         data = pca.scores,
@@ -188,7 +188,7 @@ plot_sample_pca <- function(object, axis = 1:2, col.var = NULL, ...) {
 #' plot_ts_pca(endoderm_small)
 #'
 plot_ts_pca <- function(
-    object, axis = 1:2, m = 20, n = 20, group.highlight = NULL, linecol = NULL,
+    object, axis = c(1, 2), m = 20, n = 20, group.highlight = NULL, linecol = NULL,
     ...) {
     feature <- group <- NULL
     if (!validObject(object)){
@@ -217,13 +217,13 @@ plot_ts_pca <- function(
         left_join(feature_data(object)) %>%
         column_to_rownames("feature")
     )
-    colnames(pca.loadings)[1:2] <-
-        paste0(colnames(pca.loadings)[1:2], " [",
-                     signif(pca.eigs[1:2]/sum(pca.eigs)*100, 3), "%]")
+    colnames(pca.loadings)[c(1, 2)] <-
+        paste0(colnames(pca.loadings)[c(1, 2)], " [",
+                     signif(pca.eigs[c(1, 2)]/sum(pca.eigs)*100, 3), "%]")
 
     # Create a grid over score values
-    mins <- apply(pca.loadings[, 1:2], 2, min)
-    maxes <- apply(pca.loadings[, 1:2], 2, max)
+    mins <- apply(pca.loadings[, c(1, 2)], 2, min)
+    maxes <- apply(pca.loadings[, c(1, 2)], 2, max)
     x <- seq(mins[1], maxes[1], length.out = m)
     y <- seq(mins[2], maxes[2], length.out = n)
     dx <- x[2] - x[1]; dy <- y[2] - y[1]
@@ -232,7 +232,7 @@ plot_ts_pca <- function(
     # Find gene closest to the grid center
     xD <- proxy::dist(grid[, 1], pca.loadings[, 1])
     yD <- proxy::dist(grid[, 2], pca.loadings[, 2])
-    D <- proxy::dist(grid, pca.loadings[, 1:2])
+    D <- proxy::dist(grid, pca.loadings[, c(1, 2)])
 
     min_dists <- apply(D, 1, min)
     min_dists_ix <- apply(D, 1, which.min)
@@ -245,7 +245,7 @@ plot_ts_pca <- function(
     # Plot all points corresponding to each feature
     par(mar=par()$mar * c(2, 1.2, 1.2, 1.2), xpd = TRUE, 
         cex = 0.7, cex.main = 2, cex.axis = 1.5, cex.lab = 1.5)
-    plot(pca.loadings[, 1:2], type = "p", pch = 16,
+    plot(pca.loadings[, c(1, 2)], type = "p", pch = 16,
              xlim = c(mins[1] - dx/2, maxes[1] + dx/2),
              ylim = c(mins[2] - dy/2, maxes[2] + dy/2),
              asp=1,  # ratio must reflect variances of new PC from prcomp
@@ -500,7 +500,7 @@ plot_enrichment <- function(enrich, n_max = 15) {
             Term = factor(Term, levels = Term)
         )
     plt <- ggplot(
-        enrich[1:min(n_max, nrow(enrich)), ],
+        enrich[seq(1, min(n_max, nrow(enrich))), ],
         aes(y = Term, x = -log10(P.DE), size = N, color = DE/N)
         ) +
         geom_point() +

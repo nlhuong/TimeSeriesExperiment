@@ -2,7 +2,7 @@
 title: "Cop1 role in pro-inflammatory response"
 author: 
   - name: Lan Huong Nguyen
-    affiliation: Institute for Computational and Mathematical Engineering, Stanford University, CA 94305
+    affiliation: ICME,  Stanford University, CA 94305
 keywords: time-course, time series, PCA, clustering, differential expression.
 date: "`r Sys.Date()`"
 output: 
@@ -472,7 +472,7 @@ between groups.
 
 
 
-```{r pca-genes, fig.width = 7, fig.height = 6}
+```{r pca-genes, fig.width = 6, fig.height = 6}
 plot_ts_pca(
   cop1_timeseq, 
   linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
@@ -676,8 +676,6 @@ de_trajectory_res <- readRDS("de_trajectory_cop1_full.rds")
 ```{r}
 head(de_trajectory_res)
 ```
-
-
 
 
 
