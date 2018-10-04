@@ -71,119 +71,90 @@ Obtain and process data {#get-data .unnumbered}
 First we load the necessary packages.
 
 ```{r message=FALSE, warning=FALSE}
-.packages <- c("edgeR", "viridis", "vistimeseq", "Biobase", "tidyverse") 
+.packages <- c(
+  "edgeR", "viridis", "vistimeseq", "Biobase", 
+  "ggplot2", "dplyr", "tidyr", "tibble", "readr") 
 sapply(.packages, require, character.only = TRUE)
 theme_set(theme_bw())
 theme_update(text = element_text(size = 15))
 ```
 
-The dataset from the study is shipped together with the package as an 
-`ExressionSet` object. We can read the data as follows:
+The dataset we will study is available from GEO repositories under
+accession number: `GSE114762`. We can import the processed read counts 
+saved in a supplementary file 'GSE114762_raw_counts.csv.gz'. 
+Similarly both the phenotype and feature data are also available
+for download as 'GSE114762_sample_info.csv.gz', and 
+'GSE114762_gene_data.csv.gz' files respectively.
 
 ```{r, message=FALSE, warning=FALSE}
 # Load gene data
-# WILL CHANGE TO GEO IMPORT
-cop1_eset <- readRDS(
-  file = system.file(
-    "extdata", "NGS1471_esetCounts.rds", 
-     package = "vistimeseq", mustWork = TRUE)
-)
-```
+url <- paste0("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE114762&",
+              "format=file&file=GSE114762_raw_counts.csv.gz")
+url2 <- paste0("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE114762&",
+               "format=file&file=GSE114762_gene_data.csv.gz")
+url3 <- paste0("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE114762&",
+               "format=file&file=GSE114762_sample_info.csv.gz")
 
-We can easily convert  `ExpressionSet`s to `vistimeseq` using 
-`vistimeseqFromExpressionSet()` funtion, indicating columns
-with relevant information. In `vistimeseq` the time variablie must be numeric,
-so we first convert need to it. 
-
-```{r error = TRUE, purl = FALSE}
-cop1_vistimeseq <- vistimeseqFromExpressionSet(
-  cop1_eset, time_column = "time", group_column = "genotype", 
-  replicate_column = "individual")
-```
-
-
-```{r}
-head(phenoData(cop1_eset)$time)
-# convert timpoint data T0, T2.5, T4, ..., T13 to numeric values
-pData(cop1_eset)$time <- gsub("T", "", pData(cop1_eset)$time)
-pData(cop1_eset)$time <- as.numeric(pData(cop1_eset)$time)
-cop1_vistimeseq <- vistimeseqFromExpressionSet(
-  cop1_eset, time = "time", group = "genotype", replicate = "individual")
-cop1_vistimeseq
-```
-
-Alternatively, we can build `vistimeseq` object from each of the component.
-Here we read each of the fields of the `ExpressionSet` using `Biobase`
-package.
-
-First, we extract the gene phenotype data.
-
-```{r}
-# Gene data
-gene_data <- fData(cop1_eset) 
-gene_data[["feature"]] <- rownames(gene_data)
-gene_data <- gene_data %>%
-  select(feature, symbol, size, type, desc)
-head(gene_data)
-```
-
-Then, we read and process the sample data. The information we need about 
-each sample is (1) the experimental group it belongs to -- here whether a sample
-corresponds to a wild type mouse or one with Cop1 knocked out, (2) the replicate
-id -- as multiple samples where collected for the same conditions, (3) and
-most importantly time -- the point in the course of the study at which a sample 
-was collected.
-
-
-```{r}
-# Sample data
-smp_data <- pData(cop1_eset) %>%
-  rename(sample = SAMPLE_ID) %>%
-  mutate(
-    tmp = factor(time, levels = c("T0", "T2.5", "T4", "T6", "T9", "T13")),
-    time = as.numeric(gsub("T", "", time)),    
-    replicate = paste0(genotype, "_", individual),
-    label = paste0(genotype, "_", individual, "_", time),
-    group = genotype
-  ) %>%
-  arrange(group, individual, time) %>%
-  select(sample, group, individual, replicate, time, treatment, label)
-rownames(smp_data) <- smp_data$sample
-head(smp_data)
-```
-
-Finally, we also extract the expression data -- the raw gene read counts.
-
-```{r}
-cnts <- exprs(cop1_eset)[, smp_data$sample]        # count data
-dim(cnts)
+cnts <- read_csv(url) %>% 
+  column_to_rownames("X1") %>%
+  as.matrix()
+gene.data <- read_csv(url2) %>% 
+  as.data.frame() %>%
+  column_to_rownames("X1")
+pheno.data <- read_csv(url3) %>% 
+  as.data.frame() %>%
+  column_to_rownames("X1")
 ```
 
 
 Building `vistimeseq` object {#build-object .unnumbered}
 ========================================================
 
-We can now combine all the data, `cnts`, `gene_data` and `smp_data`, into
-a single `vistimeseq` (S4) object. The data will store everything together
-in a way that is easier to perform further time course data analysis.
-The most important fields in the object are "raw.data", "sample.data"
-which will contain information on group, replicate and time associated
-with each sample. As everything we need is stored in the "vistimeseq"
-object generated, we can discard all the data we generated previously.
+We can now combine all the data, `cnts`, `gene.data` and `pheno.data`, 
+into a single `vistimeseq` (S4) object. The data will store everything 
+together in a way that is easier to perform further time course data 
+analysis. The most important fields in the object are "raw.data", 
+"sample.data" which will contain information on group, replicate
+and time associated with each sample. In `vistimeseq` the time 
+variablie MUST be numeric, if not, one must first convert it. 
 
 ```{r}
 cop1_timeseq <- vistimeseq(
   project = "[NGS1474] Time course in vitro Cop1 KO in BMDMs",
   raw.data = cnts,
-  feature.data = gene_data,
-  sample.data = smp_data,
+  feature.data = gene.data,
+  sample.data = pheno.data,
   time_column = "time",
   replicate_column = "replicate",
   group_column = "group"
 ) 
-rm(cnts, gene_data, smp_data, cop1_eset)
 cop1_timeseq
 ```
+
+
+Alternatively, we can build `vistimeseq` object from a `ExressionSet` object.
+
+To show how this is done, we first combine the three data tables into
+an `ExressionSet` object. 
+
+```{r}
+cop1_eset <- ExpressionSet(
+  as.matrix(cnts), 
+  phenoData = AnnotatedDataFrame(pheno.data),
+  featureData = AnnotatedDataFrame(gene.data))
+```
+
+Then, we can easily convert an `ExpressionSet` to a `vistimeseq` object using 
+`vistimeseqFromExpressionSet()` funtion, and indicating columns names
+with relevant information. 
+
+```{r}
+cop1_vistimeseq <- vistimeseqFromExpressionSet(
+  cop1_eset, time_column = "time", group_column = "group", 
+  replicate_column = "individual")
+rm(cnts, gene.data, pheno.data, cop1_eset)
+```
+
 
 Data normalization and filtering {#norm-and-filter .unnumbered}
 ---------------------------------------------------------------
