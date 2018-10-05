@@ -8,8 +8,10 @@ library(dplyr)
 library(tidyr)
 library(tibble)
 library(biomaRt)
+library(vistimeseq)
+library(Biobase)
 
-url <- "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE98411&format=file&file=GSE98411%5FRNA%5Fcounts%2Etxt%2Egz"
+              "file&file=GSE98411%5FRNA%5Fcounts%2Etxt%2Egz")
 tmp <- tempfile()
 download.file(url,tmp)
 
@@ -26,6 +28,7 @@ smpDF <- data.frame(
   mutate(
     time = gsub("(.*)\\_", "", sample),
     time = substr(time, 2, 2),
+    time = as.numeric(time),
     replicate = gsub("\\_(.*)", "", sample),
     group = substr(replicate, 1, 1)
   ) %>%
@@ -53,6 +56,7 @@ gene_df <- getBM(
 )
 gene_df <- gene_df[!duplicated(gene_df$entrezgene), ]
 gene_df <- gene_df[!is.na(gene_df$entrezgene), ]
+rownames(gene_df) <- gene_df$entrezgene
 dim(gene_df)
 
 cnts <- cnts[gene_df$ensembl_gene_id, ]
@@ -62,6 +66,7 @@ endoderm <- vistimeseq(
   project = "[Subset] Endoderm differntiation in human and chimpanzee",
   raw.data = cnts,
   sample.data = smpDF,
+  feature.data = gene_df,
   time_column = "time",
   replicate_column = "replicate",
   group_column = "group"
@@ -74,3 +79,10 @@ top250 <- names(sort(apply(log(cpm + 1), 1, sd), decreasing = TRUE))[1:250]
 endoderm_small <- filter_features(endoderm, top250)
 endoderm_small
 save(list = "endoderm_small", file = "data/endoderm_small.rda")
+
+endoderm_small_eset <- ExpressionSet(
+  as.matrix(cnts), 
+  phenoData = AnnotatedDataFrame(smpDF),
+  featureData = AnnotatedDataFrame(gene_df))
+save(list = c("endoderm_small_eset", "endoderm_small"),
+     file = "data/endoderm_small.rda")

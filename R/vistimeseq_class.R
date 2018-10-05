@@ -467,16 +467,10 @@ vistimeseq <- function(
 #'
 #' @examples
 #' library(Biobase)
-#' cop1_eset <- readRDS(
-#' file = system.file("extdata", "NGS1471_esetCounts.rds",
-#'   package = "vistimeseq", mustWork = TRUE)
-#' )
-#' # convert timpoint data T0, T2.5, T4, ..., T13 to numeric values
-#' pData(cop1_eset)$time <- gsub("T", "", pData(cop1_eset)$time)
-#' pData(cop1_eset)$time <- as.numeric(pData(cop1_eset)$time)
-#' cop1_vistimeseq <- vistimeseqFromExpressionSet(
-#'   cop1_eset, time = "time", group = "genotype", replicate = "individual")
-#' cop1_vistimeseq
+#' endoderm_small <- vistimeseqFromExpressionSet(
+#'   endoderm_small_eset, time = "time", group = "group",
+#'   replicate = "replicate")
+#' endoderm_small
 #'
 vistimeseqFromExpressionSet <- function(
     eset,
