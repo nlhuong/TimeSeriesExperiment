@@ -45,7 +45,7 @@ pathway terms of size greater than the threshold. Default is 500.}
 results. Default is 0.05.}
 
 \item{...}{other parameters for \code{\link[limma]{goana}} or
-\code{\link[limma]{kegga}}.}
+\code{\link[limma:goana]{limma::kegga()}}.}
 }
 \value{
 a \code{data.frame} or list of \code{data.frame}s with enrichment

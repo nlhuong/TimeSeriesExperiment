@@ -108,8 +108,9 @@ melt_matrix <- function(X) {
 normalize_data <- function(
   object, sample.norm.method = "scale_common_factor",
   column.scale.factor = 1e+06) {
-    if (!any(sapply(c("vistimeseq", "data.frame", "matrix"), 
-                    function(x) is(object, x)))){
+    if (!any(is(object, "vistimeseq"),
+             is(object, "data.frame"),
+             is(object, "matrix"))){
         stop("The argument 'object' must be either in either 'data.frame',",
              " 'matrix', or 'vistimeseq' class.")
     }

@@ -9,7 +9,7 @@ plot_enrichment(enrich, n_max = 15)
 \arguments{
 \item{enrich}{a data matrix or data.frame with enrichment result -
 outputs from \code{\link{pathway_enrichment}} function or
-\code{\link[limma]{goana}}, \code{\link[limma]{kegga}}.
+\code{\link[limma]{goana}}, \code{\link[limma:goana]{limma::kegga()}}.
 Must contain columns Term, DE, and P.DE.}
 
 \item{n_max}{max number of terms to show}

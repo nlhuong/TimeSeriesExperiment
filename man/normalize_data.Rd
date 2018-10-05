@@ -26,7 +26,7 @@ Normalized data is stored \code{data} slot.
 Normalize data the assay data.
 }
 \examples{
-data("endoderm_small")
+endoderm_small
 endoderm_small <- normalize_data(endoderm_small)
 head(get_data(endoderm_small))
 
