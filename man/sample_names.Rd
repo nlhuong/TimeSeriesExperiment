@@ -28,7 +28,7 @@ a character vector
 'sample.names' slots holds sample names
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 head(sample_names(endoderm_small))
 
 }

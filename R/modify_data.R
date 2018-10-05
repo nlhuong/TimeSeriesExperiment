@@ -16,7 +16,7 @@
 #' @importFrom methods validObject
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' idx <- sample(1:26, length(sample_names(endoderm_small)), replace = TRUE)
 #' random_letters <- data.frame(
 #'   letters = LETTERS[idx],
@@ -64,6 +64,7 @@ add_sample_data <- function (
 #' @importFrom methods validObject
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' idx <- sample(1:26, n_features(endoderm_small), replace = TRUE)
 #' random_letters <- data.frame(
 #'    letters = LETTERS[idx],
@@ -107,8 +108,8 @@ add_feature_data <- function(
 #' @importFrom methods validObject new
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' features <- 1:100
-#' endoderm_small
 #' endoderm_small <- filter_features(endoderm_small, features)
 #' endoderm_small
 #'

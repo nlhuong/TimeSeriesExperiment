@@ -16,3 +16,8 @@
 #' @source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE98411}
 #'
 NULL
+
+# THREE things to change for file source from GEO
+# vistimeseqFromExpressionSet example
+# Vignette small
+# Vignette big

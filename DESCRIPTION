@@ -47,7 +47,7 @@ Suggests:
     UpSetR,
     testthat
 Encoding: UTF-8
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.0.9000
 biocViews: TimeCourse, Sequencing, RNASeq, Microbiome,
     GeneExpression, Transcription, Normalization, DifferentialExpression,
     PrincipalComponent, Clustering, Visualization, Pathways

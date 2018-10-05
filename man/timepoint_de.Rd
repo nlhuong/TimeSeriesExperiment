@@ -27,6 +27,7 @@ and \code{\link[limma]{voom}} functions from \code{limma} package
 for testing differential expression at specified timepoints.
 }
 \examples{
+data("endoderm_small")
 endoderm_small <- timepoint_de(endoderm_small, timepoint = 1.0)
 head(get_diff_expr(endoderm_small, "timepoint_de")$`1`)
 

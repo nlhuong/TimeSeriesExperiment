@@ -23,7 +23,7 @@ a \code{data.frame}
 storing timce-course format of the data.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- convert_to_timecourse(endoderm_small)
 head(time_course(endoderm_small))
 head(time_course(endoderm_small, collapsed = TRUE))

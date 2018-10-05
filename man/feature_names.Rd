@@ -28,7 +28,7 @@ a character vector
 'feature.names' slots holds feature names
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 head(feature_names(endoderm_small))
 
 }

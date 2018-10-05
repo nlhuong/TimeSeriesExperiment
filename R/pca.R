@@ -30,7 +30,7 @@
 #' @importFrom methods validObject
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- run_pca(endoderm_small)
 #' head(get_dim_reduced(endoderm_small, "pca_sample")[, 1:5])

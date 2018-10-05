@@ -29,7 +29,7 @@ a \code{data.frame}
 corresponding feature name in column 'feature'.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 head(feature_data(endoderm_small))
 
 }

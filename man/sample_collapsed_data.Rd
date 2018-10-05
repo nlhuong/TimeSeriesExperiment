@@ -21,7 +21,7 @@ a \code{data.frame}
 collapsed by replicates
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- collapse_replicates(endoderm_small)
 head(collapsed_sample_data(endoderm_small))
 

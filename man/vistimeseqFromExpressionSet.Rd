@@ -41,15 +41,19 @@ and populates the time, replicate, and group slots.
 }
 \examples{
 library(Biobase)
-cop1_eset <- readRDS(
-file = system.file("extdata", "NGS1471_esetCounts.rds",
-  package = "vistimeseq", mustWork = TRUE)
+raw <- matrix(runif(3000), ncol = 30)
+pheno.data <- data.frame(
+   time = rep(rep(1:5, each = 3), 2),
+   replicate = rep(1:3, 10),
+   group = rep(1:2, each = 15))
+feature.data <- data.frame(
+   feature = paste0("F", 1:100)
 )
-# convert timpoint data T0, T2.5, T4, ..., T13 to numeric values
-pData(cop1_eset)$time <- gsub("T", "", pData(cop1_eset)$time)
-pData(cop1_eset)$time <- as.numeric(pData(cop1_eset)$time)
-cop1_vistimeseq <- vistimeseqFromExpressionSet(
-  cop1_eset, time = "time", group = "genotype", replicate = "individual")
-cop1_vistimeseq
-
+test_eset <- ExpressionSet(
+   raw, phenoData = AnnotatedDataFrame(pheno.data),
+   featureData = AnnotatedDataFrame(feature.data))
+test_vistimeseq <- vistimeseqFromExpressionSet(
+   test_eset, time = "time", group = "group",
+   replicate = "replicate")
+test_vistimeseq
 }

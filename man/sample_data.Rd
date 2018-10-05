@@ -31,7 +31,7 @@ and replicate.
 }
 \examples{
 
-endoderm_small
+data("endoderm_small")
 head(sample_data(endoderm_small))
 
 }

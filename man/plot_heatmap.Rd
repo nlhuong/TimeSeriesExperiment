@@ -29,7 +29,7 @@ Returns a \code{ggplot2} objet.
 Generates a heatmap of expression data.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- normalize_data(endoderm_small)
 \dontrun{
 plot_heatmap(endoderm_small)

@@ -100,7 +100,7 @@ melt_matrix <- function(X) {
 #' @importFrom methods slot<- validObject
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- normalize_data(endoderm_small)
 #' head(get_data(endoderm_small))
 #'
@@ -149,7 +149,7 @@ normalize_data <- function(
 #' @importFrom stats aggregate
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- collapse_replicates(endoderm_small)
 #' head(collapsed_data(endoderm_small))
@@ -262,6 +262,7 @@ data_to_tc <- function(X, time, replicate = NULL, group = NULL){
 #' @importFrom methods validObject
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' head(time_course(endoderm_small))
@@ -361,7 +362,7 @@ add_lags_to_tc <- function(timecourse, lambda) {
 #' @importFrom methods validObject
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' endoderm_small <- add_lags(endoderm_small)

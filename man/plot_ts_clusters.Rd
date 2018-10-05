@@ -24,6 +24,7 @@ Plots timecourse (aggregated over replicates) feature data
 faceted by computed clusters and experimental group.
 }
 \examples{
+data("endoderm_small")
 endoderm_small <- cluster_timecourse_features(endoderm_small)
 plot_ts_clusters(endoderm_small)
 

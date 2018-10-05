@@ -22,7 +22,7 @@
 #' @importFrom stats sd
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- normalize_data(endoderm_small)
 #' \dontrun{
 #' plot_heatmap(endoderm_small)
@@ -102,7 +102,7 @@ plot_heatmap <- function(
 #' @importFrom tibble rownames_to_column column_to_rownames
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- run_pca(endoderm_small)
 #' plot_sample_pca(endoderm_small, col.var = "group")
 #'
@@ -183,7 +183,7 @@ plot_sample_pca <- function(object, axis = c(1, 2), col.var = NULL, ...) {
 #' @return None
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- run_pca(endoderm_small)
 #' plot_ts_pca(endoderm_small)
 #'
@@ -309,6 +309,7 @@ plot_ts_pca <- function(
 #'
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' endoderm_small <- cluster_timecourse_features(endoderm_small)
 #' plot_ts_clusters(endoderm_small)
 #'
@@ -410,6 +411,7 @@ plot_ts_clusters <- function(
 #' @importFrom tidyr gather
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' feat_to_plot <- feature_names(endoderm_small)[1:10]
 #' plot_time_series(endoderm_small, features = feat_to_plot)
 #'
@@ -482,6 +484,7 @@ plot_time_series <- function(
 #' @importFrom ggplot2 ggplot aes geom_point
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' selected_genes <- c('114299', '2825', '3855', '221400', '7941',
 #'                     '6164', '1292', '6161', '6144', '23521')
 #' enrich_res <- pathway_enrichment(

@@ -25,6 +25,7 @@ featureIDs, prevalence, total counts). The additional data can be used in
 plotting functions.
 }
 \examples{
+data("endoderm_small")
 idx <- sample(1:26, n_features(endoderm_small), replace = TRUE)
 random_letters <- data.frame(
    letters = LETTERS[idx],

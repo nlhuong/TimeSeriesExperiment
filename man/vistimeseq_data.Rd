@@ -39,7 +39,7 @@ samples taken at specific timepoints and rows are features. If normalization
 was performed 'data' holds normalized data
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 head(get_data(endoderm_small))
 
 }

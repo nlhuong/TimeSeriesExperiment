@@ -21,6 +21,7 @@
 #' @importFrom methods validObject
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' endoderm_small <- timepoint_de(endoderm_small, timepoint = 1.0)
 #' head(get_diff_expr(endoderm_small, "timepoint_de")$`1`)
 #'
@@ -111,6 +112,7 @@ timepoint_de <- function(
 #' @importFrom methods validObject
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- trajectory_de(endoderm_small)
 #' head(get_diff_expr(endoderm_small, "trajectory_de"))

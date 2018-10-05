@@ -39,11 +39,11 @@ function.
 }
 \examples{
 
-endoderm_small
+data("endoderm_small")
 endoderm_small <- cluster_timecourse_features(endoderm_small)
 head(get_cluster_map(endoderm_small))
 
-endoderm_small
+data("endoderm_small")
 endoderm_small <- cluster_timecourse_features(endoderm_small)
 plot(get_cluster_hclust(endoderm_small), labels = FALSE, xlab = "genes",
       sub = "")

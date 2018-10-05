@@ -28,7 +28,7 @@ a character string
 Returns project name.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 project_name(endoderm_small)
 
 }

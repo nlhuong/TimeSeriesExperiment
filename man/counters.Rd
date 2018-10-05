@@ -27,10 +27,10 @@ Returns number of samples or features in the data.
 }
 \examples{
 
-endoderm_small
+data("endoderm_small")
 n_samples(endoderm_small)
 
-endoderm_small
+data("endoderm_small")
 n_features(endoderm_small)
 
 }

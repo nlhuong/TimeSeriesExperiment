@@ -20,7 +20,7 @@ a \code{data.frame}
 'data.collapsed' slots holds dataset collapsed by replicates
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- collapse_replicates(endoderm_small)
 head(collapsed_data(endoderm_small))
 

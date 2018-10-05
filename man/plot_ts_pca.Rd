@@ -34,7 +34,7 @@ PCA plot for data features, with time-series levels overlayed
 on top.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- run_pca(endoderm_small)
 plot_ts_pca(endoderm_small)
 

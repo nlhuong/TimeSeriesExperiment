@@ -37,7 +37,7 @@ obtained. Hierarchical clustering is performed and both static and dynamic
 branch cutting algorithm are available for assigning cluster membership.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- cluster_timecourse_features(endoderm_small)
 head(get_cluster_map(endoderm_small))
 

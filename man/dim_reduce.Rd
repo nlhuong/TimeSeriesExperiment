@@ -24,7 +24,7 @@ a \code{data.frame} or a list of \code{data.frame}s
 'pca_eigs' results from PCA projection.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- run_pca(endoderm_small)
 head(get_dim_reduced(endoderm_small, "pca_sample")[, 1:3])
 

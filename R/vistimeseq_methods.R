@@ -71,7 +71,7 @@ setMethod(
 #' @export
 #' @examples
 #'
-#' endoderm_small
+#' data("endoderm_small")
 #' n_samples(endoderm_small)
 #'
 setGeneric("n_samples", function(object) standardGeneric("n_samples"))
@@ -89,7 +89,7 @@ setMethod(f = "n_samples", signature = "vistimeseq",
 #'
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' n_features(endoderm_small)
 #'
 setGeneric("n_features", function(object) standardGeneric("n_features"))
@@ -117,7 +117,7 @@ setMethod(f = "n_features", signature = "vistimeseq",
 #' @return a character vector
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' head(sample_names(endoderm_small))
 #'
 setGeneric("sample_names", function(object) standardGeneric("sample_names"))
@@ -174,7 +174,7 @@ setReplaceMethod(f = "sample_names", signature = "vistimeseq",
 #' @return a \code{data.frame}
 #' @examples
 #'
-#' endoderm_small
+#' data("endoderm_small")
 #' head(sample_data(endoderm_small))
 #'
 #' @export
@@ -247,7 +247,7 @@ setReplaceMethod(f = "sample_data", signature = "vistimeseq",
 #' @return a character vector
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' head(feature_names(endoderm_small))
 #'
 setGeneric("feature_names", function(object)
@@ -343,7 +343,7 @@ setReplaceMethod(f = "feature_names", signature = "vistimeseq",
 #' @return a \code{data.frame}
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' head(feature_data(endoderm_small))
 #'
 setGeneric("feature_data", function(object) standardGeneric("feature_data"))
@@ -392,7 +392,7 @@ setReplaceMethod(f = "feature_data", signature = "vistimeseq",
 #' @return a character vector
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' head(get_group(endoderm_small))
 #'
 setGeneric("get_group", function(object) standardGeneric("get_group"))
@@ -447,7 +447,7 @@ setGeneric("set_replicate<-", function(object, value)
 #' @return a character vector
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' head(get_replicate(endoderm_small))
 #'
 setGeneric("get_replicate", function(object) standardGeneric("get_replicate"))
@@ -492,7 +492,7 @@ setReplaceMethod(f = "set_replicate", signature = "vistimeseq",
 #' @return a numeric vector
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' head(get_time(endoderm_small))
 #'
 setGeneric("get_time", function(object) standardGeneric("get_time"))
@@ -550,7 +550,7 @@ setReplaceMethod(f = "set_time", signature = "vistimeseq",
 #'
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' head(get_data(endoderm_small))
 #'
 setGeneric("get_data", 
@@ -615,7 +615,7 @@ setReplaceMethod(f = "set_data", signature = "vistimeseq",
 #' @return a \code{data.frame}
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- collapse_replicates(endoderm_small)
 #' head(collapsed_data(endoderm_small))
 #'
@@ -642,7 +642,7 @@ setMethod(f = "collapsed_data", signature = "vistimeseq",
 #' @return a \code{data.frame}
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- collapse_replicates(endoderm_small)
 #' head(collapsed_sample_data(endoderm_small))
 #'
@@ -672,7 +672,7 @@ setMethod(f = "collapsed_sample_data", signature = "vistimeseq",
 #'
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' head(time_course(endoderm_small))
 #' head(time_course(endoderm_small, collapsed = TRUE))
@@ -708,7 +708,7 @@ setMethod(f = "time_course", signature = "vistimeseq",
 #' @return a \code{data.frame} or a list of \code{data.frame}s
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- run_pca(endoderm_small)
 #' head(get_dim_reduced(endoderm_small, "pca_sample")[, 1:3])
 #'
@@ -759,7 +759,7 @@ setMethod(f = "get_dim_reduced", signature = "vistimeseq",
 #' @export
 #' @examples
 #'
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- cluster_timecourse_features(endoderm_small)
 #' head(get_cluster_map(endoderm_small))
 #'
@@ -788,9 +788,9 @@ setMethod(f = "get_cluster_map", signature = "vistimeseq",
 #' @return an hclust object
 #' @export
 #' @examples
-#'endoderm_small
-#'endoderm_small <- cluster_timecourse_features(endoderm_small)
-#'plot(get_cluster_hclust(endoderm_small), labels = FALSE, xlab = "genes",
+#' data("endoderm_small")
+#' endoderm_small <- cluster_timecourse_features(endoderm_small)
+#' plot(get_cluster_hclust(endoderm_small), labels = FALSE, xlab = "genes",
 #'       sub = "")
 #'
 setGeneric("get_cluster_hclust", function(object)
@@ -822,6 +822,7 @@ setMethod(f = "get_cluster_hclust", signature = "vistimeseq",
 #' @return a \code{data.frame} or a list of \code{data.frame}s
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' endoderm_small <- trajectory_de(endoderm_small)
 #' head(get_diff_expr(endoderm_small, "trajectory_de"))
 #'
@@ -864,7 +865,7 @@ setMethod(f = "get_diff_expr", signature = "vistimeseq",
 #' @return a character string
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' project_name(endoderm_small)
 #'
 setGeneric("project_name", function(object) standardGeneric("project_name"))

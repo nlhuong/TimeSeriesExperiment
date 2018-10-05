@@ -25,7 +25,7 @@ Returns a \code{ggplot2} objet.
 Generates a standard PCA plot of observations in the dataset.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- run_pca(endoderm_small)
 plot_sample_pca(endoderm_small, col.var = "group")
 

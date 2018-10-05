@@ -38,6 +38,7 @@
 #' @importFrom utils installed.packages
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' selected_genes <- c('114299', '2825', '3855', '221400', '7941',
 #'                     '6164', '1292', '6161', '6144', '23521')
 #' enrich_res <- pathway_enrichment(

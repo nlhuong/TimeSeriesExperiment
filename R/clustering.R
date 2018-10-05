@@ -88,6 +88,7 @@ assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
 #' @importFrom stats hclust
 #' @export
 #' @examples
+#' data("endoderm_small")
 #' X <- get_data(endoderm_small)
 #' clust_res <- cluster_data(X)
 #' head(clust_res$clust_centroids)
@@ -164,7 +165,7 @@ cluster_data <- function(
 #' @importFrom methods validObject
 #' @export
 #' @examples
-#' endoderm_small
+#' data("endoderm_small")
 #' endoderm_small <- cluster_timecourse_features(endoderm_small)
 #' head(get_cluster_map(endoderm_small))
 #'

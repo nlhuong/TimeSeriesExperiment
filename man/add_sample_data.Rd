@@ -25,7 +25,7 @@ clinical or nonclinical data). The additional data can be used in
 plotting functions.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 idx <- sample(1:26, length(sample_names(endoderm_small)), replace = TRUE)
 random_letters <- data.frame(
   letters = LETTERS[idx],

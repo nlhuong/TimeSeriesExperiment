@@ -19,8 +19,8 @@ Filters "vistimeseq" object to keep only chosen features.
 All relevant slots are updates.
 }
 \examples{
+data("endoderm_small")
 features <- 1:100
-endoderm_small
 endoderm_small <- filter_features(endoderm_small, features)
 endoderm_small
 

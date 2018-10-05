@@ -28,7 +28,7 @@ a character vector
 'grop' slots holds feature names
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 head(get_replicate(endoderm_small))
 
 }
