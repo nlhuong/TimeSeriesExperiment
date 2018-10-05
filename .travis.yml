@@ -18,10 +18,10 @@ bioc_packages:
 
 script:
   - R CMD build .
-  - R CMD check --no-build-vignettes vistimeseq_0.99.1.tar.gz
+  - R CMD check --no-build-vignettes vistimeseq_0.99.2.tar.gz
   - echo "library(BiocCheck)" >> load_biocCheck.R
   - Rscript load_biocCheck.R
-  - R CMD BiocCheck --new-package vistimeseq_0.99.1.tar.gz
+  - R CMD BiocCheck --new-package vistimeseq_0.99.2.tar.gz
 
 os:
   - linux
