@@ -100,18 +100,19 @@ melt_matrix <- function(X) {
 #' @importFrom methods slot<- validObject
 #' @export
 #' @examples
-#' data("endoderm_small")
+#' endoderm_small
 #' endoderm_small <- normalize_data(endoderm_small)
 #' head(get_data(endoderm_small))
 #'
 normalize_data <- function(
   object, sample.norm.method = "scale_common_factor",
   column.scale.factor = 1e+06) {
-    if (!class(object) %in% c("vistimeseq", "data.frame", "matrix")){
+    if (!any(sapply(c("vistimeseq", "data.frame", "matrix"), 
+                    function(x) is(object, x)))){
         stop("The argument 'object' must be either in either 'data.frame',",
              " 'matrix', or 'vistimeseq' class.")
     }
-    if (class(object) == "vistimeseq") {
+    if (is(object, "vistimeseq") ) {
         if (!validObject(object))
             stop("Invalid vistimeseq object.")
         if (is.null(get_data(object, raw = TRUE))) {
@@ -149,7 +150,7 @@ normalize_data <- function(
 #' @importFrom stats aggregate
 #' @export
 #' @examples
-#' data("endoderm_small")
+#' endoderm_small
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- collapse_replicates(endoderm_small)
 #' head(collapsed_data(endoderm_small))
@@ -262,7 +263,6 @@ data_to_tc <- function(X, time, replicate = NULL, group = NULL){
 #' @importFrom methods validObject
 #' @export
 #' @examples
-#' data("endoderm_small")
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' head(time_course(endoderm_small))
@@ -362,7 +362,7 @@ add_lags_to_tc <- function(timecourse, lambda) {
 #' @importFrom methods validObject
 #' @export
 #' @examples
-#' data("endoderm_small")
+#' endoderm_small
 #' endoderm_small <- normalize_data(endoderm_small)
 #' endoderm_small <- convert_to_timecourse(endoderm_small)
 #' endoderm_small <- add_lags(endoderm_small)

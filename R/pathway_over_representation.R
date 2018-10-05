@@ -28,7 +28,7 @@
 #' @param fltr_P.DE A p-value threshold to filter out terms in the enrichment
 #' results. Default is 0.05.
 #' @param ... other parameters for \code{\link[limma]{goana}} or
-#' \code{\link[limma]{kegga}}.
+#' \code{\link[limma:goana]{limma::kegga()}}.
 #'
 #' @return a \code{data.frame} or list of \code{data.frame}s with enrichment
 #'results.

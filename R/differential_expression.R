@@ -1,6 +1,6 @@
 #' @title Differential timepoint expression testing.
 #'
-#' @description This is a wrapper around \code{\link[limma]{limma}}
+#' @description This is a wrapper around \code{\link[lmFit]{limma}}
 #' and \code{\link[limma]{voom}} functions from \code{limma} package
 #' for testing differential expression at specified timepoints.
 #'
