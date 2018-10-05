@@ -98,6 +98,7 @@ melt_matrix <- function(X) {
 #' Normalized data is stored \code{data} slot.
 #'
 #' @importFrom methods slot<- validObject
+#' @importFrom methods is
 #' @export
 #' @examples
 #' endoderm_small
