@@ -34,7 +34,7 @@ add_sample_data <- function (
         stop("Invalid 'vistimeseq' object.")
     }
     if(nrow(sampledata) != length(sample_names(object))) {
-        stop("new sample data dimension does not agree ", 
+        stop("new sample data dimension does not agree ",
              "with object@sample.data.")
     }
     smp <- sample_data(object)
@@ -81,7 +81,7 @@ add_feature_data <- function(
         stop("Invalid vistimeseq object.")
     }
     if(nrow(featuredata) != length(feature_names(object))) {
-        stop("new feature data dimension does not agree", 
+        stop("new feature data dimension does not agree",
              " with object@feature.data")
     }
     fdata <- feature_data(object)
@@ -127,7 +127,7 @@ filter_features <- function (object, features) {
     if (!all(features %in% feature_names(object))){
         stop("Some \"features\" not included in \"vistimeseq\" object.")
     }
-    
+
     fltr_feature_data <- feature_data(object) %>% filter(feature %in% features)
     rownames(fltr_feature_data) <- fltr_feature_data$feature
     fltr_feature_data <- fltr_feature_data[features, , drop = FALSE]
@@ -164,21 +164,21 @@ filter_features <- function (object, features) {
         message("Differential expression results are reset due to feature ",
                         "filtering. Need to be recomputed.")
     }
-    
+
     fltr_object <- new(
         Class = "vistimeseq",
-        project.name = project_name(endoderm),
+        project.name = project_name(object),
         raw.data = fltr_raw_data,
         data = fltr_data,
-        sample.names = sample_names(endoderm),
+        sample.names = sample_names(object),
         feature.names = features,
-        sample.data = sample_data(endoderm),
+        sample.data = sample_data(object),
         feature.data = fltr_feature_data,
         data.collapsed = fltr_collapsed_data,
         sample.data.collapsed = fltr_collapsed_sample_data,
-        group = get_group(endoderm),
-        replicate = get_replicate(endoderm),
-        time = get_time(endoderm),
+        group = get_group(object),
+        replicate = get_replicate(object),
+        time = get_time(object),
         timecourse.data = fltr_timecourse,
         dim.red = list(),
         cluster.features = list(),
@@ -187,9 +187,3 @@ filter_features <- function (object, features) {
     validObject(object)
     return(fltr_object)
 }
-
-
-
-
-
-
