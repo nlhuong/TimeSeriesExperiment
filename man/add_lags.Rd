@@ -23,7 +23,7 @@ This function concatenates lags to time-course
 data stored in elements of the \code{timecourse.data} slot.
 }
 \examples{
-endoderm_small
+data("endoderm_small")
 endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- convert_to_timecourse(endoderm_small)
 endoderm_small <- add_lags(endoderm_small)

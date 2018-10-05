@@ -22,7 +22,7 @@ a \code{vistimeseq} object with timepoint differential expression
 testing results stored in 'timepoint_de' element in \code{diff.expr} slot.
 }
 \description{
-This is a wrapper around \code{\link[lmFit]{limma}}
+This is a wrapper around \code{\link[limma]{lmFit}}
 and \code{\link[limma]{voom}} functions from \code{limma} package
 for testing differential expression at specified timepoints.
 }

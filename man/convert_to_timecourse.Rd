@@ -33,6 +33,7 @@ row gives data values over time (at each time point) for each
 feature, group, and replicate.
 }
 \examples{
+data("endoderm_small") 
 endoderm_small <- normalize_data(endoderm_small)
 endoderm_small <- convert_to_timecourse(endoderm_small)
 head(time_course(endoderm_small))
