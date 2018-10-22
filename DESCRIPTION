@@ -1,0 +1,56 @@
+Package: vistimeseq
+Type: Package
+Title: Analysis for short time-course sequencing data
+Version: 0.99.2
+Date: 2018-09-30
+Author: Lan Huong Nguyen
+Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
+Description: Visualization and analysis toolbox for short time course data 
+  which includes dimensionality reduction, clustering, two-sample differential 
+  expression testing and gene ranking techniques. The package also provides 
+  methods for retrieving enriched pathways.
+License: LGPL (>= 3)
+Depends:
+  R (>= 3.5)
+VignetteBuilder: knitr
+Imports:
+    Biobase,
+    circlize,
+    dynamicTreeCut,
+    dplyr,
+    edgeR,
+    DESeq2,
+    ggplot2,
+    graphics,
+    grDevices,
+    grid,
+    Hmisc,
+    limma,
+    methods,
+    magrittr,
+    proxy,
+    RColorBrewer,
+    stats,
+    SummarizedExperiment,
+    tibble,
+    tidyr,
+    vegan,
+    viridis,
+    utils
+Suggests:
+    BiocFileCache,
+    knitr,
+    GO.db,
+    org.Mm.eg.db,
+    org.Hs.eg.db,
+    MASS,
+    rmarkdown,
+    ComplexHeatmap,
+    UpSetR,
+Encoding: UTF-8
+RoxygenNote: 6.1.0.9000
+biocViews: TimeCourse, Sequencing, RNASeq, Microbiome,
+    GeneExpression, Transcription, Normalization, DifferentialExpression,
+    PrincipalComponent, Clustering, Visualization, Pathways
+BugReports: https://github.com/nlhuong/vistimeseq/issues
+URL: https://github.com/nlhuong/vistimeseqv
