@@ -114,13 +114,16 @@ utilities to avoid uneccessary multiple downloading.
 ```{r, eval = FALSE}
 library(BiocFileCache)
 bfc <- BiocFileCache(ask = FALSE)
-add1 <- bfcadd(bfc, url1)
-add2 <- bfcadd(bfc, url2)
-add3 <- bfcadd(bfc, url3)
 
-cnts <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url1))
-gene.data <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url2))
-pheno.data <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url3))
+cnts <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url1)) %>%
+  column_to_rownames("X1") %>%
+  as.matrix()
+gene.data <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url2)) %>%
+  as.data.frame() %>%
+  column_to_rownames("X1")
+pheno.data <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url3)) %>%
+  as.data.frame() %>%
+  column_to_rownames("X1")
 ```
 
 
