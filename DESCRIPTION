@@ -38,7 +38,7 @@ Imports:
     viridis,
     utils
 Suggests:
-    BiocFileCache,
+    BiocFileCache (>= 1.5.8),
     knitr,
     GO.db,
     org.Mm.eg.db,
