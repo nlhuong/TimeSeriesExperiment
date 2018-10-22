@@ -123,6 +123,3 @@ pathway_enrichment <- function(
     if(length(res) == 1) { res <- res[[1]] }
     return(res)
 }
-
-
-

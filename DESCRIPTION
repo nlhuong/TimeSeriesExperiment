@@ -5,9 +5,9 @@ Version: 0.99.2
 Date: 2018-09-30
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
-Description: Visualization and analysis toolbox for short time course data 
-  which includes dimensionality reduction, clustering, two-sample differential 
-  expression testing and gene ranking techniques. The package also provides 
+Description: Visualization and analysis toolbox for short time course data
+  which includes dimensionality reduction, clustering, two-sample differential
+  expression testing and gene ranking techniques. The package also provides
   methods for retrieving enriched pathways.
 License: LGPL (>= 3)
 Depends:

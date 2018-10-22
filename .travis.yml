@@ -1,0 +1,33 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+cache: packages
+r: bioc-release
+sudo: false
+warnings_are_errors: true
+
+# BiocCheck
+bioc_packages:
+  - GenomeInfoDbData
+  - BiocCheck
+  - GO.db 
+  - org.Mm.eg.db
+  - org.Hs.eg.db
+
+# customize build to add biocCheck
+
+script:
+  - R CMD build .
+  - R CMD check --no-build-vignettes vistimeseq_0.99.2.tar.gz
+  - echo "library(BiocCheck)" >> load_biocCheck.R
+  - Rscript load_biocCheck.R
+  - R CMD BiocCheck --new-package vistimeseq_0.99.2.tar.gz
+
+os:
+  - linux
+  - osx
+
+# script:
+#  - R CMD build . --no-resave-data --no-manual
+# after_success:
+#  - R CMD BiocCheck --new-package --no-check-vignettes vistimeseq_0.99.0.tar.gz

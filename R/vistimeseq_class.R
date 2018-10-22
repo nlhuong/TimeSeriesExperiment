@@ -340,6 +340,7 @@ vistimeseq <- function(
           stop("No 'group_column', ", group_column, " in sample.data")
         }
         group <- sample.data[[group_column]]
+<<<<<<< HEAD
     }
     if (all(!is.null(replicate), (length(replicate) != nSamples))) {
       stop("Length of 'replicate' is not equal to the number ", 
@@ -382,6 +383,50 @@ vistimeseq <- function(
                 replicate = replicate,
                 group = group
         )
+=======
+        }
+        if (all(!is.null(replicate), (length(replicate) != nSamples))) {
+            stop("Length of 'replicate' is not equal to the number ", 
+                 "of columns in raw.data") 
+      }
+      if (all(!is.null(group), (length(group) != nSamples))) {
+          stop("Length of 'group' is not equal to the number of columns ", 
+               "in raw.data") 
+      }
+      if(any(is.null(time), !is.numeric(time), all(is.na(time)), 
+             length(time) != nSamples)) {
+          stop("Wrong time input.")
+      }
+      if(is.null(replicate)){
+          replicate <- rep("R1", nSamples)
+      }
+      if(is.null(group)){
+          group <- rep("G1", nSamples)
+      }
+    
+      if(is.null(sample.data)) {
+          sample.data <- data.frame(
+            sample = colnames(raw.data),
+            time = time,
+            replicate = replicate,
+            group = group
+          )
+      } else {
+          if("sample" %in% colnames(sample.data)) {
+            rownames(sample.data) <- sample.data[["sample"]]
+          }
+          if(!all(colnames(raw.data) %in% rownames(sample.data))){
+              stop("Not all colnames(raw.data) in sample.data")
+          }
+          sample.data <- sample.data[colnames(raw.data), ]
+          sample.data <- sample.data %>%
+              mutate(
+                  sample = colnames(raw.data),
+                  time = time,
+                  replicate = replicate,
+                  group = group
+          )
+>>>>>>> 9a81095f59195e59388d01bf0225b4db70c8a15b
     }
     if(is.null(feature.data)) {
         feature.data <- data.frame(feature = rownames(raw.data))
@@ -421,6 +466,7 @@ vistimeseq <- function(
 }
 
 
+<<<<<<< HEAD
 #' @title check and update sample data 
 #'
 #' @description Ensures validity of input sample data,
@@ -482,6 +528,8 @@ update_info <- function(
 }
 
 
+=======
+>>>>>>> 9a81095f59195e59388d01bf0225b4db70c8a15b
 #' @title vistimeseq object and constructor from ExpressionSet
 #'
 #' @description Initializes the vistimeseq object from ExpressionSet
@@ -510,6 +558,10 @@ update_info <- function(
 #' and object@@time are also initialized.
 #'
 #' @importFrom Biobase fData pData exprs
+<<<<<<< HEAD
+=======
+#' @importFrom tibble rownames_to_column
+>>>>>>> 9a81095f59195e59388d01bf0225b4db70c8a15b
 #' @importFrom dplyr rename
 #' @export
 #'
@@ -526,11 +578,19 @@ update_info <- function(
 #'test_eset <- ExpressionSet(
 #'    raw, phenoData = AnnotatedDataFrame(pheno.data),
 #'    featureData = AnnotatedDataFrame(feature.data))
+<<<<<<< HEAD
 #'test_vistimeseq <- vistimeseq_from_ExpressionSet(
 #'    test_eset, time_column = "time", group_column = "group",
 #'    replicate_column = "replicate")
 #' test_vistimeseq
 vistimeseq_from_ExpressionSet <- function(
+=======
+#'test_vistimeseq <- vistimeseqFromExpressionSet(
+#'    test_eset, time = "time", group = "group",
+#'    replicate = "replicate")
+#' test_vistimeseq
+vistimeseqFromExpressionSet <- function(
+>>>>>>> 9a81095f59195e59388d01bf0225b4db70c8a15b
     eset,
     time_column,
     replicate_column = NULL,
@@ -539,8 +599,36 @@ vistimeseq_from_ExpressionSet <- function(
 ) {
     feature.data <- fData(eset)
     sample.data <- pData(eset)
+<<<<<<< HEAD
     sample.data <- update_info(sample.data, time_column, replicate_column,
                                group_column)
+=======
+
+    if(!is.null(replicate_column)) {
+        if(replicate_column %in% colnames(sample.data)){
+            sample.data[["replicate"]] <- sample.data[[replicate_column]]
+        } else {
+            stop("\"replicate_column\" not found.")
+        }
+    } else {
+        sample.data[["replicate"]] <- rep("R1", nrow(sample.data))
+    }
+
+    if(!is.null(group_column)) {
+        if(group_column %in% colnames(sample.data)){
+            sample.data[["group"]] <- sample.data[[group_column]]
+        } else {
+            stop("\"group_column\" not found.")
+        }
+    } else {
+        sample.data[["group"]] <- rep("G1", nrow(sample.data))
+    }
+
+    if(!is.numeric(sample.data[[time_column]])) {
+        stop("time column must be numeric.")
+    }
+    sample.data[["time"]] <- sample.data[[time_column]]
+>>>>>>> 9a81095f59195e59388d01bf0225b4db70c8a15b
     raw.data <- exprs(eset)
 
     object <- vistimeseq(
@@ -554,6 +642,7 @@ vistimeseq_from_ExpressionSet <- function(
     )
     return(object)
 }
+<<<<<<< HEAD
 
 
 #' @title vistimeseq object and constructor from SummarizedExperiment
@@ -627,3 +716,5 @@ vistimeseq_from_SummarizedExperiment <- function(
   )
   return(object)
 }
+=======
+>>>>>>> 9a81095f59195e59388d01bf0225b4db70c8a15b

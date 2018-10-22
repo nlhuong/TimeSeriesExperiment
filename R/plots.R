@@ -68,7 +68,7 @@ plot_heatmap <- function(
     names(rep_cols) <- unique(get_replicate(object))
 
     time_cols <- colorRamp2(
-        breaks = seq(min(get_time(object)), max(get_time(object)), 
+        breaks = seq(min(get_time(object)), max(get_time(object)),
                      length.out = 10),
         colors =    viridis(10))
 
@@ -124,7 +124,7 @@ plot_sample_pca <- function(object, axis = c(1, 2), col.var = NULL, ...) {
                 left_join(sample_data(object)) %>%
                 column_to_rownames("sample")
         )
-    } else if (all(pca.scores$sample %in% 
+    } else if (all(pca.scores$sample %in%
                    collapsed_sample_data(object)$sample)) {
         pca.scores <- suppressMessages(
             pca.scores %>%
@@ -236,14 +236,14 @@ plot_ts_pca <- function(
 
     min_dists <- apply(D, 1, min)
     min_dists_ix <- apply(D, 1, which.min)
-    x_min_dists <- vapply(seq_len(nrow(xD)), 
+    x_min_dists <- vapply(seq_len(nrow(xD)),
                           function(i) xD[i, min_dists_ix[i]], numeric(1))
-    y_min_dists <- vapply(seq_len(nrow(yD)), 
+    y_min_dists <- vapply(seq_len(nrow(yD)),
                           function(i) yD[i, min_dists_ix[i]], numeric(1))
     min_dists_ix[x_min_dists > dx/2 | y_min_dists > dy/2] <- NA
 
     # Plot all points corresponding to each feature
-    par(mar=par()$mar * c(2, 1.2, 1.2, 1.2), xpd = TRUE, 
+    par(mar=par()$mar * c(2, 1.2, 1.2, 1.2), xpd = TRUE,
         cex = 0.7, cex.main = 2, cex.axis = 1.5, cex.lab = 1.5)
     plot(pca.loadings[, c(1, 2)], type = "p", pch = 16,
              xlim = c(mins[1] - dx/2, maxes[1] + dx/2),
@@ -510,4 +510,3 @@ plot_enrichment <- function(enrich, n_max = 15) {
         scale_color_viridis()
     return(plt)
 }
-
