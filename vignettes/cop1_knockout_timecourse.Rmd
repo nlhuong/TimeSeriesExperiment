@@ -95,23 +95,13 @@ url2 <- paste0("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE114762&",
                "format=file&file=GSE114762_gene_data.csv.gz")
 url3 <- paste0("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE114762&",
                "format=file&file=GSE114762_sample_info.csv.gz")
-
-cnts <- read_csv(url) %>%
-  column_to_rownames("X1") %>%
-  as.matrix()
-gene.data <- read_csv(url2) %>%
-  as.data.frame() %>%
-  column_to_rownames("X1")
-pheno.data <- read_csv(url3) %>%
-  as.data.frame() %>%
-  column_to_rownames("X1")
 ```
 
 
 We will save the files to cache using `BiocFileCache`
 utilities to avoid uneccessary multiple downloading.
 
-```{r, eval = FALSE}
+```{r}
 library(BiocFileCache)
 bfc <- BiocFileCache(ask = FALSE)
 
@@ -170,9 +160,9 @@ Then, we can easily convert an `ExpressionSet` to a `vistimeseq` object using
 with relevant information.
 
 ```{r}
-cop1_vistimeseq <- vistimeseq_from_ExpressionSet(
+(cop1_vistimeseq <- vistimeseq_from_ExpressionSet(
   cop1_eset, time_column = "time", group_column = "group",
-  replicate_column = "individual")
+  replicate_column = "individual"))
 ```
 
 Repeating the same for `SummarizedExperiment`:
@@ -182,9 +172,9 @@ cop1_sumexp <- SummarizedExperiment(
   assays = list(counts = cnts),
   rowData = gene.data, colData = pheno.data)
 
-cop1_vistimeseq <- vistimeseq_from_SummarizedExperiment(
-  cop1_eset, time_column = "time", group_column = "group",
-  replicate_column = "individual")
+(cop1_vistimeseq <- vistimeseq_from_SummarizedExperiment(
+  cop1_sumexp, time_column = "time", group_column = "group",
+  replicate_column = "individual"))
 
 # Remove raw data
 rm(cnts, gene.data, pheno.data, cop1_eset)
