@@ -1,7 +1,7 @@
 Package: vistimeseq
 Type: Package
 Title: Analysis for short time-course sequencing data
-Version: 0.99.2
+Version: 0.99.3
 Date: 2018-09-30
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
