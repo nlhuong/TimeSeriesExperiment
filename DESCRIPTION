@@ -1,7 +1,7 @@
 Package: vistimeseq
 Type: Package
 Title: Analysis for short time-course sequencing data
-Version: 0.99.4
+Version: 0.99.5
 Date: 2018-09-30
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
@@ -48,7 +48,7 @@ Suggests:
     ComplexHeatmap,
     UpSetR,
 Encoding: UTF-8
-RoxygenNote: 6.1.0.9000
+RoxygenNote: 6.1.0
 biocViews: TimeCourse, Sequencing, RNASeq, Microbiome,
     GeneExpression, Transcription, Normalization, DifferentialExpression,
     PrincipalComponent, Clustering, Visualization, Pathways

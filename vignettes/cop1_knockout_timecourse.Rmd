@@ -88,30 +88,37 @@ for download as 'GSE114762_sample_info.csv.gz', and
 'GSE114762_gene_data.csv.gz' files respectively.
 
 ```{r, message=FALSE, warning=FALSE}
-# Load gene data
-url1 <- paste0("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE114762&",
-              "format=file&file=GSE114762_raw_counts.csv.gz")
-url2 <- paste0("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE114762&",
-               "format=file&file=GSE114762_gene_data.csv.gz")
-url3 <- paste0("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE114762&",
-               "format=file&file=GSE114762_sample_info.csv.gz")
+# Remote location of the data
+urls <- paste0(
+    "https://www.ncbi.nlm.nih.gov/geo/download/",
+    "?acc=GSE114762&format=file&file=",
+    c(
+        "GSE114762_raw_counts.csv.gz",
+        "GSE114762_gene_data.csv.gz",
+        "GSE114762_sample_info.csv.gz"
+    )
+)
+
 ```
 
 
 We will save the files to cache using `BiocFileCache`
 utilities to avoid uneccessary multiple downloading.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(BiocFileCache)
 bfc <- BiocFileCache(ask = FALSE)
 
-cnts <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url1)) %>%
+cnts <- read_csv(
+  bfcrpath(BiocFileCache(ask = FALSE), rnames = urls[1])) %>%
   column_to_rownames("X1") %>%
   as.matrix()
-gene.data <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url2)) %>%
+gene.data <- read_csv(
+  bfcrpath(BiocFileCache(ask = FALSE), rnames = urls[2])) %>%
   as.data.frame() %>%
   column_to_rownames("X1")
-pheno.data <- read_csv(bfcrpath(BiocFileCache(ask = FALSE), rnames = url3)) %>%
+pheno.data <- read_csv(
+  bfcrpath(BiocFileCache(ask = FALSE), rnames = urls[3])) %>%
   as.data.frame() %>%
   column_to_rownames("X1")
 ```
@@ -142,7 +149,7 @@ cop1_timeseq
 ```
 
 
-Alternatively, we can build `vistimeseq` object from a `ExressionSet`
+Alternatively, we can build `vistimeseq` object from a `ExpressionSet`
 or `SummarizedExperiment` objects.
 
 To show how this is done, we first combine the three data tables into
