@@ -4,13 +4,13 @@
 #' and \code{\link[limma]{voom}} functions from \code{limma} package
 #' for testing differential expression at specified timepoints.
 #'
-#' @param object A \code{vistimeseq} object.
+#' @param object A \code{TimeSeriesExperiment} object.
 #' @param timepoints Vector of timepoints to test at.
 #' @param min_gene_sum A scalar for filtering sparse genes before DE testing.
 #' Default is 1.
 #' @param alpha A scalar for level of significance. Default is 0.05.
 #'
-#' @return a \code{vistimeseq} object with timepoint differential expression
+#' @return a \code{TimeSeriesExperiment} object with timepoint differential expression
 #' testing results stored in 'timepoint_de' element in \code{diff.expr} slot.
 #'
 #' @importFrom dplyr filter rename
@@ -19,34 +19,40 @@
 #' @importFrom stats model.matrix
 #' @importFrom  methods slot<-
 #' @importFrom methods validObject
+#' @importFrom SummarizedExperiment assays rowData
 #' @export
 #' @examples
 #' data("endoderm_small")
-#' endoderm_small <- timepoint_de(endoderm_small, timepoint = 1.0)
-#' head(get_diff_expr(endoderm_small, "timepoint_de")$`1`)
+#' endoderm_small <- timepointDE(endoderm_small, timepoint = 1.0)
+#' head(differentialExpression(endoderm_small, "timepoint_de")$`1`)
 #'
-timepoint_de <- function(
-    object, timepoints = "all", min_gene_sum = 1, alpha = 0.05) {
+timepointDE <- function(object, timepoints = "all", 
+                         min_gene_sum = 1, alpha = 0.05) 
+{
+    if (!is(object, "TimeSeriesExperiment")) 
+        stop("Input must be a 'TimeSeriesExperiment' object.")
+    if (!validObject(object)) 
+        stop("Invalid TimeSeriesExperiment object.")
     feature <- group <- time <- NULL
-    if (!validObject(object)){
-        stop("Invalid 'vistimeseq' object.")
-    }
     if (any(timepoints == "all")) {
-        timepoints <- sort(unique(get_time(object)))
+        timepoints <- sort(unique(timepoints(object)))
     }
-    if(!all(timepoints %in% unique(get_time(object)))) {
-      stop("One or more entries of \"timepoints\" not found in 'object@time'.")
+    if(!all(timepoints %in% unique(timepoints(object)))) {
+        stop("One or more entries of 'timepoints' not found in ",
+             "timepoints(object).")
     }
     # we rename "group" to "condition" beacuse in 'model.matrix()' misuses
     # 'group' in design argument
-    sample_data <- sample_data(object) %>%
+    sample_data <- colData(object) %>%
+        as.data.frame() %>%
         rename(condition = group)
-    feature_data <- feature_data(object)
+    feature_data <- rowData(object) %>%
+        as.data.frame()
 
     limma.res <- lapply(timepoints, function(t) {
         message("testing timepoint: ", t)
         smp.t <- sample_data %>% filter(time == t)
-        x.t <- get_data(object, raw = TRUE)[, smp.t$sample]
+        x.t <- assays(object)$raw[, smp.t$sample]
         # filter out very sparse genes:
         x.t <- x.t[rowSums(x.t) >= min_gene_sum, ]  
         gdata.t <- feature_data %>% filter(feature %in% rownames(x.t))
@@ -77,9 +83,9 @@ timepoint_de <- function(
     })
     names(limma.res) <- timepoints
 
-    diff_exp <- get_diff_expr(object, "all")
-    diff_exp[["timepoint_de"]] <- limma.res
-    slot(object, name = "diff.expr", check = TRUE) <- diff_exp
+    diff_exp <- differentialExpression(object)
+    diff_exp$timepoint_de <- limma.res
+    slot(object, name = "differentialExpression", check = TRUE) <- diff_exp
     return(object)
 }
 
@@ -89,7 +95,7 @@ timepoint_de <- function(
 #' @description Performs differential trajectory testing for timecourse
 #' data using \code{\link[vegan]{adonis}} method.
 #'
-#' @param object A \code{vistimeseq} object.
+#' @param object A \code{TimeSeriesExperiment} object.
 #' @param dist_method the name of any method used in vegdist to calculate
 #' pairwise distances, "euclidean" by defaults.
 #' @param p_adj_method a correction method. See details in
@@ -110,38 +116,35 @@ timepoint_de <- function(
 #' @importFrom stats p.adjust
 #' @importFrom  methods slot<-
 #' @importFrom methods validObject
+#' @importFrom SummarizedExperiment rowData
 #' @export
 #' @examples
 #' data("endoderm_small")
-#' endoderm_small <- normalize_data(endoderm_small)
-#' endoderm_small <- trajectory_de(endoderm_small)
-#' head(get_diff_expr(endoderm_small, "trajectory_de"))
-#'
-trajectory_de <- function(
-    object, dist_method = "euclidean", p_adj_method = "BH", 
-    lambda = c(0.5, 0.25), verbose = TRUE, ...) {
+#' endoderm_small <- makeTimeSeries(endoderm_small)
+#' \dontrun{
+#'    endoderm_small <- trajectoryDE(endoderm_small)
+#'    head(differentialExpression(endoderm_small, "trajectory_de"))
+#' }
+trajectoryDE <- function(object, dist_method = "euclidean", 
+                         p_adj_method = "BH", lambda = c(0.5, 0.25), 
+                         verbose = TRUE, ...) 
+{
+    if (!is(object, "TimeSeriesExperiment")) 
+        stop("Input must be a 'TimeSeriesExperiment' object.")
     feature <- Df <- pval <- R2 <- NULL
-    if (!validObject(object)){
-        stop("Invalid 'vistimeseq' object.")
+    if (!"ts_trans" %in% names(timeSeries(object))) {
+        object <- makeTimeSeries(object)
     }
-    if (is.null(time_course(object))) {
-        object <- convert_to_timecourse(object)
-        message("Converted to timecourse format.")
-        object <- add_lags(object, lambda = lambda)
-        message("Added lags with coefficients: ",
-                paste0(lambda, collapse = " "))
+    if (!any(grepl("Lag_", colnames(timeSeries(object)[["ts_trans"]])))) {
+        object <- addLags(object, lambda = lambda)
     }
-
-    message("Testing differential feature trajectories.")
-    tc <- time_course(object)
-    feature_names <- unique(tc$feature)
+    message("Testing differential feature trajectories...")
+    ts_with_lags <- timeSeries(object, "ts_trans")
+    feature_names <- unique(ts_with_lags$feature)
     adonis.res <- lapply(seq_along(feature_names), function(i) {
         feat <- feature_names[i]
-        if((i %% 500) == 0 && verbose) {
-            message("Feature: ", i)
-        }
-        itc <- tc %>%
-            filter(feature == feat)
+        if((i %% 500) == 0 && verbose) message("Feature: ", i)
+        itc <- ts_with_lags %>% filter(feature == feat)
         iadonis <- suppressMessages(
             adonis(
               formula = itc %>% select(-(feature:replicate)) ~ group,
@@ -158,10 +161,14 @@ trajectory_de <- function(
         select(feature, Df:pval) %>%
         arrange(-R2) %>%
         mutate(p.adj = p.adjust(pval, method = p_adj_method))
-
-    diff_exp <- get_diff_expr(object, type = "all")
+    
+    adonis.res.df <- suppressMessages(
+      adonis.res.df %>%
+          left_join(as.data.frame(rowData(object)))
+    )
+    diff_exp <- differentialExpression(object)
     diff_exp[["trajectory_de"]] <- adonis.res.df
-    slot(object, name = "diff.expr", check = TRUE) <- diff_exp
+    slot(object, name = "differentialExpression", check = TRUE) <- diff_exp
     return(object)
 }
 

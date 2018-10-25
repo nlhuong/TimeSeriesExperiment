@@ -1,4 +1,4 @@
-#' @title Cluster assignment using static brnach cutting.
+#' @title Cluster assignment using static branch cutting.
 #'
 #' @description This function computes the cluster assignment for hierarchical
 #' clustering results using static branch cutting.
@@ -13,8 +13,8 @@
 #' @importFrom tibble rownames_to_column
 #' @importFrom dplyr left_join arrange data_frame
 #' @importFrom stats cutree
-#'
-assign_cluster_static <- function(hclst, h = NULL, k = NULL) {
+#' @export
+assignClusterStatic <- function(hclst, h = NULL, k = NULL) {
     if(!is.null(h)) {
         h <- h*max(hclst$height)
     }
@@ -22,10 +22,10 @@ assign_cluster_static <- function(hclst, h = NULL, k = NULL) {
     cluster <- suppressMessages(
         data.frame("cluster" = clst) %>%
             rownames_to_column(var = "feature") %>%
-            left_join(
-                data_frame("feature" = hclst$labels, "leaf_order" = hclst$order)
-            ) %>% #arrange(leaf_ix) %>%
-            mutate(cluster =    paste0("C", cluster))
+            left_join(data_frame("feature" = hclst$labels, 
+                                 "leaf_order" = hclst$order)) %>% 
+            # arrange(leaf_ix) %>%
+            mutate(cluster = paste0("C", cluster))
     )
     return(cluster)
 }
@@ -48,7 +48,7 @@ assign_cluster_static <- function(hclst, h = NULL, k = NULL) {
 #' @importFrom tibble rownames_to_column
 #' @importFrom dplyr left_join arrange data_frame
 #'
-assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
+assignClusterDynamic <- function(hclst, max_height = 0.9, ...){
     max_height <- max_height*max(hclst$height)
     clst <- cutreeDynamicTree(hclst, maxTreeHeight = max_height, ...)
     cluster <- suppressMessages(
@@ -56,8 +56,9 @@ assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
             rownames_to_column(var = "feature") %>%
             left_join(
                 data_frame("feature" = hclst$labels, "leaf_order" = hclst$order)
-            ) %>% #arrange(leaf_ix) %>%
-            mutate(cluster =    paste0("C", cluster))
+            ) %>% 
+            # arrange(leaf_ix) %>%
+            mutate(cluster = paste0("C", cluster))
     )
     return(cluster)
 }
@@ -76,9 +77,9 @@ assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
 #' @param dynamic whether dynamic branch cutting should be done for cluster
 #' assignment.
 #' @param hclust_params parameters for \code{\link[stats]{hclust}} function.
-#' @param static_cut_params parameters for \code{\link{assign_cluster_static}}.
+#' @param static_cut_params parameters for \code{\link{assignClusterStatic}}.
 #' @param dynamic_cut_params parameters for
-#' \code{\link{assign_cluster_dynamic}}.
+#' \code{\link{assignClusterDynamic}}.
 #'
 #' @return a list with the \code{hclust} object, as well as \code{clust_map}
 #' and \code{clust_centroids} data.frames.
@@ -89,20 +90,30 @@ assign_cluster_dynamic <- function(hclst, max_height = 0.9, ...){
 #' @export
 #' @examples
 #' data("endoderm_small")
-#' X <- get_data(endoderm_small)
-#' clust_res <- cluster_data(X)
+#' endoderm_small <- normalizeData(endoderm_small)
+#' X <- SummarizedExperiment::assays(endoderm_small)$norm
+#' clust_res <- clusterData(X)
 #' head(clust_res$clust_centroids)
 #' head(clust_res$clust_map)
 #'
-cluster_data <- function(
-    X, dist = "euclidean",
-    dynamic = FALSE,
-    hclust_params = list(),
-    static_cut_params = list(h = 0.5),
-    dynamic_cut_params = list(max_height = 0.9)) {
-
+clusterData <- function(X, dist = "euclidean", dynamic = FALSE,
+                        hclust_params = list(), 
+                        static_cut_params = list(h = 0.5),
+                        dynamic_cut_params = list(max_height = 0.9)) 
+{
+  
     cluster <- feature <- NULL
-
+    X <- as.data.frame(X)
+    dynparams <- paste(names(dynamic_cut_params), "=", dynamic_cut_params,
+                       collapse = ", ")
+    statparams <- paste(names(static_cut_params), "=", static_cut_params,
+                       collapse = ", ")
+    settings <- ifelse(
+      dynamic, 
+      paste0("Dynamic cluster assignment with params: ", dynparams),
+      paste0("Static cluster assignment with params: ", statparams)
+    )
+    
     # Perform hierarchical clustering
     D <- dist(X, method = dist)
     hclust_params[["d"]] <- D
@@ -111,9 +122,9 @@ cluster_data <- function(
     # Find clusters
     static_cut_params[["hclst"]] <- dynamic_cut_params[["hclst"]] <- hclst
     if(!dynamic) {
-        clst.mapping <- do.call(assign_cluster_static, static_cut_params)
+        clst.mapping <- do.call(assignClusterStatic, static_cut_params)
     } else {
-        clst.mapping <- do.call(assign_cluster_dynamic, dynamic_cut_params)
+        clst.mapping <- do.call(assignClusterDynamic, dynamic_cut_params)
         # Label 0 in dynamicCutTree means the object was unassigned,
         # so we remove these features.
         clst.mapping <- clst.mapping[clst.mapping$cluster != "C0", ]
@@ -121,59 +132,66 @@ cluster_data <- function(
     # Compute cluster centroids
     clst.centroids <- suppressMessages(
         clst.mapping %>%
-        select(feature, cluster) %>%
-        left_join(X %>% rownames_to_column("feature")) %>%
-        select(-feature) %>%
-        group_by(cluster) %>%
-        summarise_all(mean) %>%
-        data.frame(check.names = FALSE)
+            select(feature, cluster) %>%
+            left_join(X %>% rownames_to_column("feature")) %>%
+            select(-feature) %>%
+            group_by(cluster) %>%
+            summarise_all(mean) %>%
+            data.frame(check.names = FALSE)
     )
-    return(list(hclust = hclst, clust_map = clst.mapping,
-                            clust_centroids = clst.centroids))
+    return(list(settings = settings, hclust = hclst, 
+                clust_map = clst.mapping, clust_centroids = clst.centroids))
 }
 
 
-#' @title Cluster timecourse features.
+#' @title Cluster time series features.
 #'
 #' @description Find the cluster assignment for timecourse features.
-#' Clustering computed on top "n_top_feat" features most variable over time
-#' in each of the selected "groups". The cluster assignment of the remaining
+#' Clustering computed for top "n.top.feat" features most variable over time
+#' in each of the selected "groups" using time-series expression 
+#' (collpased over replicates). The cluster assignment of the remaining
 #' genes is based on the distance to the closest cluster centroid previously
 #' obtained. Hierarchical clustering is performed and both static and dynamic
 #' branch cutting algorithm are available for assigning cluster membership.
 #'
-#' @param object A \code{vistimeseq} object
-#' @param n_top_feat A number of top most variable time-course features to use
+#' @param object A \code{TimeSeriesExperiment} object
+#' @param n.top.feat A number of top most variable time-course features to use
 #' for clustering.
-#' @param groups One or multiple groups from \code{object@group} to take
-#' into account when aggregating time-course features.
+#' @param groups.selected One or multiple groups from \code{object@group} 
+#' to take into account when aggregating time-course features.
 #' @param lambda Weights for each lag difference, for time-course data.
 #' Length of \code{lambda} specifies number of lags to include. By default
 #' lag of order one and two are included with coefficients 0.5 and 0.25
 #' respectively.
-#' @param clust_params A list contating arguments for hierarchical clustering.
-#' For details see \code{\link{cluster_data}}.
+#' @param clust.params A list contating arguments for hierarchical clustering.
+#' For details see \code{\link{clusterData}}.
 #'
-#' @return a \code{vistimeseq} object with cluster assignment stored
+#' @return a \code{TimeSeriesExperiment} object with cluster assignment stored
 #' in \code{cluster.map} slot.
 #'
 #' @importFrom stats sd
-#' @importFrom dplyr select left_join group_by summarise_all contains top_n
+#' @importFrom dplyr select 
+#' @importFrom dplyr left_join group_by summarise_all contains top_n
 #' @importFrom tibble column_to_rownames
 #' @importFrom proxy dist
-#' @importFrom  methods slot<-
-#' @importFrom methods validObject
+#' @importFrom methods slot<- validObject
+#' @importFrom S4Vectors DataFrame
+#' @importFrom SummarizedExperiment rowData
 #' @export
 #' @examples
 #' data("endoderm_small")
-#' endoderm_small <- cluster_timecourse_features(endoderm_small)
-#' head(get_cluster_map(endoderm_small))
+#' endoderm_small <- clusterTimeSeries(endoderm_small)
+#' head(clusterMap(endoderm_small))
 #'
-cluster_timecourse_features <- function(
-    object, n_top_feat = 1000, groups = "all", lambda = c(0.5, 0.25),
-    clust_params = list()){
-
-    group <- cluster <- feature <- NULL
+clusterTimeSeries <- function(object, n.top.feat = 1000, 
+                              groups.selected = "all", lambda = c(0.5, 0.25), 
+                              clust.params = list())
+{
+    if (!is(object, "TimeSeriesExperiment")) 
+        stop("Input must be a 'TimeSeriesExperiment' object.")
+    if (!validObject(object)) 
+        stop("Invalid TimeSeriesExperiment object.")
+    
     clust_params_default <- list(
         dist = "euclidean",
         dynamic = FALSE,
@@ -182,69 +200,62 @@ cluster_timecourse_features <- function(
         dynamic_cut_params = list()
     )
     clust_params_update  <- clust_params_default
-    for (ele in names(clust_params)) {
+    for (ele in names(clust.params)) {
         if (ele %in% names(clust_params_update)){
-            clust_params_update[[ele]] <- clust_params[[ele]]
+            clust_params_update[[ele]] <- clust.params[[ele]]
         }
     }
-
-    if (!validObject(object)){
-        stop("Invalid 'vistimeseq' object.")
+    
+    group <- cluster <- feature <- NULL
+    n.top.feat <- min(n.top.feat, length(rownames(object)))
+    if (any(groups.selected == "all")){
+        groups.selected <- unique(groups(object))
     }
-    if (is.null(time_course(object, collapsed = TRUE))) {
-        message("Aggregating across replicates.")
-        object <- collapse_replicates(object)
-        message("Converting to timecorse format.")
-        object <- convert_to_timecourse(object)
+    
+    if (is.null(timeSeries(object, name = "ts_collapsed"))) {
+        object <- collapseReplicates(object)
+        object <- makeTimeSeries(object)
     }
-    if(length(grep("Lags_", colnames(time_course(object)))) ){
-        message("Adding lags with coefficients: ",
-                        paste0(lambda, collapse = " "))
-        object <- add_lags(object, lambda = lambda)
+    if(!any(grepl("Lag_", colnames(timeSeries(object, "ts_collapsed"))))){
+        object <- addLags(object, lambda = lambda)
     }
-
-    tc_data <- time_course(object, collapsed = TRUE)
-    # Find top "n_top_feat" most variable features
-    n_top_feat <- min(n_top_feat, length(feature_names(object)))
-    timepoints <- tc_data %>%
-        select(-(feature:replicate), -contains("Lag")) %>%
-        colnames()
-    features_sd <- tc_data %>%
-        select(-replicate, -contains("Lag"))
-    features_sd[["sd"]] <- apply(features_sd[, timepoints], 1, sd)
-    features_sd <- features_sd %>%
-        group_by(group) %>%
-        top_n(n = n_top_feat, wt = sd)
-    top_features <- unique(features_sd[["feature"]])
-
-    if (any(groups == "all")){
-        groups <- unique(get_group(object))
-    }
-    tc_data <- tc_data %>%
+    
+    ts_collapsed <- timeSeries(object, "ts_collapsed") %>%
         select(-replicate) %>%
-        filter(group %in% groups)
+        filter(group %in% groups.selected)  # filter to only the chosen groups
+    # Find top "n.top.feat" most variable features
+    feat_tmps <- ts_collapsed %>%
+        select(-contains("Lag"))
+    feat_tmps$sd <- apply(feat_tmps %>% select(-feature, -group),
+                          1, sd, na.rm = TRUE)
+
+    feat_sd <- feat_tmps %>%
+        group_by(group) %>%
+        top_n(n = n.top.feat, wt = sd) 
+    top_features <- unique(feat_sd[["feature"]])
 
     # Aggregate timecourses across all "groups" and recompute lags
-    if(length(groups) > 1) {
-        message("Averaging timecourses over all \"groups\" selected ",
-                        "and recomputing lags with coefficients: ",
-                        paste0(lambda, collapse = " "))
-        tc_data <- tc_data %>%
-            select(-contains("Lag_"), -group) %>%
+    if(length(groups.selected) > 1) {
+        message("Averaging timecourses over all 'groups' selected ",
+                "and recomputing lags with coefficients: ",
+                 paste0(lambda, collapse = " "))
+        ts_collapsed <- feat_tmps %>%
+            select(-group, -sd) %>%
             group_by(feature) %>%
             summarise_all(mean)
-        tc_lags <- add_lags_to_tc(tc_data %>% select(-feature), lambda = lambda)
-        tc_data <- cbind(feature = tc_data$feature, tc_lags)
+        ts_with_lags <- .addLagsToTimeSeries(
+            ts_collapsed %>% select(-feature), lambda = lambda)
+        ts_collapsed <- cbind(feature = ts_collapsed$feature, ts_with_lags)
     } else {
-        tc_data <- select(tc_data, -group)
+        ts_collapsed <- select(feat_tmps, -group)
     }
-
+    
     # Cluster a subset of features
-    tc_subset <- tc_data %>%
+    ts_subset <- ts_collapsed %>%
         filter(feature %in% top_features) %>%
         column_to_rownames("feature")
-    clust_params_update[["X"]] <- tc_subset
-    res_cluster_subset <- do.call(cluster_data, clust_params_update)
+    clust_params_update[["X"]] <- ts_subset
+    res_cluster_subset <- do.call(clusterData, clust_params_update)
     cluster_hclust <- res_cluster_subset$hclust
     clust_map <- res_cluster_subset$clust_map %>%
         select(feature, cluster)
@@ -252,10 +263,10 @@ cluster_timecourse_features <- function(
         column_to_rownames("cluster")
 
     # Assign the rest of the genes to the closest cluster centroid
-    tc_remain <- tc_data %>%
+    ts_remain <- ts_collapsed %>%
         filter(!feature %in% clust_map$feature) %>%
         column_to_rownames("feature")
-    dist_to_nearest_clust <- proxy::dist(tc_remain, clust_centroids)
+    dist_to_nearest_clust <- proxy::dist(ts_remain, clust_centroids)
     clst.remain <- apply(dist_to_nearest_clust, 1, function(x) {
         colnames(dist_to_nearest_clust)[which.min(x)]
     })
@@ -263,14 +274,15 @@ cluster_timecourse_features <- function(
         feature = names(clst.remain),
         cluster = clst.remain,
         stringsAsFactors = FALSE)
+    clust_map$used_for_hclust <- rep(TRUE, nrow(clust_map))
+    clust_map_remain$used_for_hclust <- rep(FALSE, nrow(clust_map_remain))
     cluster_map = rbind(clust_map, clust_map_remain)
-    feature_data(object) <- suppressMessages(
-        feature_data(object) %>%
-            left_join(cluster_map)
+    rowData(object) <- suppressMessages(
+        DataFrame(as.data.frame(rowData(object)) %>% left_join(cluster_map))
     )
-    clust_res <- list(hclust = cluster_hclust,
-        cluster_map = cluster_map)
-    slot(object, name = "cluster.features", check = TRUE) <- clust_res
+    res_cluster_subset$final_cluster_map <- cluster_map
+    slot(object, name = "clusterAssignment", check = TRUE) <- 
+      res_cluster_subset
     return(object)
 }
 

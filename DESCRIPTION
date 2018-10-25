@@ -1,8 +1,8 @@
-Package: vistimeseq
+Package: TimeSeriesExperiment
 Type: Package
-Title: Analysis for short time-course sequencing data
-Version: 0.99.5
-Date: 2018-09-30
+Title: Analysis for short time-series data
+Version: 0.99.0
+Date: 2018-10-24
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
 Description: Visualization and analysis toolbox for short time course data
@@ -14,16 +14,13 @@ Depends:
   R (>= 3.5)
 VignetteBuilder: knitr
 Imports:
-    Biobase,
-    circlize,
+    BiocGenerics,
     dynamicTreeCut,
     dplyr,
     edgeR,
     DESeq2,
-    ggplot2,
+    ggplot2 (>= 3.0.0),
     graphics,
-    grDevices,
-    grid,
     Hmisc,
     limma,
     methods,
@@ -32,25 +29,30 @@ Imports:
     RColorBrewer,
     stats,
     SummarizedExperiment,
+    S4Vectors,
     tibble,
     tidyr,
     vegan,
     viridis,
     utils
 Suggests:
+    Biobase,
     BiocFileCache (>= 1.5.8),
-    knitr,
+    circlize,
+    ComplexHeatmap,
     GO.db,
+    grDevices,
+    grid,
+    knitr,
     org.Mm.eg.db,
     org.Hs.eg.db,
     MASS,
     rmarkdown,
-    ComplexHeatmap,
     UpSetR,
 Encoding: UTF-8
 RoxygenNote: 6.1.0
 biocViews: TimeCourse, Sequencing, RNASeq, Microbiome,
     GeneExpression, Transcription, Normalization, DifferentialExpression,
     PrincipalComponent, Clustering, Visualization, Pathways
-BugReports: https://github.com/nlhuong/vistimeseq/issues
-URL: https://github.com/nlhuong/vistimeseqv
+BugReports: https://github.com/nlhuong/TimeSeriesExperiment/issues
+URL: https://github.com/nlhuong/TimeSeriesExperiment
