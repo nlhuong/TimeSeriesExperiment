@@ -109,16 +109,15 @@ utilities to avoid uneccessary multiple downloading.
 library(BiocFileCache)
 bfc <- BiocFileCache(ask = FALSE)
 
-cnts <- read_csv(
-  bfcrpath(BiocFileCache(ask = FALSE), rnames = urls[1])) %>%
+cnts <- read_csv(bfcrpath(rnames = urls[1])) %>%
   column_to_rownames("X1") %>%
   as.matrix()
-gene.data <- read_csv(
-  bfcrpath(BiocFileCache(ask = FALSE), rnames = urls[2])) %>%
+
+gene.data <- read_csv(bfcrpath(rnames = urls[2])) %>%
   as.data.frame() %>%
   column_to_rownames("X1")
-pheno.data <- read_csv(
-  bfcrpath(BiocFileCache(ask = FALSE), rnames = urls[3])) %>%
+
+pheno.data <- read_csv(bfcrpath(rnames = urls[3])) %>%
   as.data.frame() %>%
   column_to_rownames("X1")
 ```
