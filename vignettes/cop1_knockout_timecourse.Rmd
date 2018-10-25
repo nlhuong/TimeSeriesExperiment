@@ -72,9 +72,9 @@ First we load the necessary packages.
 
 ```{r message=FALSE, warning=FALSE}
 .packages <- c(
-  "edgeR", "viridis", "vistimeseq", "Biobase",
+  "edgeR", "viridis", "Biobase", "SummarizedExperiment", 
   "ggplot2", "dplyr", "tidyr", "tibble", "readr",
-  "SummarizedExperiment")
+  "vistimeseq")
 sapply(.packages, require, character.only = TRUE)
 theme_set(theme_bw())
 theme_update(text = element_text(size = 15))
@@ -611,7 +611,8 @@ at any of the timepoints
 de_genes <- lapply(tmp_de, function(x) x$symbol)
 de_any_tmp <- unique(unlist(de_genes))
 cat("Out of all", n_features(cop1_timeseq), ", there were",
-    length(de_any_tmp), "were found differentially expressed at any timepoint.")
+    length(de_any_tmp), "were found differentially expressed ",
+    "at any timepoint.")
 ```
 
 A useful diagram would show intersections of differentially
