@@ -4,8 +4,6 @@
 
 ### Helpers - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-#' @importFrom SummarizedExperiment Assays 
-#' @importFrom S4Vectors SimpleList DataFrame
 .resetResults <- function(object){
     slot(object, name = "assays", check = TRUE) <- 
       Assays(SimpleList(list(raw = object@assays[["raw"]])))
@@ -32,38 +30,15 @@
 
 
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-#' @title Dimension names getters and  setters for \code{TimeSeriesExperiment} 
-#' object.
-#' @description \code{colnames()}, \code{rownames()}
-#' can be used to reset the dimensions, column and row names respectively. 
-#' The data will be updated across all slots of \code{TimeSeriesExperiment}.
-#' @details Setting \code{colnames()} automatically updates
-#' information in  \code{dimensionReduction} slot.
-#' 
-#' @docType methods
-#' @name colnames
-#' @rdname dimnames
-#'
-#' @param x a \code{TimeSeriesExperiment} object.
-#' @param value a character vector or a list of two character
-#' vectors with new dimension names.
-#' 
-#' @return a character vector
+
 #' @importFrom methods slot slot<-
-#' @importMethodsFrom BiocGenerics "colnames<-"
-#' @exportMethod colnames<-
-#' @examples
-#' data("endoderm_small")
-#' head(colnames(endoderm_small))
-#' colnames(endoderm_small) <- paste0("Smp", 1:ncol(endoderm_small))
-#' head(colnames(endoderm_small))
-#' 
+#' @export
 setReplaceMethod(
   "colnames", "TimeSeriesExperiment", function(x, value) {
     if(length(value) != ncol(x))
       stop("Wrong length of substitute vector for colnames.")
-    newobject <- callNextMethod() 
-    
+    newobject <- x
+    colnames(newobject) <- value
     # Additionally modify the dimensionRediuction slot
     dimreds <- slot(newobject, "dimensionReduction")
     if(is.null(names(dimreds))) return(newobject)
@@ -77,26 +52,16 @@ setReplaceMethod(
 )
 
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-#' @details Setting \code{rownames()} automatically updates
-#' information in  \code{timeSeries}, \code{clusterAssignment} 
-#' and \code{dimensionReduction} slots.
-#' @docType methods
-#' @name rownames
-#' @rdname dimnames
-#' @importMethodsFrom BiocGenerics rownames rownames<-
+
 #' @importFrom methods slot slot<-
-#' @exportMethod rownames<-
-#' @examples
-#' data("endoderm_small")
-#' head(rownames(endoderm_small))
-#' rownames(endoderm_small) <- paste0("Feat", 1:nrow(endoderm_small))
-#' head(rownames(endoderm_small))
+#' @export
 setReplaceMethod(
     "rownames", "TimeSeriesExperiment", function(x, value) {
     if(length(value) != nrow(x))
         stop("Wrong length of substitute vector for rownames.")
     old_rownames <- rownames(x)
-    newobject <- callNextMethod() 
+    newobject <- x
+    rownames(newobject) <- value
     
     ts <- slot(newobject, "timeSeries")
     for(i in seq_along(slot(newobject, "timeSeries"))){
@@ -147,42 +112,9 @@ setReplaceMethod(
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-#' @title Row data getter and setter for \code{TimeSeriesExperiment}
-#' 
-#' @description \code{rowData()} holds information on individual features 
-#' including corresponding feature name in column 'feature'.
-#'
-#' @docType methods
-#' @name rowData
-#' @rdname rowData
-#'
-#' @param x a \code{TimeSeriesExperiment} object.
-#' @param value a \code{DataFrame} with new feature data
-#' @param ... argiments to other functions.
-#' 
-#' @return a \code{data.frame}
-#' @importMethodsFrom SummarizedExperiment rowData rowData<-
-#' 
-#' @examples
-#' data("endoderm_small")
-#' head(rowData(endoderm_small))
-#' rowData(endoderm_small) <- data.frame(
-#'     feature = rowData(endoderm_small)$feature,
-#'     random = sample(nrow(endoderm_small), nrow(endoderm_small)))
-#' head(rowData(endoderm_small))
-#' 
-#' @export
-#' @importMethodsFrom SummarizedExperiment rowData
-setMethod("rowData", "TimeSeriesExperiment", function(x, ...) {
-  out <- callNextMethod()
-  return(out)
-})
 
-#' @rdname rowData
-#' @importFrom methods slot slot<-
-#' @importMethodsFrom SummarizedExperiment rowData "rowData<-"
-#' @importFrom S4Vectors DataFrame
-#' @exportMethod "rowData<-"
+#' @importMethodsFrom SummarizedExperiment "rowData<-"
+#' @export
 setReplaceMethod("rowData", "TimeSeriesExperiment", function(x, ..., value) {
     if(nrow(value) != nrow(x))
         stop("nrow(value) does not match the input object dimensions.")
@@ -199,43 +131,9 @@ setReplaceMethod("rowData", "TimeSeriesExperiment", function(x, ..., value) {
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#' @title Column data getter and setter for \code{TimeSeriesExperiment}
-#'
-#' @description \code{colData()} slots holds information on individual 
-#' samples including corresponding sample name in column 'sample' as well as 
-#' time, group and replicate.
-#' @details The setter also updates the information in \code{timepoint}, 
-#' \code{replicate} and \code{group} slots and resets the time-series
-#' analysis results to \code{NULL}.
-#'
-#' @docType methods
-#' @name colData
-#' @rdname colData
-#'
-#' @param x a \code{TimeSeriesExperiment} object
-#' @param value a \link{DataFrame} with new sample information
-#' @param ... argiments to other functions.
-#' @return a \link{DataFrame}
-#' @examples
-#' data("endoderm_small")
-#' head(colData(endoderm_small))
-#' newdf <- colData(endoderm_small)
-#' newdf$random <- sample(ncol(endoderm_small), ncol(endoderm_small))
-#' colData(endoderm_small) <- S4Vectors::DataFrame(newdf)
-#' head(colData(endoderm_small))
-#' 
-#' @export
-#' @importMethodsFrom SummarizedExperiment colData
-setMethod("colData", "TimeSeriesExperiment", function(x, ...) {
-    out <- callNextMethod()
-    return(out)
-})
 
-#' @rdname colData
-#' @importFrom methods slot slot<-
-#' @importMethodsFrom SummarizedExperiment colData "colData<-"
-#' @importFrom S4Vectors DataFrame
-#' @exportMethod "colData<-"
+#' @importMethodsFrom SummarizedExperiment "colData<-"
+#' @export
 setReplaceMethod(
   "colData", "TimeSeriesExperiment",
   function(x, ..., value) {
@@ -270,50 +168,10 @@ setReplaceMethod(
     }
 )
 
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#' @title Assay data for \code{TimeSeriesExperiment}
-#'
-#' @description Getter and setter methods for the assay slot
-#'
-#' @docType methods
-#' @name assays
-#' @rdname assays
-#'
-#' @param x a \code{TimeSeriesExperiment} object
-#' @param value a \link{DataFrame} with new sample information
-#' @param ... argiments to other functions.
-#' @return a data matrix
-#' 
-#' @examples
-#' data("endoderm_small")
-#' head(colData(endoderm_small))
-#' newdf <- colData(endoderm_small)
-#' newdf$random <- sample(ncol(endoderm_small), ncol(endoderm_small))
-#' colData(endoderm_small) <- S4Vectors::DataFrame(newdf)
-#' head(colData(endoderm_small))
-#' 
-#' @export
-#' @importMethodsFrom SummarizedExperiment assays
-setMethod("assays", "TimeSeriesExperiment", function(x, ..., withDimnames=TRUE) {
-  out <- callNextMethod()
-  return(out)
-})
-
-#' @rdname assays
-#' @exportMethod "assays<-"
-#' @importMethodsFrom SummarizedExperiment assays<-
-setReplaceMethod(
-  f = "assays", signature = "TimeSeriesExperiment",
-  definition = function(x, ..., withDimnames=TRUE, value) {
-      newobj <- callNextMethod()
-      return(newobj)
-  } 
-)
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #' @title Timepoint information
 #' @docType methods
-#' @name timepoints
 #' @rdname timepoints
 #' @param object a \code{TimeSeriesExperiment} object.
 #' @param value a numeric vector with new time information.
@@ -366,7 +224,6 @@ setReplaceMethod(f = "timepoints", signature = "TimeSeriesExperiment",
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #' @title Group information 
 #' @docType methods
-#' @name groups
 #' @rdname groups
 #'
 #' @param object a \code{TimeSeriesExperiment} object.
@@ -417,7 +274,6 @@ setReplaceMethod(f = "groups", signature = "TimeSeriesExperiment",
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #' @title Replicate information
 #' @docType methods
-#' @name replicates
 #' @rdname replicates
 #'
 #' @param object a \code{TimeSeriesExperiment} object.
@@ -469,7 +325,6 @@ setReplaceMethod(f = "replicates", signature = "TimeSeriesExperiment",
 #' @description Assay and colData collapsed over replicates. The values 
 #' can be computed with set with \link{collapseReplicates} function.
 #' @docType methods
-#' @name assayCollapsed
 #' @rdname collapsed-data
 #' 
 #' @param object a \code{TimeSeriesExperiment} object.
@@ -515,7 +370,6 @@ setReplaceMethod(f = "assayCollapsed", signature = "TimeSeriesExperiment",
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #' @docType methods
-#' @name colDataCollapsed
 #' @rdname collapsed-data
 #' @export
 #' @examples
@@ -561,7 +415,6 @@ setReplaceMethod(f = "colDataCollapsed", signature = "TimeSeriesExperiment",
 #' @details \code{timeSeries} slot is a list with 'ts' and (optionally) 
 #' 'ts_collapsed' storing data formatted as time-series/time-courses.
 #' @docType methods
-#' @name timeSeries
 #' @rdname timeSeries
 #' @param object a \code{TimeSeriesExperiment} object.
 #' @param name a character string, one of 'ts', 'ts_with_lags', 'ts_collapsed'
@@ -616,7 +469,6 @@ setReplaceMethod(f = "timeSeries", signature = "TimeSeriesExperiment",
 #' \code{data.frames}: 'pca_sample', 'pca_feature' and 'pca_eigs' storing 
 #' results from a PCA projection.
 #' @docType methods
-#' @name dimensionReduction
 #' @rdname dimensionReduction
 #' @param object a \code{TimeSeriesExperiment} object.
 #' @param name one of elements of 'dimensionReduction' slot: 'pca_sample', 
@@ -658,7 +510,6 @@ setMethod(
 #' function.
 #'
 #' @docType methods
-#' @name clusterAssignment
 #' @rdname clusterAssignment
 #'
 #' @param object a \code{TimeSeriesExperiment} object.
@@ -717,7 +568,6 @@ setMethod("clusterMap", "TimeSeriesExperiment", function(object) {
 #' functions.
 #'
 #' @docType methods
-#' @name differentialExpression
 #' @rdname differentialExpression
 #'
 #' @param object a \code{TimeSeriesExperiment} object.
@@ -752,7 +602,6 @@ setMethod(
 ### ---------------------------------------------------------------------------
 #' @title show method for \code{TimeSeriesExperiment}
 #' @docType methods
-#' @name show
 #' @rdname show-methods
 #' @aliases show,TimeSeriesExperiment-method
 #' @param object A TimeSeriesExperiment object

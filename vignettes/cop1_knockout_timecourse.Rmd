@@ -41,7 +41,7 @@ and goodness of fit methods might be ineffective.
 Our approach are non-parametric and distance-based
 which gives the user a flexibility to incorporate
 different normalization techniques, and distance metrics.
-`vistimeseq` is a comprehensive time course
+`TimeSeriesExperiment` is a comprehensive time course
 analysis toolbox with methods for data visualization,
 clustering and differential expression analysis.
 Additionally, the package can perform enrichment
@@ -51,7 +51,7 @@ analysis for DE genes.
 Introduction {#introduction .unnumbered}
 ========================================
 
-We will demonstrate the effectiveness of `vistimeseq` package using
+We will demonstrate the effectiveness of `TimeSeriesExperiment` package using
 the in-house dataset exploring the role of Cop1 in pro-inflammatory response.
 The experiments were designed to study the induction and repression kinetics
 of genes in bone marrow derived macrophages (BMDMs).
@@ -73,11 +73,14 @@ First we load the necessary packages.
 ```{r message=FALSE, warning=FALSE}
 .packages <- c(
   "edgeR", "viridis", "Biobase", "SummarizedExperiment", 
-  "ggplot2", "dplyr", "tidyr", "tibble", "readr",
-  "vistimeseq")
+  "ggplot2", "dplyr", "tidyr", "tibble", "readr", 
+  "TimeSeriesExperiment")
 sapply(.packages, require, character.only = TRUE)
 theme_set(theme_bw())
-theme_update(text = element_text(size = 15))
+theme_update(
+  text = element_text(size = 15),
+  strip.background = element_rect(fill = "grey70"),
+  strip.text = element_text(size = 10))
 ```
 
 The dataset we will study is available from GEO repositories under
@@ -98,7 +101,6 @@ urls <- paste0(
         "GSE114762_sample_info.csv.gz"
     )
 )
-
 ```
 
 
@@ -123,67 +125,66 @@ pheno.data <- read_csv(bfcrpath(rnames = urls[3])) %>%
 ```
 
 
-Building `vistimeseq` object {#build-object .unnumbered}
+Building `TimeSeriesExperiment` object {#build-object .unnumbered}
 ========================================================
 
 We can now combine all the data, `cnts`, `gene.data` and `pheno.data`,
-into a single `vistimeseq` (S4) object. The data will store everything
-together in a way that is easier to perform further time course data
-analysis. The most important fields in the object are "raw.data",
-"sample.data" which will contain information on group, replicate
-and time associated with each sample. In `vistimeseq` the time
-variablie MUST be numeric, if not, one must first convert it.
+into a single `TimeSeriesExperiment` (S4) object. The data will store 
+everything together in a way that is easier to perform further time course 
+data analysis. The most important fields in the object are "assays",
+"colData" which will contain information on group, replicate
+and time associated with each sample. In `TimeSeriesExperiment` 
+the time variablie MUST be numeric.
 
 ```{r}
-cop1_timeseq <- vistimeseq(
-  project = "[NGS1474] Time course in vitro Cop1 KO in BMDMs",
-  raw.data = cnts,
-  feature.data = gene.data,
-  sample.data = pheno.data,
-  time_column = "time",
-  replicate_column = "replicate",
-  group_column = "group"
+cop1.te <- TimeSeriesExperiment(
+  assays = list(cnts),
+  rowData = gene.data,
+  colData = pheno.data,
+  timepoint = "time",
+  replicate = "replicate",
+  group = "group"
 )
-cop1_timeseq
+cop1.te
 ```
 
 
-Alternatively, we can build `vistimeseq` object from a `ExpressionSet`
-or `SummarizedExperiment` objects.
+Alternatively, we can build `TimeSeriesExperiment` object from a 
+`ExpressionSet` or `SummarizedExperiment` objects.
 
 To show how this is done, we first combine the three data tables into
 an `ExpressionSet`  objects.
 
 ```{r}
-cop1_eset <- ExpressionSet(
+cop1.es <- ExpressionSet(
   as.matrix(cnts),
   phenoData = AnnotatedDataFrame(pheno.data),
   featureData = AnnotatedDataFrame(gene.data))
 ```
 
-Then, we can easily convert an `ExpressionSet` to a `vistimeseq` object using
-`vistimeseqFromExpressionSet()` funtion, and indicating columns names
-with relevant information.
+Then, we can easily convert an `ExpressionSet` to a `TimeSeriesExperiment` 
+object using `makeTimeSeriesExperimentFromExpressionSet()` funtion, and 
+indicating columns names with relevant information.
 
 ```{r}
-(cop1_vistimeseq <- vistimeseq_from_ExpressionSet(
-  cop1_eset, time_column = "time", group_column = "group",
-  replicate_column = "individual"))
+(cop1.te <- makeTimeSeriesExperimentFromExpressionSet(
+  cop1.es, timepoint = "time", group = "group",
+  replicate = "individual"))
 ```
 
 Repeating the same for `SummarizedExperiment`:
 
 ```{r}
-cop1_sumexp <- SummarizedExperiment(
+cop1.se <- SummarizedExperiment(
   assays = list(counts = cnts),
   rowData = gene.data, colData = pheno.data)
 
-(cop1_vistimeseq <- vistimeseq_from_SummarizedExperiment(
-  cop1_sumexp, time_column = "time", group_column = "group",
-  replicate_column = "individual"))
+(cop1.te <- makeTimeSeriesExperimentFromSummarizedExperiment(
+  cop1.se, time = "time", group = "group",
+  replicate = "individual"))
 
 # Remove raw data
-rm(cnts, gene.data, pheno.data, cop1_eset)
+rm(cnts, gene.data, pheno.data, cop1.se, cop1.es)
 ```
 
 
@@ -194,17 +195,17 @@ Data normalization and filtering {#norm-and-filter .unnumbered}
 The raw read counts cannot be immediately used for analysis, as
 sequencing data involves the issue of varying sample depths.
 We can convert the raw counts to counts per million (CPM)
-using `vistimeseq` function, `normalize_data()`, which performs
+using `TimeSeriesExperiment` function, `normalizeData()`, which performs
 data normalization by column. Currently, we only support scaling
 sample counts by constant factors (size factors). If the argumennt
-`column.scale.factor` is not specified, by default `vistimeseq` divides by
-column sums and multiplies by 1 million to obtain CPMs. The normalized
-data is stored separately from the raw data in a slot "data".
+`column.scale.factor` is not specified, by default `TimeSeriesExperiment` 
+divides by column sums and multiplies by 1 million to obtain CPMs. The 
+normalized data is stored separately from the raw data in a slot "data".
 
 
 ```{r}
-# Compute CPMs and store in cop1_timeseq@data
-cop1_timeseq <- normalize_data(cop1_timeseq)
+# Compute CPMs 
+cop1.te <- normalizeData(cop1.te)
 ```
 
 
@@ -213,7 +214,7 @@ rare ones which we assume to be too noisy and not containing enough signal
 for further analysis.
 
 Here, we find and remove all genes which have the mean expression (CPM) below
-`min_mean_cpm` = 50 within either of the two groups of interest,
+`min_mean_cpm = 50` within either of the two groups of interest,
 *wild type* or *knock-out*. We set a very large threshold of 100
 for this vignette only because the graphichs below would make the size of this
 vignette too large. When running on the your own study you should pick
@@ -222,19 +223,20 @@ the threshold more carefully.
 ```{r}
 # Fine genes with minimum mean count of 5 at least in one of the two groups
 min_mean_cpm <- 5
-group_cpm_means <- data.frame(row.names = feature_names(cop1_timeseq))
-for(g in unique(get_group(cop1_timeseq))) {
-  g_cnts <- get_data(cop1_timeseq)[ , which(get_group(cop1_timeseq) == g)]
+group_cpm_means <- data.frame(row.names = rownames(cop1.te))
+norm.cnts <- assays(cop1.te)$norm
+for(g in unique(groups(cop1.te))) {
+  g_cnts <- norm.cnts[ , which(groups(cop1.te) == g)]
   group_cpm_means[, g] <- apply(g_cnts, 1, mean)
 }
 group_cpm_max <- apply(as.vector(group_cpm_means), 1, max)
-genes_expressed <- feature_names(cop1_timeseq)[group_cpm_max > min_mean_cpm]
+genes_expressed <- rownames(cop1.te)[group_cpm_max > min_mean_cpm]
 ```
 
 ```{r}
 # Filter out the noisy genes
-cop1_timeseq <- filter_features(cop1_timeseq, genes_expressed)
-cop1_timeseq
+cop1.te <- filterFeatures(cop1.te, genes_expressed)
+cop1.te
 ```
 
 Note that here, we remove the majority of features and our results might be
@@ -247,30 +249,30 @@ Collapse replicates {#collapse-replicates .unnumbered}
 
 In parts of our later analysis, we will make comparisons between genes,
 and therefore it is useful to aggregate gene expression accross replicates
-to obtain their mean behaviour. To do this we can use `collapse_replicates()`
-function for `vistimeseq`. The function saves collapsed sample
+to obtain their mean behaviour. To do this we can use `collapseReplicates()`
+function for `TimeSeriesExperiment`. The function saves collapsed sample
 and aggregated expression data in "sample.data.collapsed", and "data.collapsed"
 respectively.
 
 ```{r}
-# Collapsed sample data stored in cop1_timeseq@sample.data.collapsed,
-# and mean expression values in cop1_timeseq@data.collapsed
-cop1_timeseq <- collapse_replicates(cop1_timeseq, FUN = mean)
+# Collapsed sample data stored in cop1.te@sample.data.collapsed,
+# and mean expression values in cop1.te@data.collapsed
+cop1.te <- collapseReplicates(cop1.te, FUN = mean)
 ```
 
 
 Time course format {#timecourse-format .unnumbered}
 ===================================================
 
-The main focus on `vistimeseq` is to analyze and visualize time-series
+The main focus on `TimeSeriesExperiment` is to analyze and visualize time-series
 data efficiently. For this reason, we convert the expression data in
 a form of a rectancular matrix into a "time-course format" where
 each row stores a single time series corresponding to a specified
 combination of group membership and and replicate id (here mouse id).
-This data wranggling step can be performed with `convert_to_timecourse()`
-function, the "time-course" will be stored in a slot `timecourse.data`.
+This data wranggling step can be performed with `makeTimeSeries()`
+function, the "time-course" will be stored in a slot `timeSeries`.
 This slot contains a list containing data.frames `tc` and `tc_collapsed`
-(if `data.collapsed` is defined).
+(if `assayCollapsed` is defined).
 
 Before converting data to "time-course" format, gene transformation
 should be performed. Transformation is thus allows
@@ -280,7 +282,7 @@ Since, we are generally more interested in grouping genes based on similarities
 in their trajectories rather than their absolute expression levels, the
 read counts must be transformed before computing the distances.
 
-Currently, gene transformation methods available in `vistimeseq` are
+Currently, gene transformation methods available in `TimeSeriesExperiment` are
 "scale_feat_sum" (scaling by gene sum) or "var_stab" (variance stabilization).
 The user can specifiy a variance stabilization method if "var_stab"
 is used. VST methods supported are: "log1p" (log plus one), "asinh"
@@ -294,9 +296,21 @@ of gene trajectories.
 ```{r}
 # Before conversion, scales gene expression to an even sum, for a fair
 # gene-to-gene comparison.
-cop1_timeseq <- convert_to_timecourse(
-  cop1_timeseq, feature.trans.method = "scale_feat_sum")
+cop1.te <- makeTimeSeries(
+    cop1.te, feature.trans.method = "scale_feat_sum")
 ```
+
+```{r}
+# untransfomed
+head(timeSeries(cop1.te, "ts"))
+```
+
+```{r}
+# transfomed
+head(timeSeries(cop1.te, "ts_trans"))
+```
+
+
 
 Lag differences {#lags .unnumbered}
 -----------------------------------
@@ -323,33 +337,32 @@ and so on. Intuitively, the lag 1 at time $i$ approximates the slope or the
 first derivative of the time series curve at time-point $i$.
 
 We can add these extra lag features to the "time-course" data using
-`add_lags()` function, whcih appends lag features to "tc" and "tc_collapsed"
-data frames in the slot `timecourse.data`. Additionally,the user can define
+`addLags()` function, whcih appends lag features to "tc" and "tc_collapsed"
+data frames in the slot `timeSeries`. Additionally,the user can define
 the weight for each lag feature by specifying the `lambda` argument.
 The length of `lambda` indicates how many orders of lags you would like
 to include, e.g. `lambda = c(0.5, 0.25)` means lag order 1 will be
 added with multiplicative weight of $0.5$ and lag order 2 will be added with
 weight $0.025$.
 
-
 ```{r}
 # Add lags to time-course data
-cop1_timeseq <- add_lags(cop1_timeseq, lambda = c(0.5, 0.25))
-head(time_course(cop1_timeseq))
-
-# similarly you can inspect the collapsed timecourses:
-# head(time_course(cop1_timeseq, collapsed = TRUE))
+cop1.te <- addLags(cop1.te, lambda = c(0.5, 0.25))
+head(timeSeries(cop1.te, "ts_trans"))
 ```
 
+
+
+
 At this point, we completed all data pre-processing steps available in
-`vistimeseq`. In later sections we specify how visualization, clustering
-and differential expression test can be performed with the package.
+`TimeSeriesExperiment`. In later sections we specify how visualization, 
+clustering and differential expression test can be performed with the package.
 
 
 Data Visualization {#datavis .unnumbered}
 =========================================
 
-In this section we show plotting utilities available in `vistimeseq`.
+In this section we show plotting utilities available in `TimeSeriesExperiment`.
 Visualizations are data exploration tools and serve as the first step in our
 data analysis. In the following subsections we will describe more in details
 how heatmaps and PCA plots can be generated.
@@ -362,8 +375,8 @@ The plot of the expression matrix for these most variable features will
 give us some insight whether there is  a clear difference between the
 two exprerimental groups and whether a strong temporal trend can be detected.
 
-```{r heatmap, fig.height=8, fig.width=7}
-plot_heatmap(cop1_timeseq, num.feat = 100)
+```{r heatmap, fig.height=9, fig.width=7}
+plotHeatmap(cop1.te, num.feat = 100)
 ```
 
 In the above heatmap the colums are ordered by experimental group, replicate
@@ -429,23 +442,24 @@ Additionally, the user might limit calculations to only specific group of
 samples, e.g. in this case you might be interested in visualizing samples
 only in the wild type group. A user can also indicate whether
 PCA should be applied to sample resolved data or one with replicates
-aggregated (stored in "data.collapsed" slot of a `vistimseq` object).
+aggregated (stored in "data.collapsed" slot of a `TimeSeriesExperiment` object).
 
 ```{r}
-cop1_timeseq <- run_pca(cop1_timeseq, var.stabilize.method = "asinh")
+cop1.te <- runPCA(cop1.te, var.stabilize.method = "asinh")
 ```
 
 ```{r pca-samples-group, fig.wide = TRUE, fig.height=3, fig.width=7}
-plot_sample_pca(cop1_timeseq, col.var = "group", size = 5)
+plotSamplePCA(cop1.te, col.var = "group", size = 5)
 ```
 
 ```{r pca-samples-time, fig.wide = TRUE, fig.height=3, fig.width=7}
-plot_sample_pca(cop1_timeseq, col.var = "time", size = 5)
+plotSamplePCA(cop1.te, col.var = "timepoint", size = 5)
 ```
 
 In the plots above we see that the samples group mostly by time at which
 they have benn sequences. For some time-points, we see also a clear separation
 between sample from different experimental groups.
+
 
 Visualizing Features {#feat-vis .unnumbered}
 -------------------------------------------------
@@ -478,11 +492,11 @@ between groups.
 
 
 ```{r pca-genes, fig.width = 7, fig.height = 6}
-plot_ts_pca(
-  cop1_timeseq,
-  linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
-  main = paste("Visualizing gene profiles with PCA"),
-  col = adjustcolor("grey77", alpha=0.7))
+plotTimeSeriesPCA(
+    cop1.te,
+    linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
+    main = paste("Visualizing gene profiles with PCA"),
+    col = adjustcolor("grey77", alpha=0.7))
 ```
 
 
@@ -491,7 +505,7 @@ Gene Clustering {#clustering .unnumbered}
 =========================================
 
 To cluster the gene trajectories we will use the data stored in
-`timecourse.data` slot of `cop1_timeseq`. These are time-series
+`timeSeries` slot of `cop1.te`. These are time-series
 of transformed expression values together with appended time lags
 which relsoving differences between the temporal trends.
 
@@ -500,7 +514,7 @@ Either static or dynamic branch cutting (from `dynamicTreeCut` package)
 algorithms can be used to assign clusters. Since hierarchical clustering
 is computationally intensive (with $O(n^3)$ complexity for standard
 implementations), we apply it only to a subset of genes.
-Specifically, we pick `n_top_genes` with average (over replicates) most
+Specifically, we pick `n.top.feat` with average (over replicates) most
 variable expression over time in each of selected `groups` (here
 we use both wild type and knock-out) to perform clustering. Remaining genes
 are, then, assigned to a cluster with the closest centroid. An additional
@@ -513,20 +527,19 @@ number of genes after filtering.
 
 ```{r}
 params_for_clustering <- list(
-  dynamic = TRUE,
+  dynamic = TRUE, 
   dynamic_cut_params = list(deepSplit = TRUE, minModuleSize = 150))
 
-cop1_timeseq <- cluster_timecourse_features(
-  cop1_timeseq, n_top_feat = 3000, groups = "all",
-  clust_params = params_for_clustering)
-
+cop1.te <- clusterTimeSeries(
+  cop1.te, n.top.feat = 3000, groups = "all",
+  clust.params = params_for_clustering)
 ```
 
 We can see the size of each of clusters computed
 
 ```{r}
 # See the count of genes in each cluster
-cluster_map <- get_cluster_map(cop1_timeseq)
+cluster_map <- clusterMap(cop1.te)
 table(cluster_map$cluster)
 ```
 
@@ -535,7 +548,7 @@ performed.
 
 ```{r hclust-dendrogram, fig.width = 7, fig.height = 4}
 # Plot the hierarchical clustering of genes2cluster
-hclust_obj <- get_cluster_hclust(cop1_timeseq)
+hclust_obj <- clusterAssignment(cop1.te, "hclust")
 plot(x = hclust_obj, labels = FALSE, xlab = "genes", sub = "")
 ```
 
@@ -545,8 +558,10 @@ for wild type and knock-out are plotted separately, side by side.
 
 
 ```{r gene-clusters, fig.width = 7, fig.height = 5.5, fig.wide = TRUE}
-plot_ts_clusters(cop1_timeseq, transparency = 0.2) +
-  scale_color_manual(values = c("WT" = "#1f78b4", "Loxp" = "#e31a1c"))
+plotTimeSeriesClusters(cop1.te, transparency = 0.2) +
+    scale_color_manual(values = c("WT" = "#1f78b4", "Loxp" = "#e31a1c")) +
+    theme(strip.text = element_text(size = 10)) +
+    ylim(NA, 0.55)
 ```
 
 
@@ -573,19 +588,19 @@ at specific timepoints between different experimental groups, here wild type
 and knock-out. We can easily test differental expression at any timepoint
 over the course of the study using standard DE approaches.
 
-`vistimeseq` provides a wrapper `timepoint_de()` for differental expression
-testing functions (`voom()` + `limma()`) from `limma` package, which allows
-users to easily apply testing to `vistimeseq` objects.
+`TimeSeriesExperiment` provides a wrapper `timepointDE()` for differental 
+expression testing functions (`voom()` + `limma()`) from `limma` package, which 
+allows users to easily apply testing to `TimeSeriesExperiment` objects.
 
 
-```{r, include = FALSE, echo = TRUE}
-cop1_timeseq <- timepoint_de(cop1_timeseq, timepoints = "all", alpha = 0.05)
+```{r}
+cop1.te <- timepointDE(cop1.te, timepoints = "all", alpha = 0.05)
 ```
 
 Information on DE genes e.g. at timepoint 2.5 can be access as follows:
 
 ```{r}
-tmp_de <- get_diff_expr(cop1_timeseq, "timepoint_de")
+tmp_de <- differentialExpression(cop1.te, "timepoint_de")
 # First 6 DE genes at timepoint = 2.5:
 head(tmp_de$`2.5`)
 ```
@@ -595,11 +610,12 @@ the following commands:
 
 ```{r}
 top10_genes <- sapply(tmp_de, function(tab) {
-  top10 <- tab %>% arrange(-logFC) %>% .[["symbol"]] %>% .[1:10]
-  if(length(top10) < 10)
-    top10 <- c(top10, rep(NA, 10 - length(top10)))
-  return(top10)
-}) %>% as.data.frame()
+    top10 <- tab %>% arrange(-logFC) %>% .[["symbol"]] %>% .[1:10]
+    if(length(top10) < 10)
+      top10 <- c(top10, rep(NA, 10 - length(top10)))
+    return(top10)
+  }) %>% 
+  as.data.frame()
 top10_genes
 ```
 
@@ -609,9 +625,8 @@ at any of the timepoints
 ```{r}
 de_genes <- lapply(tmp_de, function(x) x$symbol)
 de_any_tmp <- unique(unlist(de_genes))
-cat("Out of all", n_features(cop1_timeseq), ", there were",
-    length(de_any_tmp), "were found differentially expressed ",
-    "at any timepoint.")
+cat("Out of all", nrow(cop1.te), ", there were",
+    length(de_any_tmp), "were found differentially expressed at any timepoint.")
 ```
 
 A useful diagram would show intersections of differentially
@@ -665,22 +680,23 @@ high probability not significant, and use the $R^2$ value (the percenteage
 variance explained by groups) for ranking the genes in terms of the
 difference in expression profiles between two groups.
 
-Function `trajectory_de()` can be used to find differential genes using
-the above described method. Results of testing procedure are saved in
-`cop1_timeseq@diff.expr$trajectory_de`.
+Function `trajectoryDE()` can be used to find differential genes using
+the above described method. Results of testing procedure can be accessed with:
+`differentialExpression(cop1.te, "trajectory_de")`.
 
 ```{r, eval = FALSE}
-cop1_timeseq <- trajectory_de(cop1_timeseq, dist_method = "euclidean")
-de_trajectory_res <- get_diff_expr(cop1_timeseq, "trajectory_de")
-saveRDS(de_trajectory_res, "de_trajectory_cop1_full.rds")
+cop1.te <- trajectoryDE(cop1.te, dist_method = "euclidean")
+de_trajectory_res <- differentialExpression(cop1.te, "trajectory_de")
+saveRDS(de_trajectory_res, "de_trajectory_cop1.rds")
 ```
 
 ```{r echo = FALSE}
-de_trajectory_res <- readRDS("de_trajectory_cop1_full.rds")
+de_trajectory_res <- readRDS("de_trajectory_cop1.rds")
 ```
 
+
 ```{r}
-head(de_trajectory_res)
+head(de_trajectory_res, 20)
 ```
 
 
@@ -688,7 +704,7 @@ head(de_trajectory_res)
 You can filter out the genes based on the $R^2$ value (the percenteage
 variance explained by groups). There are `r sum(de_trajectory_res$R2 > 0.7)`
 genes with $R^2 \ge 0.7$ which constitutes a fraction of
-`r sum(de_trajectory_res$R2 > 0.7)/n_features(cop1_timeseq)`
+`r sum(de_trajectory_res$R2 > 0.7)/nrow(cop1.te)`
 of all the genes in the dataset.
 
 Here we print out 20 of the genes with highest $R^2$ value and
@@ -701,14 +717,15 @@ evenly into 2 groups (0.1 = 2/(6 choose 3)).
 # Select top most different genes across two groups
 n_genes <- 20
 genes_with_de_trajectory <- de_trajectory_res %>%
-  filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
-  arrange(-R2)
+    filter(pval <= max(0.05, min(pval)), R2 > 0.7) %>%
+    arrange(-R2)
 (genes_to_plot <- genes_with_de_trajectory$feature[1:n_genes])
 ```
 
+
 ```{r genes-de-trajectory, fig.width = 7, fig.height = 5.5, fig.wide = TRUE}
-plot_time_series(cop1_timeseq, features = genes_to_plot) +
-  scale_color_manual(values = c("WT" =  "#1f78b4", "Loxp" = "#e31a1c"))
+plotTimeSeries(cop1.te, features = genes_to_plot) +
+    scale_color_manual(values = c("WT" =  "#1f78b4", "Loxp" = "#e31a1c"))
 ```
 
 
@@ -716,7 +733,7 @@ Note, that in this analysis of variance approach we can specify a distance
 metric. Additionally, if you are interested in finding out genes DE in
 specific time intervals e.g. beginning or end of an experiment, you can
 choose to keep only the timepoints of interest are remove the rest from
-the time-courses stored in `cop1_timeseq@timecourse.data$tc`.
+the time-courses stored in `cop1.te@timecourse.data$tc`.
 `trajectory_de()` would then compute the distance for the specified
 time period and return DE genes at these specific time intervals.
 
@@ -731,7 +748,7 @@ We use publicly available reference databases to find relevant pathways.
 
 You can select any list of genes for this step. However, the method
 is intended for sets of genes found differentially expressed using methods
-provided by `vistimeseq`, discussed in the previous section.
+provided by `TimeSeriesExperiment`, discussed in the previous section.
 
 Below, we use genes with DE trajectory, selected in the previous section.
 There are `r length(genes_with_de_trajectory$feature)` in the set:
@@ -749,35 +766,36 @@ Below we plot expression profiles of selected DE genes, separated according
 to their cluster assignment.
 
 ```{r de-gene-clusters, fig.width = 8, fig.height = 6, fig.wide = TRUE}
-plot_ts_clusters(cop1_timeseq, transparency = 0.5,
-                 features = genes_with_de_trajectory$feature) +
+plotTimeSeriesClusters(
+  cop1.te, transparency = 0.5,
+  features = genes_with_de_trajectory$feature) +
   scale_color_manual(values = c("WT" = "#1f78b4", "Loxp" = "#e31a1c"))
 ```
 
 
 We can test sets  (clusters) of DE genes individually for pathway enrichment
-using `pathway_enrichment()` which is built on top of `goanna()` and `kegga()`
+using `pathwayEnrichment()` which is built on top of `goanna()` and `kegga()`
 functions from `limma` package. The `features` argument provided
-to `pathway_enrichment()` must be Entrez Gene IDs. The user must also
+to `pathwayEnrichment()` must be Entrez Gene IDs. The user must also
 specify the relevant species. Optionally, the user can modify the filtering
 parameters applied to enrichment results: `fltr_DE`, `fltr_N`, and
-`fltr_P.DE`. For details see the documentation `?pathway_enrichment`.
+`fltr_P.DE`. For details see the documentation `?pathwayEnrichment`.
 
 
 ```{r, eval = FALSE}
-enrich_res <- pathway_enrichment(
-  object = cop1_timeseq,
+enrich_res <- pathwayEnrichment(
+  object = cop1.te,
   features = genes_with_de_trajectory$feature,
   species = "Mm", ontology ="BP")
-saveRDS(enrich_res, "enrich_res_cop1_full.rds")
+saveRDS(enrich_res, "enrich_res_cop1.rds")
 ```
 
 ```{r echo = FALSE}
-enrich_res <- readRDS("enrich_res_cop1_full.rds")
+enrich_res <- readRDS("enrich_res_cop1.rds")
 ```
 
 We can plot enrichment results for genes with differential trajectory
-in each cluster separately using `plot_enrichment()`.
+in each cluster separately using `plotEnrichment()`.
 Here we plot the top `n_max = 15` terms for each cluster.
 Next to enrichment terms, in the brackets, we have included information on
 the exact number of DE genes in a set (DE) and the size of the reference
@@ -788,7 +806,7 @@ Below we print we print for example a plot for cluster C2 and C6
 
 ```{r go-enrich-clst-c2,  fig.width = 7, fig.height = 3, fig.wide = TRUE}
 clst <- "C2"
-plot_enrichment(
+plotEnrichment(
     enrich = enrich_res[[clst]], n_max = 15) +
   ggtitle(paste0("Cluster , ", clst, " enrichment"))
 ```

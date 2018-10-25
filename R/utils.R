@@ -34,7 +34,6 @@ NULL
 #' head(X)
 #' Y <- varianceStabilization(X, method = "asinh")
 #' head(Y)
-#'
 varianceStabilization <- function(X, method = "asinh") {
     X <- as.matrix(X)
     if(method == "none") {

@@ -1,7 +1,7 @@
 Package: TimeSeriesExperiment
 Type: Package
 Title: Analysis for short time-series data
-Version: 0.99.0
+Version: 0.99.6
 Date: 2018-10-24
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
@@ -11,10 +11,11 @@ Description: Visualization and analysis toolbox for short time course data
   methods for retrieving enriched pathways.
 License: LGPL (>= 3)
 Depends:
-  R (>= 3.5)
+  R (>= 3.5), 
+  S4Vectors (>= 0.19.23),
+  SummarizedExperiment (>= 1.11.6)
 VignetteBuilder: knitr
 Imports:
-    BiocGenerics,
     dynamicTreeCut,
     dplyr,
     edgeR,
@@ -26,10 +27,7 @@ Imports:
     methods,
     magrittr,
     proxy,
-    RColorBrewer,
     stats,
-    SummarizedExperiment,
-    S4Vectors,
     tibble,
     tidyr,
     vegan,
@@ -47,8 +45,19 @@ Suggests:
     org.Mm.eg.db,
     org.Hs.eg.db,
     MASS,
+    RColorBrewer,
     rmarkdown,
     UpSetR,
+Collate: 
+    TimeSeriesExperiment-class.R
+    TimeSeriesExperiment-methods.R
+    utils.R
+    pca.R
+    clustering.R
+    differential_expression.R
+    pathway_over_representation.R
+    plots.R
+    data.R
 Encoding: UTF-8
 RoxygenNote: 6.1.0
 biocViews: TimeCourse, Sequencing, RNASeq, Microbiome,

@@ -19,10 +19,10 @@ bioc_packages:
 
 script:
   - R CMD build --keep-empty-dirs --no-resave-data .
-  - R CMD check --no-vignettes --timings --no-multiarch vistimeseq_0.99.5.tar.gz 
+  - R CMD check --no-vignettes --timings --no-multiarch TimeSeriesExperiment_0.99.6.tar.gz 
   - echo "library(BiocCheck)" >> load_biocCheck.R
   - Rscript load_biocCheck.R
-  - R CMD BiocCheck --build-output-file=R.out --new-package vistimeseq_0.99.5.tar.gz
+  - R CMD BiocCheck --build-output-file=R.out --new-package TimeSeriesExperiment_0.99.6.tar.gz
 
 os:
   - linux

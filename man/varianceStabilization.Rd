@@ -27,5 +27,4 @@ X <- sapply(exp(rlnorm(10)), function(m) rnbinom(20, size = 1, mu = m))
 head(X)
 Y <- varianceStabilization(X, method = "asinh")
 head(Y)
-
 }

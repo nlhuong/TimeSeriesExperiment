@@ -48,12 +48,12 @@ pheno.data <- data.frame(
 feature.data <- data.frame(
    feature = paste0("F", 1:100)
 )
-test_eset <- SummarizedExperiment::SummarizedExperiment(
+test_sumexp <- SummarizedExperiment::SummarizedExperiment(
    assays = list(counts = raw),
    rowData = feature.data, colData = pheno.data)
 test_TimeSeriesExperiment <- 
 makeTimeSeriesExperimentFromSummarizedExperiment(
-   test_eset, timepoint = "time", group = "group",
+   test_sumexp, timepoint = "time", group = "group",
    replicate = "replicate")
 test_TimeSeriesExperiment
 
