@@ -18,17 +18,13 @@ bioc_packages:
 # customize build to add biocCheck
 
 script:
-  - R CMD build .
-  - R CMD check --no-build-vignettes vistimeseq_0.99.5.tar.gz
+  - R CMD build --keep-empty-dirs --no-resave-data .
+  - R CMD check --no-vignettes --timings --no-multiarch vistimeseq_0.99.5.tar.gz 
   - echo "library(BiocCheck)" >> load_biocCheck.R
   - Rscript load_biocCheck.R
-  - R CMD BiocCheck --new-package vistimeseq_0.99.5.tar.gz
+  - R CMD BiocCheck --build-output-file=R.out --new-package vistimeseq_0.99.5.tar.gz
 
 os:
   - linux
   - osx
 
-# script:
-#  - R CMD build . --no-resave-data --no-manual
-# after_success:
-#  - R CMD BiocCheck --new-package --no-check-vignettes vistimeseq_0.99.5.tar.gz
