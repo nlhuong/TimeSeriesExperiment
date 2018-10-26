@@ -342,7 +342,7 @@ makeTimeSeriesExperimentFromSummarizedExperiment <- function(
 #' @title TimeSeriesExperiment constructor from ExpressionSet
 #' @description \code{TimeSeriesExperiment} constructor initializes the 
 #' \code{TimeSeriesExperiment} object from 
-#' \link[Biobase:ExpressionSet]{Biobase::ExpressionSet}
+#' \code{ExpressionSet}
 #' and populates the time, replicate, and group slots.
 #'
 #' @details \code{TimeSeriesExperiment} is an extension of 

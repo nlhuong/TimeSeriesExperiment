@@ -19,12 +19,11 @@ bioc_packages:
 
 script:
   - R CMD build .
-  - R CMD check --no-vignettes --timings --no-multiarch TimeSeriesExperiment_0.99.8.tar.gz 
+  - R CMD check --no-vignettes --timings --no-multiarch TimeSeriesExperiment_0.99.9.tar.gz 
   - echo "library(BiocCheck)" >> load_biocCheck.R
   - Rscript load_biocCheck.R
-  - R CMD BiocCheck --new-package TimeSeriesExperiment_0.99.8.tar.gz
+  - R CMD BiocCheck --new-package TimeSeriesExperiment_0.99.9.tar.gz
 
 os:
   - linux
-  - osx
 
