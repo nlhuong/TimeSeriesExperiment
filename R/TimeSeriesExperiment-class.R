@@ -281,7 +281,6 @@ TimeSeriesExperiment <- function(
 #' and populates the time, replicate, and group slots.
 #' @details \code{TimeSeriesExperiment} is an extension of 
 #' \code{SummarizedExperiment} class.
-#' @name TimeSeriesExperiment-from-sexp
 #' @param se  \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
 #' object
 #' @param timepoint a vector indicating timepoint at which each sample 
@@ -342,13 +341,13 @@ makeTimeSeriesExperimentFromSummarizedExperiment <- function(
 #'
 #' @title TimeSeriesExperiment constructor from ExpressionSet
 #' @description \code{TimeSeriesExperiment} constructor initializes the 
-#' \code{TimeSeriesExperiment} object from \link[Biobase]{ExpressionSet}
+#' \code{TimeSeriesExperiment} object from 
+#' \link[Biobase:ExpressionSet]{Biobase::ExpressionSet}
 #' and populates the time, replicate, and group slots.
 #'
 #' @details \code{TimeSeriesExperiment} is an extension of 
 #' \code{SummarizedExperiment} class.
 #' 
-#' @name TimeSeriesExperiment-from-eset
 #' @param eset ExpressionSet object
 #' @param timepoint a vector indicating timepoint at which each sample 
 #' was collected or a character string equal to one of the column names 

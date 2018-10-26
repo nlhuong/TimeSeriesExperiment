@@ -15,7 +15,7 @@
 \item{value}{a \link{DataFrame} with new sample information}
 }
 \value{
-a \link[S4Vectors]{DataFrame}
+a \link[S4Vectors:DataFrame-class]{S4Vectors::DataFrame}
 }
 \description{
 \code{colData()} slots holds information on individual 

@@ -15,7 +15,7 @@
 \item{value}{a \code{DataFrame} with new feature data}
 }
 \value{
-a \link[S4Vectors]{DataFrame}
+a \link[S4Vectors:DataFrame-class]{S4Vectors::DataFrame}
 }
 \description{
 \code{rowData()} holds information on individual features 

@@ -146,7 +146,7 @@ setReplaceMethod(
 #' @param value a \code{DataFrame} with new feature data
 #' @param ... argiments to other functions.
 #' 
-#' @return a \link[S4Vectors]{DataFrame}
+#' @return a \link[S4Vectors:DataFrame-class]{S4Vectors::DataFrame}
 #' 
 #' @examples
 #' data("endoderm_small")
@@ -193,7 +193,7 @@ setReplaceMethod("rowData", "TimeSeriesExperiment", function(x, ..., value) {
 #' @param x a \code{TimeSeriesExperiment} object
 #' @param value a \link{DataFrame} with new sample information
 #' @param ... argiments to other functions.
-#' @return a \link[S4Vectors]{DataFrame}
+#' @return a \link[S4Vectors:DataFrame-class]{S4Vectors::DataFrame}
 #' @examples
 #' data("endoderm_small")
 #' head(colData(endoderm_small))
