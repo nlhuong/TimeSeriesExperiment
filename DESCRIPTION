@@ -1,7 +1,7 @@
 Package: TimeSeriesExperiment
 Type: Package
 Title: Analysis for short time-series data
-Version: 0.99.6
+Version: 0.99.7
 Date: 2018-10-24
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>

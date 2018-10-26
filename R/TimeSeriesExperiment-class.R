@@ -169,8 +169,9 @@ setValidity2("TimeSeriesExperiment", .valid.TimeSeriesExperiment)
 
 
 #' @importFrom S4Vectors DataFrame SimpleList
-#' @importFrom SummarizedExperiment rowData
-#' @importFrom SummarizedExperiment assays assays<- 
+#' @importMethodsFrom SummarizedExperiment colData colData<-
+#' @importMethodsFrom SummarizedExperiment rowData rowData<-
+#' @importMethodsFrom  SummarizedExperiment assays assays<- 
 .processSE <- function(se, timepoint, group, replicate) {
       nSamples <- ncol(se)
       nFeatures <- nrow(se)
@@ -234,7 +235,7 @@ setValidity2("TimeSeriesExperiment", .valid.TimeSeriesExperiment)
 #' S4 methods \code{list} and \code{matrix}, arguments identical to those 
 #' of the \code{SimpleList} method.
 #' @return Returns an initialized TimeSeriesExperiment object.
-#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom SummarizedExperiment SummarizedExperiment colData
 #' @importFrom S4Vectors DataFrame
 #' @export
 #' @examples
@@ -276,12 +277,12 @@ TimeSeriesExperiment <- function(
 #' @title TimeSeriesExperiment constructor from SummarizedExperiment
 #' @description \code{TimeSeriesExperiment} constructor initializes the 
 #'  object from 
-#' \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment:: SummarizedExperiment}
+#' \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
 #' and populates the time, replicate, and group slots.
 #' @details \code{TimeSeriesExperiment} is an extension of 
 #' \code{SummarizedExperiment} class.
 #' @name TimeSeriesExperiment-from-sexp
-#' @param se  \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment:: SummarizedExperiment}
+#' @param se  \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
 #' object
 #' @param timepoint a vector indicating timepoint at which each sample 
 #' was collected or a character string equal to one of the column names 
@@ -295,8 +296,8 @@ TimeSeriesExperiment <- function(
 #' \code{SummarizedExperiment} If not specified, the replicate is set to 'R1' 
 #' for each sample.
 #'
-#' @return Returns an initialized TimeSeriesExperiment object.
-#' @importFrom SummarizedExperiment colData
+#' @return Returns an initialized \code{TimeSeriesExperiment} object.
+#' @importMethodsFrom  SummarizedExperiment colData
 #' @importFrom S4Vectors DataFrame
 #' @export
 #'

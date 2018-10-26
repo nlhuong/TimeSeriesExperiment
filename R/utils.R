@@ -298,7 +298,6 @@ makeTimeSeries <- function(
     if (!validObject(object)) 
         stop("Invalid TimeSeriesExperiment object.")
     if(!"norm" %in% names(assays(object))) {
-        message("Normalizing data...")
         object <- normalizeData(object)
     }
     message("Converting to timeseries format...")

@@ -41,7 +41,8 @@ plotHeatmap <- function(object, num.feat = 200, scale = TRUE,
                      "RColorBrewer")
     pkgs_missing <- setdiff(pkgs_needed, installed.packages()) 
     if (length(pkgs_missing) > 0) {
-      stop("Packages:", pkgs_missing, " needed for this function to work. ",
+      stop("Packages:", paste(pkgs_missing, collapse = ", "), 
+           " needed for this function to work. ",
            "Please install them.", call. = FALSE)
     }
     

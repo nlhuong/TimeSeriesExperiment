@@ -30,7 +30,30 @@
 
 
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+#' @title Row and column name getters and  setters 
+#' for \code{TimeSeriesExperiment} object.
+#' @description \code{colnames()}, \code{rownames()}
+#' can be used to reset the dimensions, column and row names respectively. 
+#' The data will be updated across all slots of \code{TimeSeriesExperiment}.
+#' @details Setting \code{colnames()} automatically updates
+#' information in  \code{dimensionReduction} slot.
+#' 
+#' @docType methods
+#' @rdname row_and_colnames
+#'
+#' @param x a \code{TimeSeriesExperiment} object.
+#' @param value a character vector or a list of two character
+#' vectors with new dimension names.
+#' 
+#' @return a character vector
+#' @examples
+#' data("endoderm_small")
+#' head(colnames(endoderm_small))
+#' colnames(endoderm_small) <- paste0("Smp", 1:ncol(endoderm_small))
+#' head(colnames(endoderm_small))
+#' 
 
+#' @rdname row_and_colnames
 #' @importFrom methods slot slot<-
 #' @export
 setReplaceMethod(
@@ -43,7 +66,7 @@ setReplaceMethod(
     dimreds <- slot(newobject, "dimensionReduction")
     if(is.null(names(dimreds))) return(newobject)
     for (name_mat in names(dimreds)[grep("_sample", names(dimreds))]) {
-        base::rownames(dimreds[[name_mat]]) <- value
+        rownames(dimreds[[name_mat]]) <- value
     }
     slot(newobject, "dimensionReduction") <- dimreds
     validObject(newobject)
@@ -51,8 +74,8 @@ setReplaceMethod(
   }
 )
 
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
+## - - - - - - - - - - - - - - - - - - - - - 
+#' @rdname row_and_colnames
 #' @importFrom methods slot slot<-
 #' @export
 setReplaceMethod(
@@ -88,7 +111,6 @@ setReplaceMethod(
     }
     slot(newobject, "dimensionReduction") <- dimreds
     
-
     de_res <- slot(newobject, "differentialExpression")
     if ("timepoint_de" %in% names(de_res)){
         for(tmp in names(de_res$timepoint_de)){
@@ -111,28 +133,79 @@ setReplaceMethod(
 )
 
 
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+#' @title Row data for \code{TimeSeriesExperiment}
+#' 
+#' @description \code{rowData()} holds information on individual features 
+#' including corresponding feature name in column 'feature'.
+#'
+#' @docType methods
+#' @rdname rowData
+#'
+#' @param x a \code{TimeSeriesExperiment} object.
+#' @param value a \code{DataFrame} with new feature data
+#' @param ... argiments to other functions.
+#' 
+#' @return a \link[S4Vectors]{DataFrame}
+#' 
+#' @examples
+#' data("endoderm_small")
+#' head(rowData(endoderm_small))
+#' rowData(endoderm_small) <- data.frame(
+#'     feature = rowData(endoderm_small)$feature,
+#'     random = sample(nrow(endoderm_small), nrow(endoderm_small)))
+#' head(rowData(endoderm_small))
+#' 
 
-#' @importMethodsFrom SummarizedExperiment "rowData<-"
+#' @rdname rowData
+#' @importMethodsFrom S4Vectors "mcols<-"
+#' @importFrom S4Vectors DataFrame
+#' @importFrom methods slot slot<-
 #' @export
 setReplaceMethod("rowData", "TimeSeriesExperiment", function(x, ..., value) {
     if(nrow(value) != nrow(x))
         stop("nrow(value) does not match the input object dimensions.")
-    if(!"feature" %in% base::colnames(value)) {
+    if(!"feature" %in% colnames(value)) {
         stop("rowData data must contain columns 'feature'.")
     }
     if(!all(value$feature == rownames(x))) {
-      rownames(x) <- value$feature
+        rownames(x) <- value$feature
     }
-    newobject <- callNextMethod()
-    validObject(newobject)
-    return(newobject)
+    mcols(x) <- DataFrame(value)
+    validObject(x)
+    return(x)
 })
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#' @title Column data for \code{TimeSeriesExperiment}
+#'
+#' @description \code{colData()} slots holds information on individual 
+#' samples including corresponding sample name in column 'sample' as well as 
+#' time, group and replicate.
+#' @details The setter also updates the information in \code{timepoint}, 
+#' \code{replicate} and \code{group} slots and resets the time-series
+#' analysis results to \code{NULL}.
+#'
+#' @docType methods
+#' @rdname colData
+#'
+#' @param x a \code{TimeSeriesExperiment} object
+#' @param value a \link{DataFrame} with new sample information
+#' @param ... argiments to other functions.
+#' @return a \link[S4Vectors]{DataFrame}
+#' @examples
+#' data("endoderm_small")
+#' head(colData(endoderm_small))
+#' newdf <- colData(endoderm_small)
+#' newdf$random <- sample(ncol(endoderm_small), ncol(endoderm_small))
+#' colData(endoderm_small) <- newdf
+#' head(colData(endoderm_small))
+#' 
 
-#' @importMethodsFrom SummarizedExperiment "colData<-"
+#' @rdname colData
+#' @importFrom methods slot slot<-
+#' @importFrom S4Vectors DataFrame
 #' @export
 setReplaceMethod(
   "colData", "TimeSeriesExperiment",
@@ -143,28 +216,27 @@ setReplaceMethod(
                'group', ", "and 'replicate'.")
         }
         old_colData <- colData(x)
-        print(value)
-        newobject <- callNextMethod()
+        slot(x, "colData", check = TRUE) <- DataFrame(value)
       
-        mgs <- NULL
+        msg <- NULL
         if(!all(value$group == old_colData$group)){
           msg <- c(msg, "new group assignment")
-          groups(newobject) <- value$group
+          groups(x) <- value$group
         }
         if(!all(value$replicate == old_colData$replicate)){
           msg <- c(msg, "new replicate assignment")
-          replicates(newobject) <- value$replicate
+          replicates(x) <- value$replicate
         }
         if(!all(value$timepoint == old_colData$timepoint)){
           msg <- c(msg, "new timepoint assignment")
-          timepoints(newobject) <- as.numeric(value$timepoint)
+          timepoints(x) <- as.numeric(value$timepoint)
         }
         if(length(msg)) {
           message(msg)
-          newobject <- .resetResults(newobject)
+          x <- .resetResults(x)
         }
-        validObject(newobject)
-        return(newobject)
+        validObject(x)
+        return(x)
     }
 )
 

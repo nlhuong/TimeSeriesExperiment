@@ -171,7 +171,7 @@ clusterData <- function(X, dist = "euclidean", dynamic = FALSE,
 #'
 #' @importFrom stats sd
 #' @importFrom dplyr select 
-#' @importFrom dplyr left_join group_by summarise_all contains top_n
+#' @importFrom dplyr left_join group_by summarise_all starts_with top_n
 #' @importFrom tibble column_to_rownames
 #' @importFrom proxy dist
 #' @importFrom methods slot<- validObject
@@ -216,16 +216,13 @@ clusterTimeSeries <- function(object, n.top.feat = 1000,
         object <- collapseReplicates(object)
         object <- makeTimeSeries(object)
     }
-    if(!any(grepl("Lag_", colnames(timeSeries(object, "ts_collapsed"))))){
-        object <- addLags(object, lambda = lambda)
-    }
     
     ts_collapsed <- timeSeries(object, "ts_collapsed") %>%
         select(-replicate) %>%
         filter(group %in% groups.selected)  # filter to only the chosen groups
     # Find top "n.top.feat" most variable features
     feat_tmps <- ts_collapsed %>%
-        select(-contains("Lag"))
+        select(-starts_with("Lag"))
     feat_tmps$sd <- apply(feat_tmps %>% select(-feature, -group),
                           1, sd, na.rm = TRUE)
 
@@ -247,9 +244,11 @@ clusterTimeSeries <- function(object, n.top.feat = 1000,
             ts_collapsed %>% select(-feature), lambda = lambda)
         ts_collapsed <- cbind(feature = ts_collapsed$feature, ts_with_lags)
     } else {
+        if(!any(grepl("Lag_", colnames(timeSeries(object, "ts_collapsed"))))){
+            object <- addLags(object, lambda = lambda)
+        }
         ts_collapsed <- select(feat_tmps, -group)
     }
-    
     # Cluster a subset of features
     ts_subset <- ts_collapsed %>%
         filter(feature %in% top_features) %>%

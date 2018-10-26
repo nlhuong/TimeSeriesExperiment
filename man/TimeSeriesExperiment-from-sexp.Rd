@@ -9,7 +9,7 @@ makeTimeSeriesExperimentFromSummarizedExperiment(se, timepoint = NULL,
   group = NULL, replicate = NULL)
 }
 \arguments{
-\item{se}{\link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment:: SummarizedExperiment}
+\item{se}{\link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
 object}
 
 \item{timepoint}{a vector indicating timepoint at which each sample 
@@ -27,12 +27,12 @@ or a character string equal to one of the column names of a supplied
 for each sample.}
 }
 \value{
-Returns an initialized TimeSeriesExperiment object.
+Returns an initialized \code{TimeSeriesExperiment} object.
 }
 \description{
 \code{TimeSeriesExperiment} constructor initializes the 
  object from 
-\link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment:: SummarizedExperiment}
+\link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
 and populates the time, replicate, and group slots.
 }
 \details{
