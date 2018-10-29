@@ -1,4 +1,10 @@
-CHANGES IN VERSION 0.99.0
------------------------
+CHANGES IN VERSION 0.99.0 (2018-10-04):
+------------------------
 
-    o prepare for Biocoductor submission
+    o   Submitted to Bioconductor
+
+
+CHANGES IN VERSION 0.99.6 (2018-10-24):
+------------------------
+
+    o   Change package main class to SummarizedExperiment extension.
