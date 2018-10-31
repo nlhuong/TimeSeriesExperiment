@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/nlhuong/TimeSeriesExperiment.svg?branch=master)](https://travis-ci.org/nlhuong/TimeSeriesExperiment)
+[![codecov](https://codecov.io/gh/nlhuong/TimeSeriesExperiment/branch/master/graph/badge.svg)](https://codecov.io/gh/nlhuong/TimeSeriesExperiment)
 
 # TimeSeriesExperiment
 Analysis and visualization of short time series data
