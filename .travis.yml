@@ -24,7 +24,8 @@ bioc_packages:
 env: _R_CHECK_CRAN_INCOMING_=FALSE
 os:
   - linux
-  - macos
+  - osx
+  - windows
 deploy:
   provider: releases
   skip_cleanup: true
