@@ -12,6 +12,7 @@ r_packages:
 - devtools
 - roxygen2
 - BiocManager
+- tidyverse
 bioc_required: true
 bioc_check: true
 bioc_packages:
