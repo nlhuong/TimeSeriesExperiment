@@ -12,6 +12,8 @@ r_packages:
 - roxygen2
 - BiocManager
 - tidyverse
+r_check_args:
+ - "--no-vignettes --timings --no-multiarch"
 bioc_required: true
 bioc_check: true
 bioc_packages:
