@@ -25,27 +25,26 @@ options(width = 200)
 Abstract {#abstract .unnumbered}
 ================================
 
-The analysis of time course data is non-trivial
-as in involves dependencies between data points.
+The analysis of time-series data is non-trivial
+as in involves dependencies between datapoints.
 Our package helps researchers analyze RNA-seq
 datasets which include gene expression measurements
 taken over time. The methods are specifically
 designed for at datasets with a small number of
-available replicates and time points is small,
-which is a typical case for RNA-seq time course
-studies. Short time courses are more difficult
-to analyze, as many statistical methods designed for
-time series data might require a minimum number
-of time points, e.g. functional data analysis (FDA)
-and goodness of fit methods might be ineffective.
-Our approach are non-parametric and distance-based
-which gives the user a flexibility to incorporate
-different normalization techniques, and distance metrics.
-`TimeSeriesExperiment` is a comprehensive time course
-analysis toolbox with methods for data visualization,
-clustering and differential expression analysis.
-Additionally, the package can perform enrichment
-analysis for DE genes.
+replicates and time points -- a typical case for 
+RNA-seq time course studies. Short time courses 
+are more difficult to analyze, as many statistical 
+methods designed for time-series data might require 
+a minimum number of time points, e.g. functional 
+data analysis (FDA) and goodness of fit methods might 
+be ineffective. Our approach is non-parametric 
+and gives the user a flexibility to incorporate 
+different normalization techniques, and distance
+metrics. `TimeSeriesExperiment` is a comprehensive 
+time course analysis toolbox with methods for data 
+visualization, clustering and differential expression
+analysis. Additionally, the package can perform
+enrichment analysis for DE genes.
 
 
 Introduction {#introduction .unnumbered}

@@ -60,8 +60,8 @@ Collate:
     data.R
 Encoding: UTF-8
 RoxygenNote: 6.1.0
-biocViews: TimeCourse, Sequencing, RNASeq, Microbiome,
-    GeneExpression, Transcription, Normalization, DifferentialExpression,
+biocViews: TimeCourse, Sequencing, RNASeq, Microbiome, GeneExpression, 
+    ImmunoOncology, Transcription, Normalization, DifferentialExpression,
     PrincipalComponent, Clustering, Visualization, Pathways
 BugReports: https://github.com/nlhuong/TimeSeriesExperiment/issues
 URL: https://github.com/nlhuong/TimeSeriesExperiment
