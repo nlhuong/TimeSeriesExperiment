@@ -1,0 +1,40 @@
+language: R
+sudo: false
+cache: packages
+warnings_are_errors: false
+# after_success:
+# - Rscript -e 'library(covr);codecov(quiet = FALSE)'
+r:
+- bioc-devel
+r_packages:
+- covr
+- devtools
+- roxygen2
+- BiocManager
+- tidyverse
+r_check_args:
+ - "--no-vignettes --timings --no-multiarch"
+bioc_required: true
+bioc_check: true
+bioc_packages:
+- BiocCheck
+- BiocFileCache
+- GenomeInfoDbData
+- GO.db
+- org.Mm.eg.db
+- org.Hs.eg.db
+env: _R_CHECK_CRAN_INCOMING_=FALSE
+os:
+  - linux
+#  - osx
+deploy:
+  provider: releases
+  skip_cleanup: true
+  overwrite: true
+  api_key:
+    secure: lfdwGKfX83z9ZRTWPoLiP4NzbhVoamNr0GX6fstNCtTHWh0V/bJzhs/+clP2avqFMiWVKFYip9ryjsLpVJW0EXT4mOE4YQpV1vHbn3QFyHNmKNnFz5Q5ds2TRcV8GLIazYjCi2819Qq/mBSGMwLYW+huyEPCEzbmc7cEDbsbHyMykq1dagMpBXUMESswVwBavvCY+xX1rbBn3iAVl7z2ify5x27/cYSXGCDVf9Gb8rFeLTbbz1I3sW17N2ot9un6EMQEe8epzzXytdHaRRoA4bmgO2KrdRYE2CPdSJ5odkVx+9zEfGabMSuhL2hnDZJBAZvFGpyVg5EG15IWrOGYEjqX2RKcmuT2wB9jnWkPggHHt/ss0aFYf+C0I91k/9tWd+0V8nC22+zcVcecfFc8NWy/ggwmGUEibav9dE4IVOy8xh73l+ZTxHCEkd2iQcjkQXfqTpjYGSeVAnA5So8FiXfn4c7MYAoD37UHR+K+yEKeNtqCYTYBanrTmtj4mQ2dQRBqR7yEWoALj+DMj3OEbwDfxtBXwt0IrQs27PIKwIxaSxKwSIe5NNHYntKOx+5TVqyun6re7XLTim029KJ63Mgqwq0rW9IFHiHdQ960PZTaSYgYWPJp6DmQLLFtr/8BVHTWYCpayrNZKWFLkKnQIFpeWPSm9i54RhT9aeEy8Jc=
+  file_glob: true
+  file: "TimeSeriesExperiment*.tar.gz"
+  on:
+    tags: true
+    repo: nlhuong/TimeSeriesExperiment
