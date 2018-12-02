@@ -1,17 +1,18 @@
 language: R
 sudo: false
-cache: packages
+cache:
+  packages: true
 warnings_are_errors: false
 # after_success:
 # - Rscript -e 'library(covr);codecov(quiet = FALSE)'
 r:
 - bioc-devel
 r_packages:
-- covr
+# - covr
+- tidyverse
 - devtools
 - roxygen2
 - BiocManager
-- tidyverse
 r_check_args:
  - "--no-vignettes --timings --no-multiarch"
 bioc_required: true
