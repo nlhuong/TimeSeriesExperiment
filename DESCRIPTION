@@ -1,7 +1,7 @@
 Package: TimeSeriesExperiment
 Type: Package
 Title: Analysis for short time-series data
-Version: 1.0.0
+Version: 1.1.0
 Date: 2018-10-29
 Author: Lan Huong Nguyen
 Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
@@ -11,7 +11,7 @@ Description: Visualization and analysis toolbox for short time course data
   methods for retrieving enriched pathways.
 License: LGPL (>= 3)
 Depends:
-  R (>= 3.5.1), 
+  R (>= 3.5.0),
   S4Vectors (>= 0.19.23),
   SummarizedExperiment (>= 1.11.6)
 VignetteBuilder: knitr
@@ -59,7 +59,7 @@ Collate:
     plots.R
     data.R
 Encoding: UTF-8
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 biocViews: TimeCourse, Sequencing, RNASeq, Microbiome, GeneExpression,
     ImmunoOncology, Transcription, Normalization, DifferentialExpression,
     PrincipalComponent, Clustering, Visualization, Pathways

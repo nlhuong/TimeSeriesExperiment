@@ -88,9 +88,10 @@ pathwayEnrichment <- function(object, features, species,
         species_db_pkg <- paste0("org.", species, ".eg.db")
         if (!requireNamespace(species_db_pkg, quietly = TRUE)) {
           stop("Package ", species_db_pkg, " needed for this function to work.",
-               "Please install it using ", 
-               "source(\"https://bioconductor.org/biocLite.R\") ",
-               "biocLite(", species_db_pkg, ")", call. = FALSE)
+               "Please install it using: \n", 
+               "if (!requireNamespace(\"BiocManager\", quietly = TRUE))\n",
+               "    install.packages(\"BiocManager\")\n",
+               "BiocManager::install(\"", species_db_pkg, "\")", call. = FALSE)
         }
     }
     res <- vector("list", length(unique(feature_df$cluster)))

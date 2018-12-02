@@ -85,7 +85,8 @@ plotHeatmap <- function(object, num.feat = 200, scale = TRUE,
                      length.out = 10),
         colors = viridis(10))
 
-    ha1 <- ComplexHeatmap::HeatmapAnnotation(smpdf,
+    ha1 <- ComplexHeatmap::HeatmapAnnotation(
+        df = smpdf, 
         col = list(group = group_cols, replicate = rep_cols, 
                    timepoint = time_cols))
 
