@@ -23,10 +23,8 @@ assignClusterStatic <- function(hclst, h = NULL, k = NULL) {
         data.frame("cluster" = clst) %>%
             rownames_to_column(var = "feature") %>%
             left_join(data_frame("feature" = hclst$labels, 
-                                 "leaf_order" = hclst$order)) %>% 
-            # arrange(leaf_ix) %>%
-            mutate(cluster = paste0("C", cluster))
-    )
+                                 "leaf_order" = hclst$order)))
+            # arrange(leaf_ix) 
     return(cluster)
 }
 
@@ -56,10 +54,7 @@ assignClusterDynamic <- function(hclst, max_height = 0.9, ...){
             rownames_to_column(var = "feature") %>%
             left_join(
                 data_frame("feature" = hclst$labels, "leaf_order" = hclst$order)
-            ) %>% 
-            # arrange(leaf_ix) %>%
-            mutate(cluster = paste0("C", cluster))
-    )
+            ))
     return(cluster)
 }
 
@@ -129,6 +124,7 @@ clusterData <- function(X, dist = "euclidean", dynamic = FALSE,
         # so we remove these features.
         clst.mapping <- clst.mapping[clst.mapping$cluster != "C0", ]
     }
+    
     # Compute cluster centroids
     clst.centroids <- suppressMessages(
         clst.mapping %>%
@@ -139,6 +135,7 @@ clusterData <- function(X, dist = "euclidean", dynamic = FALSE,
             summarise_all(mean) %>%
             data.frame(check.names = FALSE)
     )
+    
     return(list(settings = settings, hclust = hclst, 
                 clust_map = clst.mapping, clust_centroids = clst.centroids))
 }
@@ -271,15 +268,29 @@ clusterTimeSeries <- function(object, n.top.feat = 1000,
     })
     clust_map_remain <- data.frame(
         feature = names(clst.remain),
-        cluster = clst.remain,
-        stringsAsFactors = FALSE)
+        cluster = clst.remain)
     clust_map$used_for_hclust <- rep(TRUE, nrow(clust_map))
     clust_map_remain$used_for_hclust <- rep(FALSE, nrow(clust_map_remain))
-    cluster_map = rbind(clust_map, clust_map_remain)
+    final_cluster_map = rbind(clust_map, clust_map_remain)
     rowData(object) <- suppressMessages(
-        DataFrame(as.data.frame(rowData(object)) %>% left_join(cluster_map))
+        DataFrame(as.data.frame(rowData(object)) %>% 
+                    left_join(final_cluster_map))
     )
-    res_cluster_subset$final_cluster_map <- cluster_map
+    freq_df <- final_cluster_map %>%
+      group_by(cluster) %>%
+      summarise(freq = n()) %>%
+      arrange(desc(freq)) %>%
+      mutate(cluster_name = paste0("C", seq_len(nrow((.)))))
+
+    final_cluster_map <- final_cluster_map %>%
+      mutate(cluster = factor(
+        cluster, levels = freq_df$cluster, labels = freq_df$cluster_name))
+
+    res_cluster_subset$clust_map <- res_cluster_subset$clust_map %>%
+      mutate(cluster = factor(
+        cluster, levels = freq_df$cluster, labels = freq_df$cluster_name))
+    
+    res_cluster_subset$final_cluster_map <- final_cluster_map
     slot(object, name = "clusterAssignment", check = TRUE) <- 
       res_cluster_subset
     return(object)
