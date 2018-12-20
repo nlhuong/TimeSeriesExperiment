@@ -57,7 +57,7 @@ of genes in bone marrow derived macrophages (BMDMs).
 
 The dataset includes cells from 6 mice. The cells were divided into two equal
 groups. For one group the Cop1 gene was in vitro knock out with tamoxifen.
-All samples where then subject to LPS treatment to induce an inflamatory
+All samples where then subject to LPS treatment to induce an inflammatory
 response. Bulk RNA-seq was performed at 6 time-points: one at time 0 before
 LPS treatment, then at time 2.5, 4, 6, 9 and 13 hours after LPS was added.
 
@@ -104,7 +104,7 @@ urls <- paste0(
 
 
 We will save the files to cache using `BiocFileCache`
-utilities to avoid uneccessary multiple downloading.
+utilities to avoid unnecessary multiple downloading.
 
 ```{r, message=FALSE, warning=FALSE}
 library(BiocFileCache)
@@ -133,7 +133,7 @@ everything together in a way that is easier to perform further time course
 data analysis. The most important fields in the object are "assays",
 "colData" which will contain information on group, replicate
 and time associated with each sample. In `TimeSeriesExperiment` 
-the time variablie MUST be numeric.
+the time variable MUST be numeric.
 
 ```{r}
 cop1.te <- TimeSeriesExperiment(
@@ -162,7 +162,7 @@ cop1.es <- ExpressionSet(
 ```
 
 Then, we can easily convert an `ExpressionSet` to a `TimeSeriesExperiment` 
-object using `makeTimeSeriesExperimentFromExpressionSet()` funtion, and 
+object using `makeTimeSeriesExperimentFromExpressionSet()` function, and 
 indicating columns names with relevant information.
 
 ```{r}
@@ -196,7 +196,7 @@ sequencing data involves the issue of varying sample depths.
 We can convert the raw counts to counts per million (CPM)
 using `TimeSeriesExperiment` function, `normalizeData()`, which performs
 data normalization by column. Currently, we only support scaling
-sample counts by constant factors (size factors). If the argumennt
+sample counts by constant factors (size factors). If the argument
 `column.scale.factor` is not specified, by default `TimeSeriesExperiment` 
 divides by column sums and multiplies by 1 million to obtain CPMs. The 
 normalized data is stored separately from the raw data in a slot "data".
@@ -215,7 +215,7 @@ for further analysis.
 Here, we find and remove all genes which have the mean expression (CPM) below
 `min_mean_cpm = 50` within either of the two groups of interest,
 *wild type* or *knock-out*. We set a very large threshold of 100
-for this vignette only because the graphichs below would make the size of this
+for this vignette only because the graphics below would make the size of this
 vignette too large. When running on the your own study you should pick
 the threshold more carefully.
 
@@ -238,17 +238,13 @@ cop1.te <- filterFeatures(cop1.te, genes_expressed)
 cop1.te
 ```
 
-Note that here, we remove the majority of features and our results might be
-inaccurate. However, this vignette's purpose is only to inform how the package
-work and not intended as the whod dataset analysis. We do this because
-of Bioconductor's constraint on file sizes.
 
 Collapse replicates {#collapse-replicates .unnumbered}
 ------------------------------------------------------
 
 In parts of our later analysis, we will make comparisons between genes,
-and therefore it is useful to aggregate gene expression accross replicates
-to obtain their mean behaviour. To do this we can use `collapseReplicates()`
+and therefore it is useful to aggregate gene expression across replicates
+to obtain their mean behavior. To do this we can use `collapseReplicates()`
 function for `TimeSeriesExperiment`. The function saves collapsed sample
 and aggregated expression data in "sample.data.collapsed", and "data.collapsed"
 respectively.
@@ -265,10 +261,10 @@ Time course format {#timecourse-format .unnumbered}
 
 The main focus on `TimeSeriesExperiment` is to analyze and visualize time-series
 data efficiently. For this reason, we convert the expression data in
-a form of a rectancular matrix into a "time-course format" where
+a form of a rectangular matrix into a "time-course format" where
 each row stores a single time series corresponding to a specified
 combination of group membership and and replicate id (here mouse id).
-This data wranggling step can be performed with `makeTimeSeries()`
+This data wrangling step can be performed with `makeTimeSeries()`
 function, the "time-course" will be stored in a slot `timeSeries`.
 This slot contains a list containing data.frames `tc` and `tc_collapsed`
 (if `assayCollapsed` is defined).
@@ -283,7 +279,7 @@ read counts must be transformed before computing the distances.
 
 Currently, gene transformation methods available in `TimeSeriesExperiment` are
 "scale_feat_sum" (scaling by gene sum) or "var_stab" (variance stabilization).
-The user can specifiy a variance stabilization method if "var_stab"
+The user can specify a variance stabilization method if "var_stab"
 is used. VST methods supported are: "log1p" (log plus one), "asinh"
 (inverse hyperbolic sine) or "deseq"
 (`DESeq2::varianceStabilizingTransformation`).
@@ -322,12 +318,12 @@ or splines to the data. A similar approach is taken in functional data analysis
 of basis functions (e.g. principal functions). These methods seek to smooth
 the data and to reduce of complexity of the inherent (infinite dimensional)
 functional data. The fitted coefficients are often used as the time-series
-representatiom then used for clustering or visualization.
+representation then used for clustering or visualization.
 
 Unfortunately, most of the biological time course studies are short, sometimes
 containing as few as three or four time-points. Therefore, fitting functions
 to sparse time points would be inefficient. Instead, here we propose a simpler
-way to incorporate the dependecy structure of the time-series. Our
+way to incorporate the dependency structure of the time-series. Our
 method involves construction of additional data features, which are lag
 differences between consecutive time-points. Lag of order 1 for time-point
 $i$, $Lag_1(i)$, denotes the difference between the expression level at time
@@ -336,7 +332,7 @@ and so on. Intuitively, the lag 1 at time $i$ approximates the slope or the
 first derivative of the time series curve at time-point $i$.
 
 We can add these extra lag features to the "time-course" data using
-`addLags()` function, whcih appends lag features to "tc" and "tc_collapsed"
+`addLags()` function, which appends lag features to "tc" and "tc_collapsed"
 data frames in the slot `timeSeries`. Additionally,the user can define
 the weight for each lag feature by specifying the `lambda` argument.
 The length of `lambda` indicates how many orders of lags you would like
@@ -372,13 +368,13 @@ Heatmaps {#heatmap .unnumbered}
 Here we will generate a heatmap of top 100 most variable genes.
 The plot of the expression matrix for these most variable features will
 give us some insight whether there is  a clear difference between the
-two exprerimental groups and whether a strong temporal trend can be detected.
+two experimental groups and whether a strong temporal trend can be detected.
 
 ```{r heatmap, fig.height=9, fig.width=7}
 plotHeatmap(cop1.te, num.feat = 100)
 ```
 
-In the above heatmap the colums are ordered by experimental group, replicate
+In the above heatmap the columns are ordered by experimental group, replicate
 (mouse id) and time at which the sample was sequenced; the sample membership
 is indicated in the color bars on top of the columns. The main heatmap
 rectangle shows Z-scores of expression values represented by colors in
@@ -392,11 +388,11 @@ PCA {#pca .unnumbered}
 ======================
 
 Another way to explore the dataset is through dimensionality reduction.
-Here we will project the data into a space of principal componets.
+Here we will project the data into a space of principal components.
 With PCA, you can visualize both samples and features in the same coordinates
 space with a biplot. Here we will keep these two maps separately,
 as the visualization can become overcrowded with points which obscure
-the inherent structure. Eventhough, we are plotting the feature and sample
+the inherent structure. Even though, we are plotting the feature and sample
 projections separately, they can be compared side by side to see
 which groups of features are more correlated with which group of samples.
 
@@ -410,14 +406,14 @@ in agreement with time in the PCA plot, there might be patterns in gene
 expression levels changing over the course of the study.
 
 A PCA plot can also be used to examine whether samples corresponding to the
-same condition, here wilde type or knockouts, tend to group together, i.e.
+same condition, here wild type or knockouts, tend to group together, i.e.
 whether they are more similar to each other than to the ones in a different
 condition. We use `prcomp()` function from `stats` (default) package to compute
 PCA projection.
 
 RNA-seq data is highly heteroscedastic, which means the features (genes)
 included have vastly different variances. It is know that bulk expression count
-data can be well modelled with a negative binomial distribution. In this
+data can be well modeled with a negative binomial distribution. In this
 distribution, variance is a quadratic function of the mean, $\sigma^2 = \mu +
 \alpha\mu^2$. That is the higher the mean expression level, the higher the
 variance is. PCA projection maximizes the amount variance preserved in
@@ -427,7 +423,7 @@ highly abundant genes.
 
 This step is recommended because RNA-seq data is highly heteroscedastic, which
 means the features (genes) included have vastly different variances. It is know
-that bulk expression count data can be well modelled with a negative binomial
+that bulk expression count data can be well modeled with a negative binomial
 distribution. In this distribution, variance is a quadratic function of the
 mean, $\sigma^2 = \mu + \alpha\mu^2$. That is the higher the mean expression
 level, the higher the variance is.
@@ -456,7 +452,7 @@ plotSamplePCA(cop1.te, col.var = "timepoint", size = 5)
 ```
 
 In the plots above we see that the samples group mostly by time at which
-they have benn sequences. For some time-points, we see also a clear separation
+they have been sequenced. For some time-points, we see also a clear separation
 between sample from different experimental groups.
 
 
@@ -475,7 +471,7 @@ In order to make PCA plots for features more informative, we overlay
 average (over replicates) gene expression trend over time for each experimental
 group. Plotting trajectories for every gene would make plot overcrowded and
 unreadable, therefore we divide the PCA plot into $m \times n$ grid and plot
-a trajectory for a gene whoch PCA coordinates are closes to the grid center
+a trajectory for a gene which PCA coordinates are closes to the grid center
 point.
 
 In the feature PCA plot below we see that genes exhibit different responses to
@@ -490,12 +486,13 @@ between groups.
 
 
 
-```{r pca-genes, fig.width = 7, fig.height = 6}
+```{r pca-genes, fig.width = 10, fig.height = 8}
 plotTimeSeriesPCA(
     cop1.te,
     linecol = c("WT" = "#e31a1c", "Loxp" = "#1f78b4"),
     main = paste("Visualizing gene profiles with PCA"),
-    col = adjustcolor("grey77", alpha=0.7))
+    m  = 15, n = 15, col = adjustcolor("grey77", alpha=0.7), 
+    cex.main = 3, cex.axis = 2, cex.lab = 2)
 ```
 
 
@@ -506,7 +503,7 @@ Gene Clustering {#clustering .unnumbered}
 To cluster the gene trajectories we will use the data stored in
 `timeSeries` slot of `cop1.te`. These are time-series
 of transformed expression values together with appended time lags
-which relsoving differences between the temporal trends.
+which resolving differences between the temporal trends.
 
 We use hierarchical clustering define gene groupings.
 Either static or dynamic branch cutting (from `dynamicTreeCut` package)
@@ -521,7 +518,7 @@ advantage of using only a subset of most variable genes for clustering is that,
 the core genes which exhibit negligible changes over time (which might be the
 majority of genes) will not much effect on clustering results.
 
-Here we pick 1000 genes for clustering, whcih is roughly 1/3 of the
+Here we pick 1000 genes for clustering, which is roughly 1/3 of the
 number of genes after filtering.
 
 ```{r}
@@ -579,15 +576,15 @@ how to find specific genes that exhibit different expression patterns
 between two experimental groups over the time-course of the study.
 
 
-Differential Pointwise Expression {#point-de .unnumbered}
+Differential Point-wise Expression {#point-de .unnumbered}
 -------------------------------------------------
 
 In some cases, a user might be interested in differential expression (DE)
 at specific timepoints between different experimental groups, here wild type
-and knock-out. We can easily test differental expression at any timepoint
+and knock-out. We can easily test differential expression at any timepoint
 over the course of the study using standard DE approaches.
 
-`TimeSeriesExperiment` provides a wrapper `timepointDE()` for differental 
+`TimeSeriesExperiment` provides a wrapper `timepointDE()` for differential 
 expression testing functions (`voom()` + `limma()`) from `limma` package, which 
 allows users to easily apply testing to `TimeSeriesExperiment` objects.
 
@@ -649,20 +646,20 @@ Differential Trajectories {#adonis .unnumbered}
 -------------------------------------------------
 
 Instead of looking at each time-point separately, it is often useful to
-indentifying genes which exhibit different expression trajectories,
+identifying genes which exhibit different expression trajectories,
 i.e. ones with differential kinetics over time. We take a most natural approach
 which can be applied to short time-course datasets, which is an analysis of
-variance. In particular we use a method based on non-parametric permuntation
+variance. In particular we use a method based on non-parametric permutation
 multivariate analysis of variance (MANOVA).
 
 To test each gene for differential trajectory under two conditions, we
 use the time-course format, where each row is a transformed
 time-series with lags corresponding to a single replicate within a particular
 group. `adonis()` function from `vegan` package is applied to find genes with
-differential trajectories. `adonis` apporach is based on partitioning the sums
+differential trajectories. `adonis` approach is based on partitioning the sums
 of squares of the multivariate (here time-series with lags) data to
 within and between-class. The significance is determined with an F-test on
-permitations of the data.
+permutations of the data.
 
 Using this procedure, here we will identify genes which have different
 trajectories within the wild type and knock-out group. This difference
@@ -675,7 +672,7 @@ multiple hypothesis testing correction (for testing thousands of genes),
 we expect the method's p-values to be mostly below significance level
 of $\alpha = 0.5$. However, this approach is still useful, as we can user
 raw (unadjusted) p-values to filter out the genes that are with
-high probability not significant, and use the $R^2$ value (the percenteage
+high probability not significant, and use the $R^2$ value (the percentage
 variance explained by groups) for ranking the genes in terms of the
 difference in expression profiles between two groups.
 
@@ -700,7 +697,7 @@ head(de_trajectory_res, 20)
 
 
 
-You can filter out the genes based on the $R^2$ value (the percenteage
+You can filter out the genes based on the $R^2$ value (the percentage
 variance explained by groups). There are `r sum(de_trajectory_res$R2 > 0.7)`
 genes with $R^2 \ge 0.7$ which constitutes a fraction of
 `r sum(de_trajectory_res$R2 > 0.7)/nrow(cop1.te)`
@@ -801,15 +798,21 @@ the exact number of DE genes in a set (DE) and the size of the reference
 enrichment term (N). The points are colored by this fraction. The size of
 the points correspond the enrichment term size (N).
 
-Below we print we print for example a plot for cluster C2 and C6
+Below we print we print for example a plot for cluster C4 and C5
 
-```{r go-enrich-clst-c2,  fig.width = 7, fig.height = 3, fig.wide = TRUE}
-clst <- "C2"
+```{r go-enrich-clst-c4,  fig.width = 8, fig.height = 4, fig.wide = TRUE}
+clst <- "C4"
 plotEnrichment(
     enrich = enrich_res[[clst]], n_max = 15) +
   ggtitle(paste0("Cluster , ", clst, " enrichment"))
 ```
 
+```{r go-enrich-clst-c5,  fig.width = 8, fig.height = 4, fig.wide = TRUE}
+clst <- "C5"
+plotEnrichment(
+    enrich = enrich_res[[clst]], n_max = 15) +
+  ggtitle(paste0("Cluster , ", clst, " enrichment"))
+```
 
 
 

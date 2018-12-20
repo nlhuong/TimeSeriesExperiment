@@ -160,6 +160,7 @@ setValidity2("TimeSeriesExperiment", .valid.TimeSeriesExperiment)
                     sample.data, sample = missing_sample_name,
                     group = gr, replicate = rep, timepoint = time_levels[i]
                 )
+                sample.names <- c(sample.names, missing_sample_name)
             }
         }
     }
