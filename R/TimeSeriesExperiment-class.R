@@ -207,8 +207,10 @@ setValidity2("TimeSeriesExperiment", .valid.TimeSeriesExperiment)
         message("Keeping only the first supplied assay.")
       }
       imputed <- .imputeData(assays(se)[[1]], colData(se))
-      colData(se)<- imputed$sample.data
-      assays(se) <- SimpleList(list(raw = assays(se)[[1]]))
+      se <- SummarizedExperiment(
+        (list(raw = as.matrix(imputed$raw.data))),
+        rowData = rowData(se),
+        colData  = imputed$sample.data)
       return(se)
 }
 
