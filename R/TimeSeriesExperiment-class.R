@@ -43,19 +43,19 @@
 #' @exportClass TimeSeriesExperiment
 #'
 .TimeSeriesExperiment <- setClass(
-    "TimeSeriesExperiment",
-    slots = representation(
-      timepoint = "numeric",
-      group = "ANY",
-      replicate = "ANY",
-      assayCollapsed = "matrix",
-      colDataCollapsed = "DataFrame",
-      timeSeries = "list",
-      dimensionReduction = "list",
-      clusterAssignment = "list",
-      differentialExpression = "list"
-    ),
-    contains="SummarizedExperiment"
+  "TimeSeriesExperiment",
+  slots = representation(
+    timepoint = "numeric",
+    group = "ANY",
+    replicate = "ANY",
+    assayCollapsed = "matrix",
+    colDataCollapsed = "DataFrame",
+    timeSeries = "list",
+    dimensionReduction = "list",
+    clusterAssignment = "list",
+    differentialExpression = "list"
+  ),
+  contains="SummarizedExperiment"
 )
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -70,8 +70,8 @@
     n <- length(slot(object, sl))
     if (n != nSamples) {
       msg <- c(msg, paste0(
-          "Length of ", sl, ", ", n, ", is not be equal to the number ",
-          "of samples in the TimeSeriesExperiment object, ", nSamples))
+        "Length of ", sl, ", ", n, ", is not be equal to the number ",
+        "of samples in the TimeSeriesExperiment object, ", nSamples))
     }
   }
   if(!is(slot(object, "colDataCollapsed"), "DataFrame")) {
@@ -82,9 +82,9 @@
   }
   if(ncol(slot(object, "assayCollapsed")) != 
      nrow(slot(object, "colDataCollapsed"))) {
-      msg <- c(
-        msg, paste0("ncol() of 'assayCollapsed' not equal to nrow",
-                    "of 'colDataCollapsed' slot."))
+    msg <- c(
+      msg, paste0("ncol() of 'assayCollapsed' not equal to nrow",
+                  "of 'colDataCollapsed' slot."))
   }
   if (length(msg)) msg else TRUE
 }
@@ -115,57 +115,57 @@ setValidity2("TimeSeriesExperiment", .valid.TimeSeriesExperiment)
 #' @importFrom tibble add_row
 .imputeData <- function(raw.data, sample.data) 
 {
-    group <- timepoint <- category <- NULL
-    if(!any(c("group", "replicate", "timepoint") %in% colnames(sample.data))) {
-        stop("Missing columns 'group', 'replicate', or ",
-             "'timepoint' in 'sample.data'")
-    }
-
-    time_levels <- sort(unique(sample.data$timepoint))
-    sample.names <- rownames(sample.data)
-    sample.data <- sample.data %>%
-        as.data.frame() %>%
-        mutate(category = paste0(group, "_", replicate))
-
-    for(id in unique(sample.data$category)) {
-        smp_gr_timepoint <- filter(sample.data, category == id)
-        gr <- strsplit(id, "_")[[1]][1]
-        rep <- strsplit(id, "_")[[1]][2]
-        missing_timepoint <- !(time_levels %in% smp_gr_timepoint$timepoint)
-        if(any(missing_timepoint)) {
-            message("Missing sample for group: ", gr, " replicate ", rep,
-                    " at timepoint ", time_levels[missing_timepoint], ".")
-            if (any(missing_timepoint[-1] & 
-                    missing_timepoint[-length(missing_timepoint)])) {
-                stop("Two or more consecutive samples are missing for the same",
-                     "group-replicate. Please fix the experimental design.")
-            }
-            message("Imputing counts for the missing sample...")
-            for (i in which(missing_timepoint)) {
-                t_surround <- time_levels[
-                    c(max(1, i -1), min(i+1, length(time_levels)))]
-                surrounding_samples <- smp_gr_timepoint %>% 
-                  filter(timepoint %in% t_surround)
-                surrounding_samples <- surrounding_samples[["sample"]]
-                if (length(surrounding_samples) == 1) {
-                    missing_sample <- raw.data[, surrounding_samples]
-                } else {
-                    missing_sample <- rowMeans(raw.data[, surrounding_samples])
-                }
-                raw.data <- cbind(raw.data, missing_sample)
-                missing_sample_name <- paste0(
-                  "Imputed_G", gr, "_R", rep, "_T", time_levels[i])
-                colnames(raw.data)[ncol(raw.data)] <- missing_sample_name
-                sample.data <- add_row(
-                    sample.data, sample = missing_sample_name,
-                    group = gr, replicate = rep, timepoint = time_levels[i]
-                )
-                sample.names <- c(sample.names, missing_sample_name)
-            }
+  group <- timepoint <- category <- NULL
+  if(!any(c("group", "replicate", "timepoint") %in% colnames(sample.data))) {
+    stop("Missing columns 'group', 'replicate', or ",
+         "'timepoint' in 'sample.data'")
+  }
+  
+  time_levels <- sort(unique(sample.data$timepoint))
+  sample.names <- rownames(sample.data)
+  sample.data <- sample.data %>%
+    as.data.frame() %>%
+    mutate(category = paste0(group, "_", replicate))
+  
+  for(id in unique(sample.data$category)) {
+    smp_gr_timepoint <- filter(sample.data, category == id)
+    gr <- strsplit(id, "_")[[1]][1]
+    rep <- strsplit(id, "_")[[1]][2]
+    missing_timepoint <- !(time_levels %in% smp_gr_timepoint$timepoint)
+    if(any(missing_timepoint)) {
+      message("Missing sample for group: ", gr, " replicate ", rep,
+              " at timepoint ", time_levels[missing_timepoint], ".")
+      if (any(missing_timepoint[-1] & 
+              missing_timepoint[-length(missing_timepoint)])) {
+        stop("Two or more consecutive samples are missing for the same",
+             "group-replicate. Please fix the experimental design.")
+      }
+      message("Imputing counts for the missing sample...")
+      for (i in which(missing_timepoint)) {
+        t_surround <- time_levels[
+          c(max(1, i -1), min(i+1, length(time_levels)))]
+        surrounding_samples <- smp_gr_timepoint %>% 
+          filter(timepoint %in% t_surround)
+        surrounding_samples <- surrounding_samples[["sample"]]
+        if (length(surrounding_samples) == 1) {
+          missing_sample <- raw.data[, surrounding_samples]
+        } else {
+          missing_sample <- rowMeans(raw.data[, surrounding_samples])
         }
+        raw.data <- cbind(raw.data, missing_sample)
+        missing_sample_name <- paste0(
+          "Imputed_G", gr, "_R", rep, "_T", time_levels[i])
+        colnames(raw.data)[ncol(raw.data)] <- missing_sample_name
+        sample.data <- add_row(
+          sample.data, sample = missing_sample_name,
+          group = gr, replicate = rep, timepoint = time_levels[i]
+        )
+        sample.names <- c(sample.names, missing_sample_name)
+      }
     }
-    rownames(sample.data) <- sample.names
-    return(list(raw.data = raw.data, sample.data = DataFrame(sample.data)))
+  }
+  rownames(sample.data) <- sample.names
+  return(list(raw.data = raw.data, sample.data = DataFrame(sample.data)))
 }
 
 
@@ -174,44 +174,44 @@ setValidity2("TimeSeriesExperiment", .valid.TimeSeriesExperiment)
 #' @importMethodsFrom SummarizedExperiment rowData rowData<-
 #' @importMethodsFrom  SummarizedExperiment assays assays<- 
 .processSE <- function(se, timepoint, group, replicate) {
-      nSamples <- ncol(se)
-      nFeatures <- nrow(se)
-      
-      if(is.null(colnames(se))) colnames(se) <- paste0("S", seq_len(nSamples))
-      if(is.null(rownames(se))) rownames(se) <- paste0("F", seq_len(nFeatures))
-      
-      if(all(!is.null(timepoint), timepoint %in% colnames(colData(se)))){
-        timepoint <- suppressMessages(as.numeric(colData(se)[[timepoint]]))
-      }
-      if (all(!is.null(replicate), replicate %in% colnames(colData(se)))) {
-        replicate <- colData(se)[[replicate]]
-      }
-      if (all(!is.null(group), group %in% colnames(colData(se)))){
-        group <- colData(se)[[group]]
-      }
-      if(any(is.null(timepoint), !is.numeric(timepoint), 
-             all(is.na(timepoint)), length(timepoint) != nSamples)) {
-        stop("Wrong timepoint input.")
-      }
-      if(is.null(replicate)) replicate <- rep("R1", nSamples)
-      if(is.null(group)) group <- rep("G1", nSamples)
-      
-      timepoint <- as.numeric(timepoint)
-      rowData(se)$feature   <- rownames(se)    
-      colData(se)$sample    <- colnames(se)
-      colData(se)$timepoint <- timepoint
-      colData(se)$group     <- group
-      colData(se)$replicate <- replicate
-      
-      if(length(assays(se)) > 1) {
-        message("Keeping only the first supplied assay.")
-      }
-      imputed <- .imputeData(assays(se)[[1]], colData(se))
-      se <- SummarizedExperiment(
-        (list(raw = as.matrix(imputed$raw.data))),
-        rowData = rowData(se),
-        colData  = imputed$sample.data)
-      return(se)
+  nSamples <- ncol(se)
+  nFeatures <- nrow(se)
+  
+  if(is.null(colnames(se))) colnames(se) <- paste0("S", seq_len(nSamples))
+  if(is.null(rownames(se))) rownames(se) <- paste0("F", seq_len(nFeatures))
+  
+  if(all(!is.null(timepoint), timepoint %in% colnames(colData(se)))){
+    timepoint <- suppressMessages(as.numeric(colData(se)[[timepoint]]))
+  }
+  if (all(!is.null(replicate), replicate %in% colnames(colData(se)))) {
+    replicate <- colData(se)[[replicate]]
+  }
+  if (all(!is.null(group), group %in% colnames(colData(se)))){
+    group <- colData(se)[[group]]
+  }
+  if(any(is.null(timepoint), !is.numeric(timepoint), 
+         all(is.na(timepoint)), length(timepoint) != nSamples)) {
+    stop("Wrong timepoint input.")
+  }
+  if(is.null(replicate)) replicate <- rep("R1", nSamples)
+  if(is.null(group)) group <- rep("G1", nSamples)
+  
+  timepoint <- as.numeric(timepoint)
+  rowData(se)$feature   <- rownames(se)    
+  colData(se)$sample    <- colnames(se)
+  colData(se)$timepoint <- timepoint
+  colData(se)$group     <- group
+  colData(se)$replicate <- replicate
+  
+  if(length(assays(se)) > 1) {
+    message("Keeping only the first supplied assay.")
+  }
+  imputed <- .imputeData(assays(se)[[1]], colData(se))
+  se <- SummarizedExperiment(
+    (list(raw = as.matrix(imputed$raw.data))),
+    rowData = rowData(se),
+    colData  = imputed$sample.data)
+  return(se)
 }
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -259,20 +259,20 @@ TimeSeriesExperiment <- function(
   group=character(0),
   replicate=character(0))
 {
-    se <- SummarizedExperiment(...)
-    se <- .processSE(se, timepoint, group, replicate)
-    object <- .TimeSeriesExperiment(
-      se, 
-      timepoint=colData(se)[["timepoint"]], 
-      group=colData(se)[["group"]], 
-      replicate=colData(se)[["replicate"]],  
-      assayCollapsed = matrix(0,0,0),
-      colDataCollapsed = DataFrame(),
-      timeSeries = list(),
-      dimensionReduction = list(),
-      clusterAssignment = list(),
-      differentialExpression = list())
-    return(object)
+  se <- SummarizedExperiment(...)
+  se <- .processSE(se, timepoint, group, replicate)
+  object <- .TimeSeriesExperiment(
+    se, 
+    timepoint=colData(se)[["timepoint"]], 
+    group=colData(se)[["group"]], 
+    replicate=colData(se)[["replicate"]],  
+    assayCollapsed = matrix(0,0,0),
+    colDataCollapsed = DataFrame(),
+    timeSeries = list(),
+    dimensionReduction = list(),
+    clusterAssignment = list(),
+    differentialExpression = list())
+  return(object)
 }
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -324,21 +324,21 @@ TimeSeriesExperiment <- function(
 makeTimeSeriesExperimentFromSummarizedExperiment <- function(
   se, timepoint = NULL, group = NULL, replicate = NULL) 
 {
-    if(!is(se, "SummarizedExperiment")) 
-        stop("'se' must be a SummarizedExperiment object")
-    se <- .processSE(se, timepoint, group, replicate)
-    object <- .TimeSeriesExperiment(
-        se, 
-        timepoint=colData(se)[[timepoint]], 
-        group=colData(se)[[group]], 
-        replicate=colData(se)[[replicate]],  
-        assayCollapsed = matrix(0, 0, 0),
-        colDataCollapsed = DataFrame(),
-        timeSeries = list(),
-        dimensionReduction = list(),
-        clusterAssignment = list(),
-        differentialExpression = list())
-    return(object)
+  if(!is(se, "SummarizedExperiment")) 
+    stop("'se' must be a SummarizedExperiment object")
+  se <- .processSE(se, timepoint, group, replicate)
+  object <- .TimeSeriesExperiment(
+    se, 
+    timepoint=colData(se)[["timepoint"]], 
+    group=colData(se)[["group"]], 
+    replicate=colData(se)[["replicate"]],  
+    assayCollapsed = matrix(0, 0, 0),
+    colDataCollapsed = DataFrame(),
+    timeSeries = list(),
+    dimensionReduction = list(),
+    clusterAssignment = list(),
+    differentialExpression = list())
+  return(object)
 }
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #'
@@ -390,11 +390,11 @@ makeTimeSeriesExperimentFromSummarizedExperiment <- function(
 #'
 #' 
 makeTimeSeriesExperimentFromExpressionSet <- function(
-    eset, timepoint = NULL, group = NULL, replicate = NULL) 
+  eset, timepoint = NULL, group = NULL, replicate = NULL) 
 {
-    se <- makeSummarizedExperimentFromExpressionSet(eset)
-    object <- makeTimeSeriesExperimentFromSummarizedExperiment(
-        se, timepoint, group, replicate)
-    return(object)
+  se <- makeSummarizedExperimentFromExpressionSet(eset)
+  object <- makeTimeSeriesExperimentFromSummarizedExperiment(
+    se, timepoint, group, replicate)
+  return(object)
 }
 
