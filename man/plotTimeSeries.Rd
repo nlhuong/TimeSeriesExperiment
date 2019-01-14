@@ -22,6 +22,8 @@ is plotted.}
 
 \item{ncol}{An integer indicating the number of columns for facetting.
 Default is 5.}
+
+\item{scales}{character scalar indecating facet scales, by default "free".}
 }
 \value{
 list of ggplot objects

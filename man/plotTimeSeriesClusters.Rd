@@ -14,7 +14,7 @@ plotTimeSeriesClusters(object, features = NULL, transparency = 0.5,
 
 \item{transparency}{transparency of trajectory lines.}
 
-\item{ncol}{number of columns in the facte plot.}
+\item{ncol}{number of columns in the factet plot.}
 
 \item{scales}{character scalar indecating facet scales, by default "free".}
 }

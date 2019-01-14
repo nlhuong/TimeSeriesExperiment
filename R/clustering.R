@@ -272,10 +272,7 @@ clusterTimeSeries <- function(object, n.top.feat = 1000,
     clust_map$used_for_hclust <- rep(TRUE, nrow(clust_map))
     clust_map_remain$used_for_hclust <- rep(FALSE, nrow(clust_map_remain))
     final_cluster_map = rbind(clust_map, clust_map_remain)
-    rowData(object) <- suppressMessages(
-        DataFrame(as.data.frame(rowData(object)) %>% 
-                    left_join(final_cluster_map))
-    )
+   
     freq_df <- final_cluster_map %>%
       group_by(cluster) %>%
       summarise(freq = n()) %>%
@@ -285,6 +282,11 @@ clusterTimeSeries <- function(object, n.top.feat = 1000,
     final_cluster_map <- final_cluster_map %>%
       mutate(cluster = factor(
         cluster, levels = freq_df$cluster, labels = freq_df$cluster_name))
+    
+    rowData(object) <- suppressMessages(
+      DataFrame(as.data.frame(rowData(object)) %>% 
+                  left_join(final_cluster_map))
+    )
 
     res_cluster_subset$clust_map <- res_cluster_subset$clust_map %>%
       mutate(cluster = factor(
