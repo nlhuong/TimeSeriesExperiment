@@ -5,7 +5,7 @@
 \title{Plot selected time series.}
 \usage{
 plotTimeSeries(object, features = rownames(object), trans = FALSE,
-  smooth = TRUE, ncol = 5)
+  smooth = TRUE, ncol = 5, scales = "free")
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object.}
