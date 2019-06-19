@@ -26,7 +26,7 @@ Abstract {#abstract .unnumbered}
 ================================
 
 The analysis of time-series data is non-trivial
-as in involves dependencies between datapoints.
+as in involves dependencies between data points.
 Our package helps researchers analyze RNA-seq
 datasets which include gene expression measurements
 taken over time. The methods are specifically
@@ -411,7 +411,7 @@ whether they are more similar to each other than to the ones in a different
 condition. We use `prcomp()` function from `stats` (default) package to compute
 PCA projection.
 
-RNA-seq data is highly heteroscedastic, which means the features (genes)
+RNA-seq data is highly heteroskedastic, which means the features (genes)
 included have vastly different variances. It is know that bulk expression count
 data can be well modeled with a negative binomial distribution. In this
 distribution, variance is a quadratic function of the mean, $\sigma^2 = \mu +
@@ -421,7 +421,7 @@ consecutive principal components, which implies that computing PCA on raw
 expression counts or even the RPKMs or CPMs would put too much weight on most
 highly abundant genes.
 
-This step is recommended because RNA-seq data is highly heteroscedastic, which
+This step is recommended because RNA-seq data is highly Heteroskedastic, which
 means the features (genes) included have vastly different variances. It is know
 that bulk expression count data can be well modeled with a negative binomial
 distribution. In this distribution, variance is a quadratic function of the
@@ -733,6 +733,10 @@ the time-courses stored in `cop1.te@timecourse.data$tc`.
 `trajectory_de()` would then compute the distance for the specified
 time period and return DE genes at these specific time intervals.
 
+```{r}
+plotTimeSeries(cop1.te, features = genes_to_plot) +
+    scale_color_manual(values = c("WT" =  "#1f78b4", "Loxp" = "#e31a1c"))
+```
 
 
 Functional pathways {#fun-path .unnumbered}

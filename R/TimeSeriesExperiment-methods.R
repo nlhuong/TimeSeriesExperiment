@@ -6,7 +6,7 @@
 
 .resetResults <- function(object){
     slot(object, name = "assays", check = TRUE) <- 
-      Assays(SimpleList(list(raw = object@assays[["raw"]])))
+      Assays(SimpleList(list(raw = assays(object)[["raw"]])))
     slot(object, name = "colDataCollapsed", check = TRUE) <- DataFrame()
     slot(object, name = "timeSeries", check = TRUE) <- list()
     slot(object, name = "dimensionReduction", check = TRUE) <- list()

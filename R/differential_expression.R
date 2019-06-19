@@ -67,7 +67,7 @@ timepointDE <- function(object, timepoints = "all",
         dsgn <- model.matrix(~ condition, dge$samples)
 
         # Voom normalization
-        v <- voom(dge, dsgn, plot = FALSE)
+        v <- voom(counts = dge, design = dsgn, plot = FALSE)
 
         # Fit the model
         fit <- lmFit(v, dsgn)

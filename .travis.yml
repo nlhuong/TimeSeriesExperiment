@@ -1,4 +1,4 @@
-language: R
+language: r
 sudo: false
 cache:
   packages: true
@@ -6,7 +6,8 @@ warnings_are_errors: false
 # after_success:
 # - Rscript -e 'library(covr);codecov(quiet = FALSE)'
 r:
-- bioc-release
+-bioc-devel
+#- bioc-release
 r_packages:
 # - covr
 - tidyverse
@@ -27,7 +28,7 @@ bioc_packages:
 env: _R_CHECK_CRAN_INCOMING_=FALSE
 os:
   - linux
-#  - osx
+  - osx
 deploy:
   provider: releases
   skip_cleanup: true
