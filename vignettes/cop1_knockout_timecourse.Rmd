@@ -111,15 +111,18 @@ library(BiocFileCache)
 bfc <- BiocFileCache(ask = FALSE)
 
 cnts <- read_csv(bfcrpath(rnames = urls[1])) %>%
+  remove_rownames() %>%
   column_to_rownames("X1") %>%
   as.matrix()
 
 gene.data <- read_csv(bfcrpath(rnames = urls[2])) %>%
   as.data.frame() %>%
+  remove_rownames() %>%
   column_to_rownames("X1")
 
 pheno.data <- read_csv(bfcrpath(rnames = urls[3])) %>%
   as.data.frame() %>%
+  remove_rownames() %>%
   column_to_rownames("X1")
 ```
 
@@ -606,7 +609,11 @@ the following commands:
 
 ```{r}
 top10_genes <- sapply(tmp_de, function(tab) {
-    top10 <- tab %>% arrange(-logFC) %>% .[["symbol"]] %>% .[1:10]
+    if(nrow(tab) == 0)
+      return(rep(NA, 10))
+    top10 <- tab %>% 
+      arrange(desc(abs(logFC))) %>%
+      .[["symbol"]] %>% .[1:10]
     if(length(top10) < 10)
       top10 <- c(top10, rep(NA, 10 - length(top10)))
     return(top10)

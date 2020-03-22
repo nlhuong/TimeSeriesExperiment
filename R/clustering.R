@@ -10,7 +10,7 @@
 #' @param k an integer scalar or vector with the desired number of groups
 #'
 #' @return a data.frame containing cluster assignments.
-#' @importFrom tibble rownames_to_column
+#' @importFrom tibble rownames_to_column remove_rownames
 #' @importFrom dplyr left_join arrange data_frame
 #' @importFrom stats cutree
 #' @export
@@ -249,6 +249,7 @@ clusterTimeSeries <- function(object, n.top.feat = 1000,
     # Cluster a subset of features
     ts_subset <- ts_collapsed %>%
         filter(feature %in% top_features) %>%
+        remove_rownames() %>%
         column_to_rownames("feature")
     clust_params_update[["X"]] <- ts_subset
     res_cluster_subset <- do.call(clusterData, clust_params_update)
@@ -256,11 +257,13 @@ clusterTimeSeries <- function(object, n.top.feat = 1000,
     clust_map <- res_cluster_subset$clust_map %>%
         select(feature, cluster)
     clust_centroids <-  res_cluster_subset$clust_centroids %>%
+        remove_rownames() %>%
         column_to_rownames("cluster")
 
     # Assign the rest of the genes to the closest cluster centroid
     ts_remain <- ts_collapsed %>%
         filter(!feature %in% clust_map$feature) %>%
+        remove_rownames() %>%
         column_to_rownames("feature")
     dist_to_nearest_clust <- proxy::dist(ts_remain, clust_centroids)
     clst.remain <- apply(dist_to_nearest_clust, 1, function(x) {

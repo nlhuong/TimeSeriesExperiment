@@ -24,7 +24,6 @@
 #'
 #' @importFrom DESeq2 varianceStabilizingTransformation
 #' @importFrom dplyr select summarize_all group_by
-#' @importFrom tibble column_to_rownames
 #' @importFrom stats prcomp
 #' @importFrom  methods slot<-
 #' @importFrom methods validObject

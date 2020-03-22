@@ -9,7 +9,6 @@
 #' to describe the features.
 #' @param sample_desc ne of the column names from \code{sample_data(object)}
 #' to describe the samples.
-#' @param ... other parameters ggplot.
 #'
 #' @return Returns a \code{ggplot2} objet.
 
@@ -114,7 +113,7 @@ plotHeatmap <- function(object, num.feat = 200, scale = TRUE,
 #' @importFrom ggplot2 geom_vline xlab ylab coord_fixed
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom dplyr left_join
-#' @importFrom tibble rownames_to_column column_to_rownames
+#' @importFrom tibble rownames_to_column column_to_rownames remove_rownames
 #' @export
 #' @examples
 #' data("endoderm_small")
@@ -141,12 +140,14 @@ plotSamplePCA <- function(object, axis = c(1, 2), col.var = NULL, ...) {
         pca.scores <- suppressMessages(
             pca.scores %>%
                 left_join(as.data.frame(colData(object)))%>%
+                remove_rownames() %>%
                 column_to_rownames("sample")
         )
     } else if (all(pca.scores$sample %in% colDataCollapsed(object)$sample)) {
         pca.scores <- suppressMessages(
             pca.scores %>%
                 left_join(as.data.frame(colDataCollapsed(object)))%>%
+                remove_rownames() %>%
                 column_to_rownames("sample")
         )
     } else {
@@ -239,6 +240,7 @@ plotTimeSeriesPCA <- function(object, axis = c(1, 2), m = 20, n = 20,
         as.data.frame() %>%
         rownames_to_column("feature") %>%
         left_join(as.data.frame(rowData(object)))%>%
+        remove_rownames() %>%
         column_to_rownames("feature")
     )
     colnames(pca.loadings)[c(1, 2)] <-
