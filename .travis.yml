@@ -33,6 +33,7 @@ env: _R_CHECK_CRAN_INCOMING_=FALSE
 os:
   - linux
   - osx
+disable_homebrew: true 
 deploy:
   provider: releases
   skip_cleanup: true
