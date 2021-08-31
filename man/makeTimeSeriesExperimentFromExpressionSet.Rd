@@ -4,8 +4,12 @@
 \alias{makeTimeSeriesExperimentFromExpressionSet}
 \title{TimeSeriesExperiment constructor from ExpressionSet}
 \usage{
-makeTimeSeriesExperimentFromExpressionSet(eset, timepoint = NULL,
-  group = NULL, replicate = NULL)
+makeTimeSeriesExperimentFromExpressionSet(
+  eset,
+  timepoint = NULL,
+  group = NULL,
+  replicate = NULL
+)
 }
 \arguments{
 \item{eset}{ExpressionSet object}

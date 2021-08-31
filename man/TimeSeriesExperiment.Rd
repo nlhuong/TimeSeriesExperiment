@@ -8,13 +8,17 @@
 \alias{TimeSeriesExperiment}
 \title{Time Series Experiment Class}
 \usage{
-TimeSeriesExperiment(..., timepoint = numeric(0), group = character(0),
-  replicate = character(0))
+TimeSeriesExperiment(
+  ...,
+  timepoint = numeric(0),
+  group = character(0),
+  replicate = character(0)
+)
 }
 \arguments{
-\item{...}{For \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment:: SummarizedExperiment}, 
-S4 methods \code{list} and \code{matrix}, arguments identical to those 
-of the \code{SimpleList} method.}
+\item{...}{For \link[SummarizedExperiment:RangedSummarizedExperiment-class]{
+SummarizedExperiment:: SummarizedExperiment}, S4 methods \code{list} and 
+\code{matrix}, arguments identical to those of the \code{SimpleList} method.}
 
 \item{timepoint}{a vector indicating timepoint at which each sample 
 was collected or a character string equal to one of the column names 

@@ -4,8 +4,11 @@
 \alias{makeTimeSeries}
 \title{Convert data to time-series}
 \usage{
-makeTimeSeries(object, feature.trans.method = "var_stab",
-  var.stabilize.method = "asinh")
+makeTimeSeries(
+  object,
+  feature.trans.method = "var_stab",
+  var.stabilize.method = "asinh"
+)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object}

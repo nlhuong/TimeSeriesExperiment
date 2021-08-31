@@ -8,8 +8,7 @@
 \usage{
 differentialExpression(object, ...)
 
-\S4method{differentialExpression}{TimeSeriesExperiment}(object,
-  name = NULL)
+\S4method{differentialExpression}{TimeSeriesExperiment}(object, name = NULL)
 }
 \arguments{
 \item{object}{a \code{TimeSeriesExperiment} object.}

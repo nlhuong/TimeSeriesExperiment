@@ -88,7 +88,8 @@ meltMatrix <- function(X) {
 #'
 #' @description Normalize data the assay data.
 #'
-#' @param object A \code{TimeSeriesExperiment} object or a data matrix/data frame.
+#' @param object A \code{TimeSeriesExperiment} object or a data matrix/data 
+#' frame.
 #' @param sample.norm.method Method for sample normalization.
 #' Currently supports only scaling to a common factor,
 #' "scale_common_factor" which with  \code{column.scale.factor} = 1e+06

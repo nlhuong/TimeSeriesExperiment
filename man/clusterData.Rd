@@ -4,9 +4,14 @@
 \alias{clusterData}
 \title{Cluster time series data.}
 \usage{
-clusterData(X, dist = "euclidean", dynamic = FALSE,
-  hclust_params = list(), static_cut_params = list(h = 0.5),
-  dynamic_cut_params = list(max_height = 0.9))
+clusterData(
+  X,
+  dist = "euclidean",
+  dynamic = FALSE,
+  hclust_params = list(),
+  static_cut_params = list(h = 0.5),
+  dynamic_cut_params = list(max_height = 0.9)
+)
 }
 \arguments{
 \item{X}{a data matrix or data.frame where rows are time series.}

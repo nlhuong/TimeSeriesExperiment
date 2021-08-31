@@ -71,7 +71,7 @@ First we load the necessary packages.
 
 ```{r message=FALSE, warning=FALSE}
 .packages <- c(
-  "edgeR", "viridis", "Biobase", "SummarizedExperiment", 
+  "edgeR", "viridis", "Biobase", "BiocFileCache", "SummarizedExperiment", 
   "ggplot2", "dplyr", "tidyr", "tibble", "readr", 
   "TimeSeriesExperiment")
 sapply(.packages, require, character.only = TRUE)
@@ -112,18 +112,21 @@ bfc <- BiocFileCache(ask = FALSE)
 
 cnts <- read_csv(bfcrpath(rnames = urls[1])) %>%
   remove_rownames() %>%
-  column_to_rownames("X1") %>%
   as.matrix()
+rownames(cnts) <- cnts[,1]
+cnts <- cnts[,-1]
 
 gene.data <- read_csv(bfcrpath(rnames = urls[2])) %>%
   as.data.frame() %>%
-  remove_rownames() %>%
-  column_to_rownames("X1")
+  remove_rownames() 
+rownames(gene.data) <- gene.data[,1]
+gene.data <- gene.data[,-1]
 
 pheno.data <- read_csv(bfcrpath(rnames = urls[3])) %>%
   as.data.frame() %>%
-  remove_rownames() %>%
-  column_to_rownames("X1")
+  remove_rownames() 
+rownames(pheno.data) <- pheno.data[,1]
+pheno.data <- pheno.data[,-1]
 ```
 
 

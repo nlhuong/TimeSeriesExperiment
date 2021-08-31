@@ -481,7 +481,7 @@ plotTimeSeries <- function(object, features = rownames(object),
         ts_data %>%
             filter(feature %in% features) %>%
             select(-starts_with("Lag_")) %>%
-            gather(key = "timepoint", value = "value", -(feature:replicate)) %>%
+            gather(key = "timepoint", value = "value", -(`feature`:`replicate`)) %>%
             left_join(feature_data %>% select(feature, symbol)) %>%
             mutate(
                 symbol = factor(symbol, levels = feature_data$symbol),

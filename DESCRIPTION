@@ -1,17 +1,18 @@
 Package: TimeSeriesExperiment
 Type: Package
 Title: Analysis for short time-series data
-Version: 1.5.0
-Date: 2018-10-29
-Author: Lan Huong Nguyen
-Maintainer: Lan Huong Nguyen <nlhuong90@gmail.com>
-Description: Visualization and analysis toolbox for short time course data
-  which includes dimensionality reduction, clustering, two-sample differential
-  expression testing and gene ranking techniques. The package also provides
-  methods for retrieving enriched pathways.
-License: LGPL (>= 3)
+Version: 1.6.0
+Date: 2021-08-31
+Authors@R: person("Lan Huong", "Nguyen", email="nlhuong90@gmail.com", 
+    role=c("cre", "aut"), comment = c(ORCID = "0000-0003-3397-0380"))
+Description: TimeSeriesExperiment is a visualization and analysis toolbox for 
+  short time course data. The package includes dimensionality reduction, 
+  clustering, two-sample differential expression testing and gene ranking 
+  techniques. Additionally, it also provides methods for retrieving enriched 
+  pathways.
+License: MIT + file LICENSE
 Depends:
-  R (>= 3.5.0),
+  R (>= 4.1),
   S4Vectors (>= 0.19.23),
   SummarizedExperiment (>= 1.11.6)
 VignetteBuilder: knitr
@@ -59,7 +60,7 @@ Collate:
     plots.R
     data.R
 Encoding: UTF-8
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 biocViews: TimeCourse, Sequencing, RNASeq, Microbiome, GeneExpression,
     ImmunoOncology, Transcription, Normalization, DifferentialExpression,
     PrincipalComponent, Clustering, Visualization, Pathways

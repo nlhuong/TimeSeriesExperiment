@@ -4,8 +4,15 @@
 \alias{plotTimeSeriesPCA}
 \title{Overlay (time) series over PCA grid}
 \usage{
-plotTimeSeriesPCA(object, axis = c(1, 2), m = 20, n = 20,
-  group.highlight = NULL, linecol = NULL, ...)
+plotTimeSeriesPCA(
+  object,
+  axis = c(1, 2),
+  m = 20,
+  n = 20,
+  group.highlight = NULL,
+  linecol = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object.}

@@ -4,8 +4,13 @@
 \alias{clusterTimeSeries}
 \title{Cluster time series features.}
 \usage{
-clusterTimeSeries(object, n.top.feat = 1000, groups.selected = "all",
-  lambda = c(0.5, 0.25), clust.params = list())
+clusterTimeSeries(
+  object,
+  n.top.feat = 1000,
+  groups.selected = "all",
+  lambda = c(0.5, 0.25),
+  clust.params = list()
+)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object}

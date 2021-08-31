@@ -4,8 +4,13 @@
 \alias{plotTimeSeriesClusters}
 \title{Plot (time) series over clusters.}
 \usage{
-plotTimeSeriesClusters(object, features = NULL, transparency = 0.5,
-  ncol = 4, scales = "free")
+plotTimeSeriesClusters(
+  object,
+  features = NULL,
+  transparency = 0.5,
+  ncol = 4,
+  scales = "free"
+)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object.}

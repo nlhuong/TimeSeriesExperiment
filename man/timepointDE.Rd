@@ -4,8 +4,7 @@
 \alias{timepointDE}
 \title{Differential timepoint expression testing.}
 \usage{
-timepointDE(object, timepoints = "all", min_gene_sum = 1,
-  alpha = 0.05)
+timepointDE(object, timepoints = "all", min_gene_sum = 1, alpha = 0.05)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object.}
@@ -18,8 +17,9 @@ Default is 1.}
 \item{alpha}{A scalar for level of significance. Default is 0.05.}
 }
 \value{
-a \code{TimeSeriesExperiment} object with timepoint differential expression
-testing results stored in 'timepoint_de' element in \code{diff.expr} slot.
+a \code{TimeSeriesExperiment} object with timepoint differential 
+expression testing results stored in 'timepoint_de' element in 
+\code{diff.expr} slot.
 }
 \description{
 This is a wrapper around \code{\link[limma]{lmFit}}

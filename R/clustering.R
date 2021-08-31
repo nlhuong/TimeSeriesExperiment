@@ -181,7 +181,8 @@ clusterData <- function(X, dist = "euclidean", dynamic = FALSE,
 #' head(clusterMap(endoderm_small))
 #'
 clusterTimeSeries <- function(object, n.top.feat = 1000, 
-                              groups.selected = "all", lambda = c(0.5, 0.25), 
+                              groups.selected = "all", 
+                              lambda = c(0.5, 0.25), 
                               clust.params = list())
 {
     if (!is(object, "TimeSeriesExperiment")) 

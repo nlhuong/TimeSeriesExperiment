@@ -4,8 +4,12 @@
 \alias{runPCA}
 \title{Run PCA scores.}
 \usage{
-runPCA(object, collapse.replicates = FALSE, groups.selected = NULL,
-  var.stabilize.method = "log1p")
+runPCA(
+  object,
+  collapse.replicates = FALSE,
+  groups.selected = NULL,
+  var.stabilize.method = "log1p"
+)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object}

@@ -4,10 +4,20 @@
 \alias{pathwayEnrichment}
 \title{Pathway enrichment testing.}
 \usage{
-pathwayEnrichment(object, features, species, feature_column = "feature",
-  universe = NULL, clustered = TRUE, kegg = FALSE,
-  ontology = c("BP", "CC", "MF"), fltr_DE = 0.1, fltr_N = 500,
-  fltr_P.DE = 0.05, ...)
+pathwayEnrichment(
+  object,
+  features,
+  species,
+  feature_column = "feature",
+  universe = NULL,
+  clustered = TRUE,
+  kegg = FALSE,
+  ontology = c("BP", "CC", "MF"),
+  fltr_DE = 0.1,
+  fltr_N = 500,
+  fltr_P.DE = 0.05,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object.}

@@ -4,8 +4,13 @@
 \alias{plotHeatmap}
 \title{Plot a heatmap}
 \usage{
-plotHeatmap(object, num.feat = 200, scale = TRUE,
-  feat_desc = "feature", sample_desc = "sample")
+plotHeatmap(
+  object,
+  num.feat = 200,
+  scale = TRUE,
+  feat_desc = "feature",
+  sample_desc = "sample"
+)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object}
@@ -19,8 +24,6 @@ to describe the features.}
 
 \item{sample_desc}{ne of the column names from \code{sample_data(object)}
 to describe the samples.}
-
-\item{...}{other parameters ggplot.}
 }
 \value{
 Returns a \code{ggplot2} objet.

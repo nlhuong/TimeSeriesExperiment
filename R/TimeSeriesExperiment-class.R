@@ -234,9 +234,9 @@ setValidity2("TimeSeriesExperiment", .valid.TimeSeriesExperiment)
 #' @param replicate a vector indicating a replicate id of each sample 
 #' or a character string equal to one of the column names of a supplied 
 #' colData. If not specified, the replicate is set to 'R1' for each sample.
-#' @param ... For \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment:: SummarizedExperiment}, 
-#' S4 methods \code{list} and \code{matrix}, arguments identical to those 
-#' of the \code{SimpleList} method.
+#' @param ... For \link[SummarizedExperiment:RangedSummarizedExperiment-class]{
+#' SummarizedExperiment:: SummarizedExperiment}, S4 methods \code{list} and 
+#' \code{matrix}, arguments identical to those of the \code{SimpleList} method.
 #' @return Returns an initialized TimeSeriesExperiment object.
 #' @importFrom SummarizedExperiment SummarizedExperiment colData
 #' @importFrom S4Vectors DataFrame
@@ -280,11 +280,13 @@ TimeSeriesExperiment <- function(
 #' @title TimeSeriesExperiment constructor from SummarizedExperiment
 #' @description \code{TimeSeriesExperiment} constructor initializes the 
 #'  object from 
-#' \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
-#' and populates the time, replicate, and group slots.
+#' \link[SummarizedExperiment:RangedSummarizedExperiment-class]{
+#' SummarizedExperiment::SummarizedExperiment} and populates the time, 
+#' replicate, and group slots.
 #' @details \code{TimeSeriesExperiment} is an extension of 
 #' \code{SummarizedExperiment} class.
-#' @param se  \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
+#' @param se  \link[SummarizedExperiment:RangedSummarizedExperiment-class]{
+#' SummarizedExperiment::SummarizedExperiment}
 #' object
 #' @param timepoint a vector indicating timepoint at which each sample 
 #' was collected or a character string equal to one of the column names 

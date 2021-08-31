@@ -4,11 +4,16 @@
 \alias{makeTimeSeriesExperimentFromSummarizedExperiment}
 \title{TimeSeriesExperiment constructor from SummarizedExperiment}
 \usage{
-makeTimeSeriesExperimentFromSummarizedExperiment(se, timepoint = NULL,
-  group = NULL, replicate = NULL)
+makeTimeSeriesExperimentFromSummarizedExperiment(
+  se,
+  timepoint = NULL,
+  group = NULL,
+  replicate = NULL
+)
 }
 \arguments{
-\item{se}{\link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
+\item{se}{\link[SummarizedExperiment:RangedSummarizedExperiment-class]{
+SummarizedExperiment::SummarizedExperiment}
 object}
 
 \item{timepoint}{a vector indicating timepoint at which each sample 
@@ -31,8 +36,9 @@ Returns an initialized \code{TimeSeriesExperiment} object.
 \description{
 \code{TimeSeriesExperiment} constructor initializes the 
  object from 
-\link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}
-and populates the time, replicate, and group slots.
+\link[SummarizedExperiment:RangedSummarizedExperiment-class]{
+SummarizedExperiment::SummarizedExperiment} and populates the time, 
+replicate, and group slots.
 }
 \details{
 \code{TimeSeriesExperiment} is an extension of 

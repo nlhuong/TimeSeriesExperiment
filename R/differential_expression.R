@@ -10,8 +10,9 @@
 #' Default is 1.
 #' @param alpha A scalar for level of significance. Default is 0.05.
 #'
-#' @return a \code{TimeSeriesExperiment} object with timepoint differential expression
-#' testing results stored in 'timepoint_de' element in \code{diff.expr} slot.
+#' @return a \code{TimeSeriesExperiment} object with timepoint differential 
+#' expression testing results stored in 'timepoint_de' element in 
+#' \code{diff.expr} slot.
 #'
 #' @importFrom dplyr filter rename
 #' @importFrom edgeR DGEList calcNormFactors
@@ -146,9 +147,9 @@ trajectoryDE <- function(object, dist_method = "euclidean",
         if((i %% 500) == 0 && verbose) message("Feature: ", i)
         itc <- ts_with_lags %>% filter(feature == feat)
         iadonis <- suppressMessages(
-            adonis(
-              formula = itc %>% select(-(feature:replicate)) ~ group,
-              data = itc %>% select(feature:replicate),
+            vegan::adonis(
+              formula = itc %>% dplyr::select(-(`feature`:`replicate`)) ~ group,
+              data = itc %>% select(`feature`:`replicate`),
               method = dist_method, ...)
         )
         ires <- iadonis$aov.tab[1, ]

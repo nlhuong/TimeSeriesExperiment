@@ -4,11 +4,15 @@
 \alias{normalizeData}
 \title{Normalize Data}
 \usage{
-normalizeData(object, sample.norm.method = "scale_common_factor",
-  column.scale.factor = 1e+06)
+normalizeData(
+  object,
+  sample.norm.method = "scale_common_factor",
+  column.scale.factor = 1e+06
+)
 }
 \arguments{
-\item{object}{A \code{TimeSeriesExperiment} object or a data matrix/data frame.}
+\item{object}{A \code{TimeSeriesExperiment} object or a data matrix/data 
+frame.}
 
 \item{sample.norm.method}{Method for sample normalization.
 Currently supports only scaling to a common factor,

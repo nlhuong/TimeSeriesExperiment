@@ -4,8 +4,14 @@
 \alias{trajectoryDE}
 \title{Differential trajectory testing.}
 \usage{
-trajectoryDE(object, dist_method = "euclidean", p_adj_method = "BH",
-  lambda = c(0.5, 0.25), verbose = TRUE, ...)
+trajectoryDE(
+  object,
+  dist_method = "euclidean",
+  p_adj_method = "BH",
+  lambda = c(0.5, 0.25),
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{TimeSeriesExperiment} object.}
